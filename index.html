@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>班級管理系統 | Classroom Management</title>
   
+  <!-- 載入 Google Firebase 核心套件與 Realtime Database 模組 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -104,7 +105,6 @@
     
     .floating-timer { position: fixed; bottom: 30px; right: 30px; background: rgba(44, 62, 80, 0.95); color: #fff; padding: 15px 25px; border-radius: 30px; font-size: 28px; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 9999; display: none; align-items: center; gap: 15px; }
     .fs-timer-display { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.95); z-index: 2000; display:none; flex-direction:column; justify-content:center; align-items:center; color:white; transition: background 0.3s; }
-    
     .fs-timer-text { font-size: clamp(80px, 15vw, 250px); font-weight: bold; font-variant-numeric: tabular-nums; text-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
     .explosion-msg { font-size: clamp(40px, 8vw, 120px); font-weight: bold; animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-shadow: 0 10px 20px rgba(0,0,0,0.5); padding: 0 20px; line-height: 1.2; text-align: center; }
     .explode-anim { animation: explodeBg 1.5s forwards; }
@@ -146,6 +146,7 @@
 
 <div class="container" id="main-content"></div>
 
+<!-- 遊戲與大字卡 Modal -->
 <div id="game-modal" class="modal-overlay">
   <div class="modal-box">
     <button class="close-btn" onclick="closeGameModal()">✖</button>
@@ -153,6 +154,7 @@
   </div>
 </div>
 
+<!-- 統一表單 Modal -->
 <div id="form-modal" class="modal-overlay" style="z-index: 3500;">
   <div class="form-box">
     <h2 id="form-modal-title">標題</h2>
@@ -164,6 +166,7 @@
   </div>
 </div>
 
+<!-- 計時器設定 Modal -->
 <div id="timer-setup-modal" class="modal-overlay" style="z-index: 3600;">
   <div class="timer-setup-box">
     <h2 id="t-setup-title">設定倒數計時器</h2>
@@ -179,6 +182,7 @@
   </div>
 </div>
 
+<!-- 計時器顯示 -->
 <div id="fullscreen-timer" class="fs-timer-display">
   <div id="fs-timer-val" class="fs-timer-text">00:00</div>
   <button id="fs-timer-close" class="btn btn-danger" style="position:absolute; bottom:15%; font-size:24px; padding:15px 50px; border-radius:30px; box-shadow:0 10px 20px rgba(0,0,0,0.5); z-index:2010;" onclick="stopTimer()">停止 / Stop</button>
@@ -189,7 +193,7 @@
 </div>
 
 <script>
-  // --- Firebase 雲端初始化配置 ---
+  // --- Firebase 雲端配置 ---
   const firebaseConfig = {
     databaseURL: "https://class-management-89906-default-rtdb.asia-southeast1.firebasedatabase.app/"
   };
@@ -251,7 +255,7 @@
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
 
-  // --- 雲端監聽器 (核心引擎：Firebase Realtime Database 監聽) ---
+  // --- 雲端即時監聽核心引擎 ---
   db.ref("teachingData").on("value", (snapshot) => {
     const cloudData = snapshot.val() || {};
     generalMemos = cloudData.generalMemos || [];
@@ -259,19 +263,18 @@
     quickLinks = cloudData.quickLinks || [];
     classData = cloudData.classData || [];
 
-    // 自動防護架構
+    // 自動防護修復架構
     classData.forEach(c => {
       if(!c.memos) c.memos = []; if(!c.dates) c.dates = []; if(!c.students) c.students = []; if(!c.units) c.units = [];
       c.units.forEach(u => { if(!u.words) u.words = []; });
     });
 
-    // 重新渲染當前畫面，達到多裝置即時同步
     renderNav();
     if (currentView === 'dashboard') showDashboard();
     else if (currentView === 'class') showClass(currentClassId, currentTab);
   });
 
-  // 雲端寫入中央中控
+  // 雲端同步中控函數
   function saveToCloud() {
     db.ref("teachingData").set({
       generalMemos: generalMemos,
@@ -281,7 +284,7 @@
     });
   }
 
-  // --- 導覽列與共用 Modal ---
+  // --- 導覽列與視窗控制 ---
   function renderNav() {
     document.getElementById('site-title').innerText = t('title');
     const nav = document.getElementById('nav-bar');
@@ -303,11 +306,11 @@
     clearTimeout(spotlightTimer); isSpinning = false; 
     document.getElementById('game-modal').style.display = 'none'; 
     document.body.style.overflow = 'auto'; 
-    window.removeEventListener('wheel', handleCardScroll); 
-    window.removeEventListener('keydown', fcKeyHandler);
+    window.removeEventListener('wheel', handleCardScroll); window.removeEventListener('keydown', fcKeyHandler);
   }
+  function openTimerModal() { document.getElementById('timer-setup-modal').style.display = 'flex'; }
 
-  // --- 表單處理功能 ---
+  // --- 所有新增與修改 Form Modals ---
   function openAddClassModal() {
     openFormModal(t('addCls'), `<input type="text" id="modal-new-class" placeholder="Class Name...">`, () => {
       const n = document.getElementById('modal-new-class').value.trim();
@@ -352,12 +355,19 @@
     });
   }
 
+  // --- 關鍵修復：出缺勤日期新增與雲端同步同步改寫 ---
   function openAddDateModal(cId) {
     openFormModal(t('addDate'), `<input type="date" id="modal-new-date">`, () => {
       const d = document.getElementById('modal-new-date').value;
       if(d) { 
-        const fD = `${d.split('-')[1]}/${d.split('-')[2]}`; const cls = classData.find(c=>c.id===cId); 
-        if(!cls.dates.includes(fD)){ cls.dates.push(fD); cls.dates.sort(); cls.students.forEach(s=>s.records[fD]='pending'); saveToCloud(); } 
+        const fD = `${d.split('-')[1]}/${d.split('-')[2]}`; 
+        const cls = classData.find(c=>c.id===cId); 
+        if(cls && !cls.dates.includes(fD)){ 
+           cls.dates.push(fD); 
+           cls.dates.sort(); 
+           cls.students.forEach(s => { if(!s.records) s.records = {}; s.records[fD] = 'pending'; }); 
+           saveToCloud(); 
+        } 
       }
       closeFormModal();
     });
@@ -394,26 +404,9 @@
     });
   }
 
-  // --- 7. 儀表板頁面 ---
-  function getCalendarHTML() {
-    const mNames = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
-    const fd = new Date(calYear, calMonth, 1).getDay(); const dim = new Date(calYear, calMonth + 1, 0).getDate(); const pd = new Date(calYear, calMonth, 0).getDate();
-    let aDates = new Set(); generalMemos.forEach(m => { if(m.date) aDates.add(m.date); }); classData.forEach(c => c.memos.forEach(m => { if(m.date) aDates.add(m.date); }));
-    let dHTML = ''; const dL = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="cal-day-label">${d}</div>`).join('');
-    for (let i = fd - 1; i >= 0; i--) dHTML += `<div class="cal-day other-month">${pd - i}</div>`;
-    for (let i = 1; i <= dim; i++) {
-      let fD = `${calYear}-${(calMonth + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
-      let act = fD === filterDate ? 'active' : ''; let hd = aDates.has(fD) ? `<div class="cal-dot"></div>` : '';
-      dHTML += `<div class="cal-day ${act}" onclick="toggleCalFilter('${fD}')">${i}${hd}</div>`;
-    }
-    return `<div class="cal-header"><button onclick="changeCalMonth(-1)">❮</button><div>${calYear} / ${mNames[calMonth]}</div><button onclick="changeCalMonth(1)">❯</button></div><div class="cal-grid">${dL}${dHTML}</div>`;
-  }
-  function changeCalMonth(dir) { calMonth += dir; if(calMonth > 11) { calMonth = 0; calYear++; } else if(calMonth < 0) { calMonth = 11; calYear--; } showDashboard(); }
-  function toggleCalFilter(d) { filterDate = filterDate === d ? null : d; showDashboard(); }
-
+  // --- 8. 教師總覽首頁 ---
   function showDashboard() {
     currentView = 'dashboard'; currentClassId = null; renderNav();
-    let opts = `<option value="general">🌍 General</option>`; classData.forEach(c => { opts += `<option value="${c.id}">📘 ${c.name}</option>`; });
     let aM = [];
     generalMemos.forEach(m => aM.push({...m, txt: "🌍", tC: "tag-general", cId: 'general'}));
     classData.forEach(c => c.memos.forEach(m => aM.push({...m, txt: c.name, tC: "tag-dynamic", cId: c.id})));
@@ -441,13 +434,11 @@
       </div>
     `;
   }
+  function deleteMemo(id, ctx) { if(ctx==='general') generalMemos = generalMemos.filter(m=>m.id!==id); else classData.find(c=>c.id===parseInt(ctx)).memos = classData.find(c=>c.id===parseInt(ctx)).memos.filter(m=>m.id!==id); saveToCloud(); }
+  function deleteQ(idx) { customQuestions.splice(idx, 1); saveToCloud(); }
+  function deleteLink(id) { quickLinks = quickLinks.filter(l => l.id !== id); saveToCloud(); }
 
-  function renameClass(id) { let cls = classData.find(c => c.id === id); let n = prompt(t('renamePrompt'), cls.name); if(n && n.trim() !== "") { cls.name = n.trim(); saveToCloud(); } }
-  function deleteClass(id) { if(confirm(t('deleteConfirm'))) { classData = classData.filter(c => c.id !== id); saveToCloud(); showDashboard(); } }
-  function deleteStudent(cId, sId) { if(confirm("Del?")){ classData.find(c=>c.id===cId).students = classData.find(c=>c.id===cId).students.filter(s=>s.id!==sId); saveToCloud(); } }
-  function updateAttendance(cId, sId, d, stat) { classData.find(c=>c.id===cId).students.find(s=>s.id===sId).records[d] = stat; saveToCloud(); }
-
-  // --- 8. 班級分頁 ---
+  // --- 9. 班級分頁路由控制 ---
   function showClass(id, tab = 'home') {
     if (currentClassId !== id) currentUnitId = 'all'; 
     currentView = 'class'; currentClassId = id; currentTab = tab; renderNav();
@@ -463,7 +454,7 @@
       let dHeaders = cls.dates.map(date => `<th>${date} <button class="delete-date-btn" onclick="if(confirm('Del?')){ classData.find(c=>c.id===${id}).dates=classData.find(c=>c.id===${id}).dates.filter(d=>d!=='${date}'); saveToCloud(); }">✖</button></th>`).join('');
       let sRows = cls.students.map(s => {
         let recs = cls.dates.map(date => {
-          let stat = s.records[date] || 'pending'; let selCls = stat==='present'?'att-present':(stat==='absent'?'att-absent':'att-pending');
+          let stat = s.records ? s.records[date] || 'pending' : 'pending'; let selCls = stat==='present'?'att-present':(stat==='absent'?'att-absent':'att-pending');
           return `<td><select class="attendance-select ${selCls}" onchange="updateAttendance(${id}, ${s.id}, '${date}', this.value)"><option value="pending" ${stat==='pending'?'selected':''}>➖</option><option value="present" ${stat==='present'?'selected':''}>✅</option><option value="absent" ${stat==='absent'?'selected':''}>❌</option></select></td>`;
         }).join('');
         return `<tr><td><strong>${s.name}</strong></td>${recs}<td><button class="btn btn-danger" onclick="deleteStudent(${id}, ${s.id})">✖</button></td></tr>`;
@@ -471,8 +462,8 @@
       
       tabContent = `
         <div style="display:flex; gap:15px; margin-bottom:15px;">
-          <button class="btn-icon" onclick="openAddStudentModal(${id})">${t('addStu')}</button>
-          <button class="btn-icon" onclick="openAddDateModal(${id})">${t('addDate')}</button>
+          <button class="btn-icon" onclick="openAddStudentModal(${id})" style="font-weight:bold;">${t('addStu')}</button>
+          <button class="btn-icon" onclick="openAddDateModal(${id})" style="font-weight:bold;">${t('addDate')}</button>
         </div>
         <div style="overflow-x: auto;"><table class="student-table"><tr><th>Name</th>${dHeaders}<th>Del</th></tr>${sRows||`<tr><td colspan="100%">${t('noStudent')}</td></tr>`}</table></div>
         ${cls.dates.length > 0 && cls.students.length > 0 ? `
@@ -515,8 +506,7 @@
       </div>`;
   }
 
-  // --- 9. 課堂互動遊戲 ---
-  let spotlightTimer = null;
+  // --- 10. 點名與抽籤互動模組 ---
   function openGameModal(type, classId) {
     const date = document.getElementById('game-date').value; const modal = document.getElementById('game-modal'); const content = document.getElementById('modal-content-area');
     const cls = classData.find(c => c.id === classId); isQuestionActive = false; isSpinning = false; clearTimeout(spotlightTimer);
@@ -524,8 +514,8 @@
     window.removeEventListener('wheel', handleCardScroll); window.removeEventListener('keydown', fcKeyHandler);
     
     if (type === 'bubble') {
-      let tg = cls.students.filter(s => s.records[date] !== 'present' && s.records[date] !== 'absent');
-      let isRev = false; if(tg.length === 0) { tg = cls.students.filter(s => s.records[date] !== 'absent'); isRev = true; }
+      let tg = cls.students.filter(s => s.records && s.records[date] !== 'present' && s.records[date] !== 'absent');
+      let isRev = false; if(tg.length === 0) { tg = cls.students.filter(s => s.records && s.records[date] !== 'absent'); isRev = true; }
       content.innerHTML = `<h3 style="position:absolute; top:20px; color:#fff;">Date: ${date}</h3><div id="small-talk-display" class="small-talk-container"></div><div class="bubble-area" id="bubble-container"></div>`;
       const con = document.getElementById('bubble-container');
       tg.forEach(s => {
@@ -541,19 +531,12 @@
         }; con.appendChild(b);
       });
     } else if (type === 'spotlight') {
-      const p = cls.students.filter(s => s.records[date] === 'present');
+      const p = cls.students.filter(s => s.records && s.records[date] === 'present');
       content.innerHTML = `<h3 style="position:absolute; top:20px; color:#fff;">Date: ${date}</h3><div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%;"><div class="student-grid" id="spotlight-grid">${p.map(s => `<div class="student-box">${s.name}</div>`).join('')}</div></div><div style="margin-bottom: 50px;"><button class="btn btn-warning" id="spotlight-btn" onclick="runSp()" style="font-size:28px; padding:20px 60px; border-radius:40px; border:4px solid #fff;">${t('btnDraw')}</button></div>`;
     }
   }
-  function ansQ(cId, sId, d, stat, isRev) { document.getElementById('small-talk-display').style.display = 'none'; isQuestionActive = false; if(!isRev) { classData.find(c=>c.id===cId).students.find(s=>s.id===sId).records[d] = stat; saveToCloud(); } if(document.querySelectorAll('.bubble').length === 0) { document.getElementById('modal-content-area').innerHTML = `<h2 style="font-size:48px; color:#fff;">🎉 Finished!</h2>`; setTimeout(closeGameModal, 1500); } }
-  function runSp() {
-    if(isSpinning) return; const bx = document.querySelectorAll('#spotlight-grid .student-box'); if(bx.length === 0) return;
-    isSpinning = true; document.getElementById('spotlight-btn').innerText = "..."; let c = 0, sp = 50;
-    function jl() { bx.forEach(b=>b.classList.remove('highlight')); bx[Math.floor(Math.random()*bx.length)].classList.add('highlight'); c++; if(c < 25) spotlightTimer = setTimeout(jl, sp); else if(c < 45) { sp += 20; spotlightTimer = setTimeout(jl, sp); } else { isSpinning = false; document.getElementById('spotlight-btn').innerText = t('btnDraw'); } }
-    jl();
-  }
 
-  // --- 10. 計時器邏輯 ---
+  // --- 11. 計時器模組 ---
   let cTimer = null;
   function startTimer(mode) {
     let s = (parseInt(document.getElementById('t-min').value)||0)*60 + (parseInt(document.getElementById('t-sec').value)||0); if(s<=0) return;
@@ -571,18 +554,14 @@
   }
   function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
 
-  // --- 11. 單字卡大螢幕展演引擎 ---
-  function deleteUnit(uId) { if(confirm("Del?")){ classData.find(c=>c.id===currentClassId).units = classData.find(c=>c.id===currentClassId).units.filter(u=>u.id!==uId); currentUnitId='all'; saveToCloud(); } }
-  function deleteWord(uId, wId) { if(confirm("Del?")){ classData.find(c=>c.id===currentClassId).units.find(u=>u.id===uId).words = classData.find(c=>c.id===currentClassId).units.find(u=>u.id===uId).words.filter(w=>w.id!==wId); saveToCloud(); } }
-
+  // --- 12. 單字卡展演系統 ---
   function getDisplayWords() {
     let w = []; const cls = classData.find(c=>c.id===currentClassId); if (!cls) return w;
-    if(currentUnitId === 'all') cls.units.forEach(u => { w = w.concat(u.words.map(wd=>({...wd, unitId:u.id}))); }); 
-    else { const tU = cls.units.find(u => u.id === currentUnitId); if(tU) w = tU.words.map(wd=>({...wd, unitId:tU.id})); }
+    if(currentUnitId === 'all') cls.units.forEach(u => { if(u.words) w = w.concat(u.words.map(wd=>({...wd, unitId:u.id}))); }); 
+    else { const tU = cls.units.find(u => u.id === currentUnitId); if(tU && tU.words) w = tU.words.map(wd=>({...wd, unitId:tU.id})); }
     return w;
   }
   function startShuffle() { let words = getDisplayWords(); if(words.length === 0) return; shuffleQueue = [...Array(words.length).keys()].sort(() => Math.random() - 0.5); isShuffleMode = true; shuffleIndex = 0; openFlashcardModal(shuffleQueue[0], true); }
-  
   function openFlashcardModal(index, isShuffle = false) {
     let words = getDisplayWords(); if(words.length === 0) return; currentDisplayWords = words; isShuffleMode = isShuffle; currentCardIndex = index; currentCardFace = 0;
     const modal = document.getElementById('game-modal'); modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; 
