@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>班級管理系統 | Classroom Management</title>
   
+  <!-- 載入 Google Firebase 核心套件 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -145,6 +146,7 @@
 
 <div class="container" id="main-content"></div>
 
+<!-- 遊戲與大字卡 Modal -->
 <div id="game-modal" class="modal-overlay">
   <div class="modal-box">
     <button class="close-btn" onclick="closeGameModal()">✖</button>
@@ -152,6 +154,7 @@
   </div>
 </div>
 
+<!-- 統一表單 Modal -->
 <div id="form-modal" class="modal-overlay" style="z-index: 3500;">
   <div class="form-box">
     <h2 id="form-modal-title">標題</h2>
@@ -163,6 +166,7 @@
   </div>
 </div>
 
+<!-- 計時器設定 Modal -->
 <div id="timer-setup-modal" class="modal-overlay" style="z-index: 3600;">
   <div class="timer-setup-box">
     <h2 id="t-setup-title">設定倒數計時器</h2>
@@ -178,6 +182,7 @@
   </div>
 </div>
 
+<!-- 計時器顯示 -->
 <div id="fullscreen-timer" class="fs-timer-display">
   <div id="fs-timer-val" class="fs-timer-text">00:00</div>
   <button id="fs-timer-close" class="btn btn-danger" style="position:absolute; bottom:15%; font-size:24px; padding:15px 50px; border-radius:30px; box-shadow:0 10px 20px rgba(0,0,0,0.5); z-index:2010;" onclick="stopTimer()">停止 / Stop</button>
@@ -241,7 +246,7 @@
     document.getElementById('btn-timer-cc').innerText = t('cancel');
   }
 
-  // --- 3. 雙引擎本機資料變數 (保證絕不白畫面) ---
+  // --- 3. 雙引擎本機資料 ---
   let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV22')) || [];
   let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV22')) || ["What did you have for breakfast today? 🍳"];
   let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV22')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
@@ -252,28 +257,46 @@
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
 
-  // 資料結構修復函數
-  function repairData() {
-    classData.forEach(c => {
-      if(!c.memos) c.memos = []; if(!c.dates) c.dates = []; if(!c.students) c.students = []; if(!c.units) c.units = [];
-      c.units.forEach(u => { if(!u.words) u.words = []; });
-      c.students.forEach(s => { if(!s.records) s.records = {}; });
-    });
+  // --- 4. 最強型態裝甲：強制轉換為真實陣列，根除 Firebase 物件化引發的崩潰 ---
+  function toArr(obj) {
+    if (!obj) return [];
+    if (Array.isArray(obj)) return obj;
+    if (typeof obj === 'object') return Object.values(obj);
+    return [];
   }
-  repairData(); // 啟動即修復
 
-  // --- 4. 雲端同步中控引擎 ---
+  function repairData() {
+    classData = toArr(classData);
+    classData.forEach(c => {
+      c.memos = toArr(c.memos);
+      c.dates = toArr(c.dates);
+      c.students = toArr(c.students);
+      c.units = toArr(c.units);
+      c.units.forEach(u => {
+        u.words = toArr(u.words);
+      });
+      c.students.forEach(s => {
+        if(!s.records) s.records = {};
+      });
+    });
+    generalMemos = toArr(generalMemos);
+    customQuestions = toArr(customQuestions);
+    if(customQuestions.length === 0) customQuestions = ["What did you have for breakfast today? 🍳"];
+    quickLinks = toArr(quickLinks);
+  }
+  repairData(); // 啟動即防護
+
+  // --- 5. 雲端同步監聽器 ---
   db.ref("teachingData").on("value", (snapshot) => {
     if(snapshot.exists()) {
         const cloudData = snapshot.val();
-        generalMemos = cloudData.generalMemos || [];
-        customQuestions = cloudData.customQuestions || ["What did you have for breakfast today? 🍳"];
-        quickLinks = cloudData.quickLinks || [];
-        classData = cloudData.classData || [];
+        generalMemos = cloudData.generalMemos;
+        customQuestions = cloudData.customQuestions;
+        quickLinks = cloudData.quickLinks;
+        classData = cloudData.classData;
         
-        repairData();
+        repairData(); // 收到雲端資料後立刻解毒
 
-        // 雲端資料備份到本地，下次開啟秒開
         localStorage.setItem('myGeneralMemosV22', JSON.stringify(generalMemos));
         localStorage.setItem('myCustomQsV22', JSON.stringify(customQuestions));
         localStorage.setItem('myQuickLinksV22', JSON.stringify(quickLinks));
@@ -285,7 +308,7 @@
     }
   });
 
-  // 強型態寫入：過濾 undefined 以防 Firebase 崩潰
+  // 安全雲端寫入
   function saveToCloud() {
     try {
       repairData();
@@ -295,26 +318,23 @@
         quickLinks: quickLinks,
         classData: classData
       }));
-      
       db.ref("teachingData").set(cleanData);
       
-      // 同步存回本地防護
       localStorage.setItem('myGeneralMemosV22', JSON.stringify(generalMemos));
       localStorage.setItem('myCustomQsV22', JSON.stringify(customQuestions));
       localStorage.setItem('myQuickLinksV22', JSON.stringify(quickLinks));
       localStorage.setItem('myDynamicClassesV22', JSON.stringify(classData));
     } catch (e) {
-      alert("⚠️ 儲存失敗！可能是您上傳的圖片容量過大。");
-      console.error(e);
+      alert("⚠️ 儲存失敗！圖片容量可能超出上限。");
     }
   }
 
-  // --- 5. 視窗控制功能 ---
+  // --- 6. 導覽與 Modal 控制 ---
   function renderNav() {
     document.getElementById('site-title').innerText = t('title');
     const nav = document.getElementById('nav-bar');
     nav.innerHTML = `<button class="nav-btn ${currentView === 'dashboard' ? 'active' : ''}" onclick="showDashboard()">${t('dash')}</button>`;
-    classData.forEach(c => { nav.innerHTML += `<button class="nav-btn ${currentView === 'class' && currentClassId === c.id ? 'active' : ''}" onclick="showClass(${c.id}, 'home')">📘 ${c.name}</button>`; });
+    classData.forEach(c => { nav.innerHTML += `<button class="nav-btn ${currentView === 'class' && String(currentClassId) === String(c.id) ? 'active' : ''}" onclick="showClass('${c.id}', 'home')">📘 ${c.name}</button>`; });
     nav.innerHTML += `<button class="btn-icon" onclick="openAddClassModal()" title="${t('addCls')}">➕</button><button class="timer-btn" onclick="openTimerModal()">⏱️</button><button class="lang-toggle" onclick="toggleLanguage()">EN/中</button>`;
   }
   
@@ -335,11 +355,11 @@
   }
   function openTimerModal() { document.getElementById('timer-setup-modal').style.display = 'flex'; }
 
-  // --- 6. 新增表單 Modal 集 ---
+  // --- 7. 表單新增邏輯 (全面加上 String 安全比對) ---
   function openAddClassModal() {
     openFormModal(t('addCls'), `<input type="text" id="modal-new-class" placeholder="Class Name...">`, () => {
       const n = document.getElementById('modal-new-class').value.trim();
-      if(n) { classData.push({ id: Date.now(), name: n, memos: [], dates: [], students: [], units: [] }); saveToCloud(); showClass(classData[classData.length-1].id, 'home'); }
+      if(n) { const newId = Date.now(); classData.push({ id: newId, name: n, memos: [], dates: [], students: [], units: [] }); saveToCloud(); showClass(String(newId), 'home'); }
       closeFormModal();
     });
   }
@@ -349,38 +369,23 @@
       const txt = document.getElementById('modal-memo-txt').value.trim(); const d = document.getElementById('modal-memo-date').value;
       if(txt) {
         const obj = {id:Date.now(), text:txt, date:d||null};
-        if(classId === 'general') generalMemos.push(obj); else classData.find(c=>c.id===classId).memos.push(obj);
-        saveToCloud(); currentView === 'dashboard' ? showDashboard() : showClass(classId, 'home');
+        if(classId === 'general') generalMemos.push(obj); 
+        else { const c = classData.find(x=>String(x.id)===String(classId)); if(c) c.memos.push(obj); }
+        saveToCloud();
       }
       closeFormModal();
     });
   }
 
-  function openAddQModal() {
-    openFormModal(t('qAdd'), `<input type="text" id="modal-q-val" placeholder="Question...">`, () => {
-      const q = document.getElementById('modal-q-val').value.trim();
-      if(q) { customQuestions.push(q); saveToCloud(); showDashboard(); }
-      closeFormModal();
-    });
-  }
-
-  function openAddLinkModal() {
-    openFormModal(t('addLink'), `<input type="text" id="modal-l-name" placeholder="${t('linkName')}"><input type="text" id="modal-l-url" placeholder="${t('linkUrl')}">`, () => {
-      const n = document.getElementById('modal-l-name').value.trim(); let u = document.getElementById('modal-l-url').value.trim();
-      if(n && u) { if(!u.startsWith('http')) u = 'https://' + u; quickLinks.push({id: Date.now(), name: n, url: u}); saveToCloud(); showDashboard(); }
-      closeFormModal();
-    });
-  }
-
+  function openAddQModal() { openFormModal(t('qAdd'), `<input type="text" id="modal-q-val" placeholder="Question...">`, () => { const q = document.getElementById('modal-q-val').value.trim(); if(q) { customQuestions.push(q); saveToCloud(); } closeFormModal(); }); }
+  function openAddLinkModal() { openFormModal(t('addLink'), `<input type="text" id="modal-l-name" placeholder="${t('linkName')}"><input type="text" id="modal-l-url" placeholder="${t('linkUrl')}">`, () => { const n = document.getElementById('modal-l-name').value.trim(); let u = document.getElementById('modal-l-url').value.trim(); if(n && u) { if(!u.startsWith('http')) u = 'https://' + u; quickLinks.push({id: Date.now(), name: n, url: u}); saveToCloud(); } closeFormModal(); }); }
+  
   function openAddStudentModal(cId) {
     openFormModal(t('addStu'), `<input type="text" id="modal-stu-name" placeholder="Student Name...">`, () => {
       const n = document.getElementById('modal-stu-name').value.trim();
       if(n) { 
-          const cls = classData.find(c=>c.id===cId); let r={}; 
-          cls.dates.forEach(d=>r[d]='pending'); 
-          cls.students.push({id:Date.now(), name:n, records:r}); 
-          saveToCloud(); 
-          showClass(cId, 'students'); 
+          const cls = classData.find(c=>String(c.id)===String(cId)); let r={}; 
+          if(cls) { cls.dates.forEach(d=>r[d]='pending'); cls.students.push({id:Date.now(), name:n, records:r}); saveToCloud(); }
       }
       closeFormModal();
     });
@@ -391,16 +396,11 @@
       const d = document.getElementById('modal-new-date').value;
       if(d) { 
         const fD = `${d.split('-')[1]}/${d.split('-')[2]}`; 
-        const cls = classData.find(c=>c.id===cId); 
+        const cls = classData.find(c=>String(c.id)===String(cId)); 
         if(cls && !cls.dates.includes(fD)){ 
-           cls.dates.push(fD); 
-           cls.dates.sort(); 
-           cls.students.forEach(s => { 
-             if(!s.records) s.records = {}; 
-             s.records[fD] = 'pending'; 
-           }); 
+           cls.dates.push(fD); cls.dates.sort(); 
+           cls.students.forEach(s => { if(!s.records) s.records = {}; s.records[fD] = 'pending'; }); 
            saveToCloud(); 
-           showClass(cId, 'students'); // 強制本地即刻更新
         } 
       }
       closeFormModal();
@@ -410,7 +410,7 @@
   function openAddUnitModal(cId) {
     openFormModal(t('unitAdd'), `<input type="text" id="modal-unit-name" placeholder="Unit Name...">`, () => {
       const n = document.getElementById('modal-unit-name').value.trim();
-      if(n) { const newUId='u'+Date.now(); classData.find(c=>c.id===cId).units.push({id:newUId, name:n, words:[]}); currentUnitId=newUId; saveToCloud(); showClass(cId, 'cards'); }
+      if(n) { const cls = classData.find(c=>String(c.id)===String(cId)); if(cls) { cls.units.push({id:'u'+Date.now(), name:n, words:[]}); currentUnitId='u'+Date.now(); saveToCloud(); } }
       closeFormModal();
     });
   }
@@ -429,16 +429,14 @@
     `, () => {
       const w = document.getElementById('mw-w').value.trim(); const m = document.getElementById('mw-m').value.trim() || '...'; const s = document.getElementById('mw-s').value.trim() || '...';
       if(w) { 
-        const targetUnit = classData.find(c=>c.id===cId).units.find(u=>u.id===uId);
-        if(targetUnit) {
-           targetUnit.words.push({ id:'w'+Date.now(), word:w, meaning:m, sentence:s, imgData:tempBase64Image }); 
-           saveToCloud(); showClass(cId, 'cards'); closeFormModal();
-        }
-      } else { alert("Please enter a word!"); }
+        const c = classData.find(x=>String(x.id)===String(cId));
+        if(c) { const u = c.units.find(x=>String(x.id)===String(uId)); if(u) { u.words.push({ id:'w'+Date.now(), word:w, meaning:m, sentence:s, imgData:tempBase64Image }); saveToCloud(); } }
+      }
+      closeFormModal();
     });
   }
 
-  // --- 7. 總覽與行事曆 ---
+  // --- 8. 總覽與刪除邏輯 ---
   function getCalendarHTML() {
     const mNames = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
     const fd = new Date(calYear, calMonth, 1).getDay(); const dim = new Date(calYear, calMonth + 1, 0).getDate(); const pd = new Date(calYear, calMonth, 0).getDate();
@@ -463,9 +461,9 @@
     if(filterDate) aM = aM.filter(m => m.date === filterDate);
     aM.sort((a, b) => { if(a.date && !b.date) return -1; if(!a.date && b.date) return 1; if(a.date && b.date) return a.date.localeCompare(b.date); return 0; });
 
-    let mHTML = aM.map(m => `<li class="memo-item"><div class="memo-content"><span class="class-tag ${m.tC}">${m.txt}</span>${m.date ? `<span style="font-size:12px; color:#e74c3c; margin-right:8px; font-weight:bold;">[${m.date.substring(5)}]</span>` : ''}${m.text}</div><button class="btn btn-danger" style="padding:2px 8px; border-radius:50%;" onclick="deleteMemo(${m.id}, '${m.cId}')">✖</button></li>`).join('');
+    let mHTML = aM.map(m => `<li class="memo-item"><div class="memo-content"><span class="class-tag ${m.tC}">${m.txt}</span>${m.date ? `<span style="font-size:12px; color:#e74c3c; margin-right:8px; font-weight:bold;">[${m.date.substring(5)}]</span>` : ''}${m.text}</div><button class="btn btn-danger" style="padding:2px 8px; border-radius:50%;" onclick="deleteMemo('${m.id}', '${m.cId}')">✖</button></li>`).join('');
     let qHTML = customQuestions.map((q, i) => `<li class="memo-item" style="padding:8px;"><div class="memo-content">🗣️ ${q}</div><button class="btn btn-danger" onclick="deleteQ(${i})">✖</button></li>`).join('');
-    let linksHTML = quickLinks.map(l => `<div class="quick-link-item"><a href="${l.url}" target="_blank">${l.name}</a><button onclick="deleteLink(${l.id})">✖</button></div>`).join('');
+    let linksHTML = quickLinks.map(l => `<div class="quick-link-item"><a href="${l.url}" target="_blank">${l.name}</a><button onclick="deleteLink('${l.id}')">✖</button></div>`).join('');
     let dStat = filterDate ? `<span style="color:#e74c3c;"> (${filterDate}) <button style="background:none;border:none;color:#3498db;cursor:pointer;" onclick="toggleCalFilter('${filterDate}')">Clear</button></span>` : '';
 
     document.getElementById('main-content').innerHTML = `
@@ -484,58 +482,59 @@
       </div>
     `;
   }
-  function deleteMemo(id, ctx) { if(ctx==='general') generalMemos = generalMemos.filter(m=>m.id!==id); else classData.find(c=>c.id===parseInt(ctx)).memos = classData.find(c=>c.id===parseInt(ctx)).memos.filter(m=>m.id!==id); saveToCloud(); showDashboard(); }
-  function deleteQ(idx) { customQuestions.splice(idx, 1); saveToCloud(); showDashboard(); }
-  function deleteLink(id) { quickLinks = quickLinks.filter(l => l.id !== id); saveToCloud(); showDashboard(); }
+  function deleteMemo(id, ctx) { if(ctx==='general') generalMemos = generalMemos.filter(m=>String(m.id)!==String(id)); else { const c=classData.find(x=>String(x.id)===String(ctx)); if(c) c.memos=c.memos.filter(m=>String(m.id)!==String(id)); } saveToCloud(); }
+  function deleteQ(idx) { customQuestions.splice(idx, 1); saveToCloud(); }
+  function deleteLink(id) { quickLinks = quickLinks.filter(l => String(l.id) !== String(id)); saveToCloud(); }
 
-  // --- 8. 班級分頁路由 ---
+  // --- 9. 班級分頁引擎 ---
   function showClass(id, tab = 'home') {
-    if (currentClassId !== id) currentUnitId = 'all'; 
-    currentView = 'class'; currentClassId = id; currentTab = tab; renderNav();
-    const cls = classData.find(c => c.id === id); if (!cls) return; 
+    if (String(currentClassId) !== String(id)) currentUnitId = 'all'; 
+    currentView = 'class'; currentClassId = String(id); currentTab = tab; renderNav();
+    
+    const cls = classData.find(c => String(c.id) === String(id)); if (!cls) return; 
     let tabContent = '';
-    const classHeader = `<h2>${cls.name} <button class="btn-icon" onclick="renameClass(${cls.id})" title="${t('renameTip')}">✏️</button> <button class="btn-icon" style="color:#e74c3c; margin-left:5px;" onclick="deleteClass(${cls.id})" title="${t('deleteTip')}">🗑️</button></h2>`;
+    const classHeader = `<h2>${cls.name} <button class="btn-icon" onclick="renameClass('${cls.id}')" title="${t('renameTip')}">✏️</button> <button class="btn-icon" style="color:#e74c3c; margin-left:5px;" onclick="deleteClass('${cls.id}')" title="${t('deleteTip')}">🗑️</button></h2>`;
     
     if (tab === 'home') {
-      let mHTML = cls.memos.map(m => `<li class="memo-item"><div class="memo-content">${m.date?`<span style="color:#e74c3c;">[${m.date.substring(5)}]</span> `:''}${m.text}</div><button class="btn btn-danger" onclick="deleteMemo(${m.id}, ${cls.id})">✖</button></li>`).join('');
-      tabContent = `<h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:10px;">任務清單 <button class="btn-icon" onclick="openAddMemoModal(${cls.id})">➕</button></h3><ul class="memo-list">${mHTML||`<li class="memo-item">${t('noTask')}</li>`}</ul>`;
+      let mHTML = cls.memos.map(m => `<li class="memo-item"><div class="memo-content">${m.date?`<span style="color:#e74c3c;">[${m.date.substring(5)}]</span> `:''}${m.text}</div><button class="btn btn-danger" onclick="deleteMemo('${m.id}', '${cls.id}')">✖</button></li>`).join('');
+      tabContent = `<h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:10px;">任務清單 <button class="btn-icon" onclick="openAddMemoModal('${cls.id}')">➕</button></h3><ul class="memo-list">${mHTML||`<li class="memo-item">${t('noTask')}</li>`}</ul>`;
     } 
     else if (tab === 'students') {
-      let dHeaders = cls.dates.map(date => `<th>${date} <button class="delete-date-btn" onclick="if(confirm('Del?')){ const targetCls = classData.find(cx=>cx.id===${id}); if(targetCls){ targetCls.dates=targetCls.dates.filter(d=>d!=='${date}'); saveToCloud(); showClass(${id},'students'); } }">✖</button></th>`).join('');
+      let dHeaders = cls.dates.map(date => `<th>${date} <button class="delete-date-btn" onclick="if(confirm('Del?')){ const targetCls = classData.find(cx=>String(cx.id)==='${id}'); if(targetCls){ targetCls.dates=targetCls.dates.filter(d=>d!=='${date}'); saveToCloud(); } }">✖</button></th>`).join('');
       let sRows = cls.students.map(s => {
         let recs = cls.dates.map(date => {
           let stat = s.records ? s.records[date] || 'pending' : 'pending'; let selCls = stat==='present'?'att-present':(stat==='absent'?'att-absent':'att-pending');
-          return `<td><select class="attendance-select ${selCls}" onchange="updateAttendance(${id}, ${s.id}, '${date}', this.value)"><option value="pending" ${stat==='pending'?'selected':''}>➖</option><option value="present" ${stat==='present'?'selected':''}>✅</option><option value="absent" ${stat==='absent'?'selected':''}>❌</option></select></td>`;
+          return `<td><select class="attendance-select ${selCls}" onchange="updateAttendance('${id}', '${s.id}', '${date}', this.value)"><option value="pending" ${stat==='pending'?'selected':''}>➖</option><option value="present" ${stat==='present'?'selected':''}>✅</option><option value="absent" ${stat==='absent'?'selected':''}>❌</option></select></td>`;
         }).join('');
-        return `<tr><td><strong>${s.name}</strong></td>${recs}<td><button class="btn btn-danger" onclick="deleteStudent(${id}, ${s.id})">✖</button></td></tr>`;
+        return `<tr><td><strong>${s.name}</strong></td>${recs}<td><button class="btn btn-danger" onclick="deleteStudent('${id}', '${s.id}')">✖</button></td></tr>`;
       }).join('');
       
       tabContent = `
         <div style="display:flex; gap:15px; margin-bottom:15px;">
-          <button class="btn-icon" onclick="openAddStudentModal(${id})" style="font-weight:bold;">${t('addStu')}</button>
-          <button class="btn-icon" onclick="openAddDateModal(${id})" style="font-weight:bold;">${t('addDate')}</button>
+          <button class="btn-icon" onclick="openAddStudentModal('${id}')">${t('addStu')}</button>
+          <button class="btn-icon" onclick="openAddDateModal('${id}')">${t('addDate')}</button>
         </div>
         <div style="overflow-x: auto;"><table class="student-table"><tr><th>Name</th>${dHeaders}<th>Del</th></tr>${sRows||`<tr><td colspan="100%">${t('noStudent')}</td></tr>`}</table></div>
         ${cls.dates.length > 0 && cls.students.length > 0 ? `
         <div style="display:flex; gap:15px; justify-content:center; align-items:center; background:#e0f2fe; padding:20px; border-radius:12px; margin-top:20px;">
           <select id="game-date" style="padding:10px; font-weight:bold; color:#0284c7; border-radius:8px;">${cls.dates.map((d,i) => `<option value="${d}" ${i===cls.dates.length-1?'selected':''}>📅 ${d}</option>`).join('')}</select>
-          <button class="btn btn-primary" onclick="openGameModal('bubble', ${id})">${t('gameBubble')}</button>
-          <button class="btn btn-warning" onclick="openGameModal('spotlight', ${id})">${t('gameSpotlight')}</button>
+          <button class="btn btn-primary" onclick="openGameModal('bubble', '${id}')">${t('gameBubble')}</button>
+          <button class="btn btn-warning" onclick="openGameModal('spotlight', '${id}')">${t('gameSpotlight')}</button>
         </div>` : ''}
       `;
     } 
     else if (tab === 'cards') {
       let uHTML = `<button class="unit-btn ${currentUnitId === 'all' ? 'active' : ''}" onclick="switchUnit('all')">${t('unitAll')}</button>`;
-      cls.units.forEach(u => { uHTML += `<button class="unit-btn ${currentUnitId === u.id ? 'active' : ''}" onclick="switchUnit('${u.id}')">${u.name} <span onclick="event.stopPropagation(); deleteUnit('${u.id}')" style="color:#e74c3c;">✖</span></button>`; });
-      uHTML += `<button class="btn-icon" style="margin-top:10px; width:100%; justify-content:center;" onclick="openAddUnitModal(${cls.id})">${t('unitAdd')}</button>`;
+      cls.units.forEach(u => { uHTML += `<button class="unit-btn ${currentUnitId === String(u.id) ? 'active' : ''}" onclick="switchUnit('${u.id}')">${u.name} <span onclick="event.stopPropagation(); deleteUnit('${u.id}')" style="color:#e74c3c;">✖</span></button>`; });
+      uHTML += `<button class="btn-icon" style="margin-top:10px; width:100%; justify-content:center;" onclick="openAddUnitModal('${cls.id}')">${t('unitAdd')}</button>`;
 
       let words = getDisplayWords(); 
       let cardsHTML = words.map((w, i) => `<div class="fc-mini-box" onclick="openFlashcardModal(${i}, false)"><button class="fc-delete" onclick="event.stopPropagation(); deleteWord('${w.unitId}', '${w.id}')">✖</button><div style="width:100%;text-align:center;">${w.word}</div></div>`).join('');
 
       let titleBar = '';
       if (currentUnitId !== 'all') {
-        const tU = cls.units.find(u => u.id === currentUnitId);
-        titleBar = `<h3 style="display:flex; align-items:center; gap:10px; margin-top:0;">${tU ? tU.name : ''} <button class="btn-icon" onclick="openAddWordModal(${cls.id}, '${currentUnitId}')" title="${t('wordAdd')}">➕</button></h3>`;
+        const tU = cls.units.find(u => String(u.id) === String(currentUnitId));
+        titleBar = `<h3 style="display:flex; align-items:center; gap:10px; margin-top:0;">${tU ? tU.name : ''} <button class="btn-icon" onclick="openAddWordModal('${cls.id}', '${currentUnitId}')" title="${t('wordAdd')}">➕</button></h3>`;
       } else {
         titleBar = `<h3 style="margin-top:0;">${t('unitAll')}</h3><div style="padding:15px; background:#f1f5f9; border-radius:10px; margin-bottom:20px; font-weight:bold; color:#64748b;">${t('hintClickUnit')}</div>`;
       }
@@ -548,24 +547,24 @@
       <div class="card">
         ${classHeader}
         <div class="tab-bar">
-          <button class="tab-btn ${tab==='home'?'active':''}" onclick="showClass(${id}, 'home')">${t('tabHome')}</button>
-          <button class="tab-btn ${tab==='students'?'active':''}" onclick="showClass(${id}, 'students')">${t('tabStudents')}</button>
-          <button class="tab-btn ${tab==='cards'?'active':''}" onclick="showClass(${id}, 'cards')">${t('tabCards')}</button>
+          <button class="tab-btn ${tab==='home'?'active':''}" onclick="showClass('${id}', 'home')">${t('tabHome')}</button>
+          <button class="tab-btn ${tab==='students'?'active':''}" onclick="showClass('${id}', 'students')">${t('tabStudents')}</button>
+          <button class="tab-btn ${tab==='cards'?'active':''}" onclick="showClass('${id}', 'cards')">${t('tabCards')}</button>
         </div>
         <div id="tab-content">${tabContent}</div>
       </div>`;
   }
   
-  function renameClass(id) { let cls = classData.find(c => c.id === id); let n = prompt(t('renamePrompt'), cls.name); if(n && n.trim() !== "") { cls.name = n.trim(); saveToCloud(); showClass(id, currentTab); } }
-  function deleteClass(id) { if(confirm(t('deleteConfirm'))) { classData = classData.filter(c => c.id !== id); saveToCloud(); showDashboard(); } }
-  function deleteStudent(cId, sId) { if(confirm("Del?")){ classData.find(c=>c.id===cId).students = classData.find(c=>c.id===cId).students.filter(s=>s.id!==sId); saveToCloud(); showClass(cId, 'students'); } }
-  function updateAttendance(cId, sId, d, stat) { classData.find(c=>c.id===cId).students.find(s=>s.id===sId).records[d] = stat; saveToCloud(); showClass(cId, 'students'); }
+  function renameClass(id) { const cls = classData.find(c => String(c.id) === String(id)); if(cls){ let n = prompt(t('renamePrompt'), cls.name); if(n && n.trim() !== "") { cls.name = n.trim(); saveToCloud(); } } }
+  function deleteClass(id) { if(confirm(t('deleteConfirm'))) { classData = classData.filter(c => String(c.id) !== String(id)); saveToCloud(); showDashboard(); } }
+  function deleteStudent(cId, sId) { if(confirm("Del?")){ const c = classData.find(x=>String(x.id)===String(cId)); if(c){ c.students = c.students.filter(s=>String(s.id)!==String(sId)); saveToCloud(); } } }
+  function updateAttendance(cId, sId, d, stat) { const c = classData.find(x=>String(x.id)===String(cId)); if(c){ const s = c.students.find(x=>String(x.id)===String(sId)); if(s){ if(!s.records) s.records={}; s.records[d]=stat; saveToCloud(); } } }
 
-  // --- 9. 遊戲 Modal ---
+  // --- 10. 點名與抽籤引擎 (強制字串化防崩潰) ---
   let spotlightTimer = null; let isQuestionActive = false; let isSpinning = false;
   function openGameModal(type, classId) {
     const date = document.getElementById('game-date').value; const modal = document.getElementById('game-modal'); const content = document.getElementById('modal-content-area');
-    const cls = classData.find(c => c.id === classId); isQuestionActive = false; isSpinning = false; clearTimeout(spotlightTimer);
+    const cls = classData.find(c => String(c.id) === String(classId)); isQuestionActive = false; isSpinning = false; clearTimeout(spotlightTimer);
     modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; 
     window.removeEventListener('wheel', handleCardScroll); window.removeEventListener('keydown', fcKeyHandler);
     
@@ -581,8 +580,10 @@
           b.style.transform = 'scale(0)'; setTimeout(() => b.remove(), 200);
           const qBank = customQuestions.length > 0 ? customQuestions : ["Hello!"];
           const talkBox = document.getElementById('small-talk-display');
-          let abBtn = isRev ? '' : `<button class="small-talk-absent-btn" onclick="ansQ(${classId}, ${s.id}, '${date}', 'absent', ${isRev})">❌</button>`;
-          talkBox.innerHTML = `<div class="small-talk-text" onclick="ansQ(${classId}, ${s.id}, '${date}', 'present', ${isRev})"><div style="font-size:16px;color:#94a3b8;">Target: ${s.name}</div>${qBank[Math.floor(Math.random() * qBank.length)]}</div>${abBtn}`;
+          
+          // 關鍵修復：所有 ID 強制帶引號成為字串，阻止語法錯誤
+          let abBtn = isRev ? '' : `<button class="small-talk-absent-btn" onclick="ansQ('${classId}', '${s.id}', '${date}', 'absent', ${isRev})">❌</button>`;
+          talkBox.innerHTML = `<div class="small-talk-text" onclick="ansQ('${classId}', '${s.id}', '${date}', 'present', ${isRev})"><div style="font-size:16px;color:#94a3b8;">Target: ${s.name}</div>${qBank[Math.floor(Math.random() * qBank.length)]}</div>${abBtn}`;
           talkBox.style.display = 'flex';
         }; con.appendChild(b);
       });
@@ -591,7 +592,27 @@
       content.innerHTML = `<h3 style="position:absolute; top:20px; color:#fff;">Date: ${date}</h3><div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%;"><div class="student-grid" id="spotlight-grid">${p.map(s => `<div class="student-box">${s.name}</div>`).join('')}</div></div><div style="margin-bottom: 50px;"><button class="btn btn-warning" id="spotlight-btn" onclick="runSp()" style="font-size:28px; padding:20px 60px; border-radius:40px; border:4px solid #fff;">${t('btnDraw')}</button></div>`;
     }
   }
-  function ansQ(cId, sId, d, stat, isRev) { document.getElementById('small-talk-display').style.display = 'none'; isQuestionActive = false; if(!isRev) { classData.find(c=>c.id===cId).students.find(s=>s.id===sId).records[d] = stat; saveToCloud(); } if(document.querySelectorAll('.bubble').length === 0) { document.getElementById('modal-content-area').innerHTML = `<h2 style="font-size:48px; color:#fff;">🎉 Finished!</h2>`; setTimeout(closeGameModal, 1500); } }
+
+  function ansQ(cId, sId, d, stat, isRev) { 
+    document.getElementById('small-talk-display').style.display = 'none'; 
+    isQuestionActive = false; 
+    if(!isRev) { 
+       const c = classData.find(x=>String(x.id)===String(cId)); 
+       if(c){ 
+         const s = c.students.find(x=>String(x.id)===String(sId)); 
+         if(s){ 
+           if(!s.records) s.records={}; 
+           s.records[d]=stat; 
+           saveToCloud(); 
+         } 
+       } 
+    } 
+    if(document.querySelectorAll('.bubble').length === 0) { 
+      document.getElementById('modal-content-area').innerHTML = `<h2 style="font-size:48px; color:#fff;">🎉 Finished!</h2>`; 
+      setTimeout(closeGameModal, 1500); 
+    } 
+  }
+  
   function runSp() {
     if(isSpinning) return; const bx = document.querySelectorAll('#spotlight-grid .student-box'); if(bx.length === 0) return;
     isSpinning = true; document.getElementById('spotlight-btn').innerText = "..."; let c = 0, sp = 50;
@@ -599,7 +620,7 @@
     jl();
   }
 
-  // --- 10. 計時器邏輯 ---
+  // --- 11. 計時器模組 ---
   let cTimer = null;
   function startTimer(mode) {
     let s = (parseInt(document.getElementById('t-min').value)||0)*60 + (parseInt(document.getElementById('t-sec').value)||0); if(s<=0) return;
@@ -617,14 +638,15 @@
   }
   function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
 
-  // --- 11. 單字卡大螢幕展演引擎 ---
-  function deleteUnit(uId) { if(confirm("Del?")){ classData.find(c=>c.id===currentClassId).units = classData.find(c=>c.id===currentClassId).units.filter(u=>u.id!==uId); currentUnitId='all'; saveToCloud(); showClass(currentClassId, 'cards'); } }
-  function deleteWord(uId, wId) { if(confirm("Del?")){ classData.find(c=>c.id===currentClassId).units.find(u=>u.id===uId).words = classData.find(c=>c.id===currentClassId).units.find(u=>u.id===uId).words.filter(w=>w.id!==wId); saveToCloud(); showClass(currentClassId, 'cards'); } }
+  // --- 12. 單字卡展演引擎 (全方位強型態防護) ---
+  function switchUnit(u) { currentUnitId = u; showClass(currentClassId, 'cards'); }
+  function deleteUnit(uId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ c.units = c.units.filter(u=>String(u.id)!==String(uId)); currentUnitId='all'; saveToCloud(); } } }
+  function deleteWord(uId, wId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ const u=c.units.find(x=>String(x.id)===String(uId)); if(u){ u.words = u.words.filter(w=>String(w.id)!==String(wId)); saveToCloud(); } } } }
 
   function getDisplayWords() {
-    let w = []; const cls = classData.find(c=>c.id===currentClassId); if (!cls) return w;
-    if(currentUnitId === 'all') cls.units.forEach(u => { w = w.concat(u.words.map(wd=>({...wd, unitId:u.id}))); }); 
-    else { const tU = cls.units.find(u => u.id === currentUnitId); if(tU) w = tU.words.map(wd=>({...wd, unitId:tU.id})); }
+    let w = []; const cls = classData.find(c=>String(c.id)===String(currentClassId)); if (!cls) return w;
+    if(currentUnitId === 'all') cls.units.forEach(u => { if(u.words) w = w.concat(u.words.map(wd=>({...wd, unitId:u.id}))); }); 
+    else { const tU = cls.units.find(u => String(u.id) === String(currentUnitId)); if(tU && tU.words) w = tU.words.map(wd=>({...wd, unitId:tU.id})); }
     return w;
   }
 
@@ -667,7 +689,7 @@
     setTimeout(() => { updateCardFace(); inner.style.transform = 'translateX(0) scale(1)'; inner.style.opacity = '1'; }, 200);
   }
 
-  // --- 12. 初始化雙引擎渲染 ---
+  // --- 13. 初始化啟動 ---
   renderNav(); showDashboard();
 </script>
 </body>
