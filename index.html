@@ -166,7 +166,7 @@
   </div>
 </div>
 
-<!-- 計時器設定 Modal -->
+<!-- 計時器專屬設定 Modal -->
 <div id="timer-setup-modal" class="modal-overlay" style="z-index: 3600;">
   <div class="timer-setup-box">
     <h2 id="t-setup-title">設定倒數計時器</h2>
@@ -263,7 +263,6 @@
     quickLinks = cloudData.quickLinks || [];
     classData = cloudData.classData || [];
 
-    // 自動防護修復架構
     classData.forEach(c => {
       if(!c.memos) c.memos = []; if(!c.dates) c.dates = []; if(!c.students) c.students = []; if(!c.units) c.units = [];
       c.units.forEach(u => { if(!u.words) u.words = []; });
@@ -274,7 +273,7 @@
     else if (currentView === 'class') showClass(currentClassId, currentTab);
   });
 
-  // 雲端同步中控函數
+  // 全域雲端寫入
   function saveToCloud() {
     db.ref("teachingData").set({
       generalMemos: generalMemos,
@@ -284,7 +283,7 @@
     });
   }
 
-  // --- 導覽列與視窗控制 ---
+  // --- 視窗與通用控制 ---
   function renderNav() {
     document.getElementById('site-title').innerText = t('title');
     const nav = document.getElementById('nav-bar');
@@ -310,7 +309,7 @@
   }
   function openTimerModal() { document.getElementById('timer-setup-modal').style.display = 'flex'; }
 
-  // --- 所有新增與修改 Form Modals ---
+  // --- 所有新增與修改 Modals ---
   function openAddClassModal() {
     openFormModal(t('addCls'), `<input type="text" id="modal-new-class" placeholder="Class Name...">`, () => {
       const n = document.getElementById('modal-new-class').value.trim();
@@ -355,7 +354,7 @@
     });
   }
 
-  // --- 關鍵修復：出缺勤日期新增與雲端同步同步改寫 ---
+  // --- 【V21 核心爆破修復點】直接對準雲端做強型態寫入，消滅非同步時間差 ---
   function openAddDateModal(cId) {
     openFormModal(t('addDate'), `<input type="date" id="modal-new-date">`, () => {
       const d = document.getElementById('modal-new-date').value;
@@ -363,10 +362,16 @@
         const fD = `${d.split('-')[1]}/${d.split('-')[2]}`; 
         const cls = classData.find(c=>c.id===cId); 
         if(cls && !cls.dates.includes(fD)){ 
+           // 1. 本地陣列插入
            cls.dates.push(fD); 
            cls.dates.sort(); 
-           cls.students.forEach(s => { if(!s.records) s.records = {}; s.records[fD] = 'pending'; }); 
-           saveToCloud(); 
+           cls.students.forEach(s => { 
+             if(!s.records) s.records = {}; 
+             s.records[fD] = 'pending'; 
+           }); 
+           
+           // 2. 關鍵強效同步：直接覆蓋雲端，不透過中介
+           db.ref("teachingData/classData").set(classData);
         } 
       }
       closeFormModal();
@@ -404,7 +409,23 @@
     });
   }
 
-  // --- 8. 教師總覽首頁 ---
+  // --- 行事曆與總覽 ---
+  function getCalendarHTML() {
+    const mNames = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+    const fd = new Date(calYear, calMonth, 1).getDay(); const dim = new Date(calYear, calMonth + 1, 0).getDate(); const pd = new Date(calYear, calMonth, 0).getDate();
+    let aDates = new Set(); generalMemos.forEach(m => { if(m.date) aDates.add(m.date); }); classData.forEach(c => c.memos.forEach(m => { if(m.date) aDates.add(m.date); }));
+    let dHTML = ''; const dL = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="cal-day-label">${d}</div>`).join('');
+    for (let i = fd - 1; i >= 0; i--) dHTML += `<div class="cal-day other-month">${pd - i}</div>`;
+    for (let i = 1; i <= dim; i++) {
+      let fD = `${calYear}-${(calMonth + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+      let act = fD === filterDate ? 'active' : ''; let hd = aDates.has(fD) ? `<div class="cal-dot"></div>` : '';
+      dHTML += `<div class="cal-day ${act}" onclick="toggleCalFilter('${fD}')">${i}${hd}</div>`;
+    }
+    return `<div class="cal-header"><button onclick="changeCalMonth(-1)">❮</button><div>${calYear} / ${mNames[calMonth]}</div><button onclick="changeCalMonth(1)">❯</button></div><div class="cal-grid">${dL}${dHTML}</div>`;
+  }
+  function changeCalMonth(dir) { calMonth += dir; if(calMonth > 11) { calMonth = 0; calYear++; } else if(calMonth < 0) { calMonth = 11; calYear--; } showDashboard(); }
+  function toggleCalFilter(d) { filterDate = filterDate === d ? null : d; showDashboard(); }
+
   function showDashboard() {
     currentView = 'dashboard'; currentClassId = null; renderNav();
     let aM = [];
@@ -434,14 +455,12 @@
       </div>
     `;
   }
-  function deleteMemo(id, ctx) { if(ctx==='general') generalMemos = generalMemos.filter(m=>m.id!==id); else classData.find(c=>c.id===parseInt(ctx)).memos = classData.find(c=>c.id===parseInt(ctx)).memos.filter(m=>m.id!==id); saveToCloud(); }
-  function deleteQ(idx) { customQuestions.splice(idx, 1); saveToCloud(); }
-  function deleteLink(id) { quickLinks = quickLinks.filter(l => l.id !== id); saveToCloud(); }
 
-  // --- 9. 班級分頁路由控制 ---
+  // --- 12. 班級分頁路由 ---
   function showClass(id, tab = 'home') {
     if (currentClassId !== id) currentUnitId = 'all'; 
     currentView = 'class'; currentClassId = id; currentTab = tab; renderNav();
+    
     const cls = classData.find(c => c.id === id); if (!cls) return; 
     let tabContent = '';
     const classHeader = `<h2>${cls.name} <button class="btn-icon" onclick="renameClass(${cls.id})" title="${t('renameTip')}">✏️</button> <button class="btn-icon" style="color:#e74c3c; margin-left:5px;" onclick="deleteClass(${cls.id})" title="${t('deleteTip')}">🗑️</button></h2>`;
@@ -451,7 +470,7 @@
       tabContent = `<h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:10px;">任務清單 <button class="btn-icon" onclick="openAddMemoModal(${cls.id})">➕</button></h3><ul class="memo-list">${mHTML||`<li class="memo-item">${t('noTask')}</li>`}</ul>`;
     } 
     else if (tab === 'students') {
-      let dHeaders = cls.dates.map(date => `<th>${date} <button class="delete-date-btn" onclick="if(confirm('Del?')){ classData.find(c=>c.id===${id}).dates=classData.find(c=>c.id===${id}).dates.filter(d=>d!=='${date}'); saveToCloud(); }">✖</button></th>`).join('');
+      let dHeaders = cls.dates.map(date => `<th>${date} <button class="delete-date-btn" onclick="if(confirm('Del?')){ const targetCls = classData.find(cx=>cx.id===${id}); if(targetCls){ targetCls.dates=targetCls.dates.filter(d=>d!=='${date}'); saveToCloud(); } }">✖</button></th>`).join('');
       let sRows = cls.students.map(s => {
         let recs = cls.dates.map(date => {
           let stat = s.records ? s.records[date] || 'pending' : 'pending'; let selCls = stat==='present'?'att-present':(stat==='absent'?'att-absent':'att-pending');
@@ -462,8 +481,8 @@
       
       tabContent = `
         <div style="display:flex; gap:15px; margin-bottom:15px;">
-          <button class="btn-icon" onclick="openAddStudentModal(${id})" style="font-weight:bold;">${t('addStu')}</button>
-          <button class="btn-icon" onclick="openAddDateModal(${id})" style="font-weight:bold;">${t('addDate')}</button>
+          <button class="btn-icon" onclick="openAddStudentModal(${id})">${t('addStu')}</button>
+          <button class="btn-icon" onclick="openAddDateModal(${id})">${t('addDate')}</button>
         </div>
         <div style="overflow-x: auto;"><table class="student-table"><tr><th>Name</th>${dHeaders}<th>Del</th></tr>${sRows||`<tr><td colspan="100%">${t('noStudent')}</td></tr>`}</table></div>
         ${cls.dates.length > 0 && cls.students.length > 0 ? `
@@ -506,7 +525,8 @@
       </div>`;
   }
 
-  // --- 10. 點名與抽籤互動模組 ---
+  // --- 13. 互動遊戲區 ---
+  let spotlightTimer = null; 
   function openGameModal(type, classId) {
     const date = document.getElementById('game-date').value; const modal = document.getElementById('game-modal'); const content = document.getElementById('modal-content-area');
     const cls = classData.find(c => c.id === classId); isQuestionActive = false; isSpinning = false; clearTimeout(spotlightTimer);
@@ -536,31 +556,11 @@
     }
   }
 
-  // --- 11. 計時器模組 ---
-  let cTimer = null;
-  function startTimer(mode) {
-    let s = (parseInt(document.getElementById('t-min').value)||0)*60 + (parseInt(document.getElementById('t-sec').value)||0); if(s<=0) return;
-    document.getElementById('timer-setup-modal').style.display = 'none'; clearInterval(cTimer);
-    const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer');
-    fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; document.getElementById('fs-timer-close').style.display = 'block';
-    if(mode === 'fs') fs.style.display = 'flex'; else fl.style.display = 'flex';
-    updTimer(s, mode);
-    cTimer = setInterval(() => { s--; updTimer(s, mode); if(s<=0) { clearInterval(cTimer); triggerExplosion(mode); } }, 1000);
-  }
-  function updTimer(s, m) { let txt = `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; if(m==='fs') document.getElementById('fs-timer-val').innerHTML = txt; else document.getElementById('float-timer-val').innerHTML = txt; }
-  function triggerExplosion(mode) {
-    if(mode === 'fs') { const fs = document.getElementById('fullscreen-timer'); fs.classList.add('explode-anim'); document.getElementById('fs-timer-val').innerHTML = `<div class="explosion-msg">💥 TIME'S UP 💥</div>`; document.getElementById('fs-timer-close').innerText = t('stop'); } 
-    else { const fl = document.getElementById('floating-timer'); fl.classList.add('shake-anim'); document.getElementById('float-timer-val').innerHTML = "TIME'S UP!"; }
-  }
-  function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
-
-  // --- 12. 單字卡展演系統 ---
-  function getDisplayWords() {
-    let w = []; const cls = classData.find(c=>c.id===currentClassId); if (!cls) return w;
-    if(currentUnitId === 'all') cls.units.forEach(u => { if(u.words) w = w.concat(u.words.map(wd=>({...wd, unitId:u.id}))); }); 
-    else { const tU = cls.units.find(u => u.id === currentUnitId); if(tU && tU.words) w = tU.words.map(wd=>({...wd, unitId:tU.id})); }
-    return w;
-  }
+  // --- 14. 計時器與單字卡引擎 ---
+  let isShuffleMode = false; let shuffleQueue = []; let shuffleIndex = 0;
+  let currentDisplayWords = []; let currentCardIndex = 0; let currentCardFace = 0; let isFlipping = false;
+  
+  function switchUnit(u) { currentUnitId = u; showClass(currentClassId, 'cards'); }
   function startShuffle() { let words = getDisplayWords(); if(words.length === 0) return; shuffleQueue = [...Array(words.length).keys()].sort(() => Math.random() - 0.5); isShuffleMode = true; shuffleIndex = 0; openFlashcardModal(shuffleQueue[0], true); }
   function openFlashcardModal(index, isShuffle = false) {
     let words = getDisplayWords(); if(words.length === 0) return; currentDisplayWords = words; isShuffleMode = isShuffle; currentCardIndex = index; currentCardFace = 0;
