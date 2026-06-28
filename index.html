@@ -123,7 +123,7 @@
     .fc-delete { position: absolute; top: -10px; right: -10px; background: #e74c3c; color: white; border: none; border-radius: 50%; width: 26px; height: 26px; font-weight: bold; cursor: pointer; display: none; z-index: 10; }
     .fc-mini-box:hover .fc-delete { display: block; }
     
-    .large-fc-container { width: 600px; height: 400px; perspective: 1500px; position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; }
+    .large-fc-container { width: 600px; height: 400px; perspective: 1500px; position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; cursor: pointer; }
     .large-fc-inner { width: 100%; height: 100%; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; text-align: center; transition: transform 0.4s ease, opacity 0.4s ease; transform-style: preserve-3d; word-break: break-word; }
     .fc-color-0 { background: #3498db; color: white; font-size: 80px; font-weight: bold; } 
     .fc-color-1 { background: #2ecc71; color: white; font-size: 60px; font-weight: bold; } 
@@ -208,7 +208,7 @@
       unitAll: "📚 所有單字", unitAdd: "➕ 新增單元", wordAdd: "➕ 新增單字",
       word: "單字 (Word)", meaning: "中文 (Meaning)", sentence: "例句 (Sentence)",
       shuffleBtn: "🔀 開始隨機輪播", shuffleMode: "🔀 隨機輪播", finished: "🎉 全部複習完畢！",
-      hintScroll: "🖱️ 滾動滑鼠，或按鍵盤 空白鍵/方向鍵 (⬆⬇⬅➡)", hintClickUnit: "💡 點擊特定單元，然後按下 ➕ 圖示來新增單字卡！",
+      hintScroll: "🖱️ 點擊卡片、滑鼠滾輪，或按鍵盤 (⬆⬇⬅➡)", hintClickUnit: "💡 點擊特定單元，然後按下 ➕ 圖示來新增單字卡！",
       btnDraw: "🎯 開始抽籤", noTask: "目前沒有任務。", noStudent: "目前還沒有學生喔！",
       renameTip: "重新命名", deleteTip: "刪除班級", renamePrompt: "修改名稱：", deleteConfirm: "確定要刪除嗎？"
     },
@@ -222,7 +222,7 @@
       unitAll: "📚 All Words", unitAdd: "➕ Add Unit", wordAdd: "➕ Add Word",
       word: "Word", meaning: "Meaning", sentence: "Sentence",
       shuffleBtn: "🔀 Start Shuffle", shuffleMode: "🔀 Shuffle", finished: "🎉 All done!",
-      hintScroll: "🖱️ Scroll or use Space/Arrow Keys (⬆⬇⬅➡)", hintClickUnit: "💡 Select a unit and click ➕ to add words!",
+      hintScroll: "🖱️ Click card, Scroll or use Arrow Keys (⬆⬇⬅➡)", hintClickUnit: "💡 Select a unit and click ➕ to add words!",
       btnDraw: "🎯 Start Draw", noTask: "No tasks.", noStudent: "No students yet!",
       renameTip: "Rename", deleteTip: "Delete", renamePrompt: "Rename:", deleteConfirm: "Are you sure to delete?"
     }
@@ -241,18 +241,18 @@
     document.getElementById('btn-timer-cc').innerText = t('cancel');
   }
 
-  // --- 3. 雙引擎本機資料變數 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV24')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV24')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV24')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV24')) || [
+  // --- 3. 雙引擎本機資料 ---
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV25')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV25')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV25')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV25')) || [
     { id: 1, name: "雙語Ａ班", memos: [], dates: [], students: [], units: [] }
   ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
 
-  // --- 資料結構防護網：強制轉陣列，避免 Firebase 將空陣列存成 Object ---
+  // 資料結構防護網：強制轉陣列
   function toArr(obj) {
     if (!obj) return [];
     if (Array.isArray(obj)) return obj;
@@ -279,7 +279,7 @@
     if(customQuestions.length === 0) customQuestions = ["What did you have for breakfast today? 🍳"];
     quickLinks = toArr(quickLinks);
   }
-  repairData(); // 啟動即修復
+  repairData(); 
 
   // --- 4. 雲端同步中控引擎 ---
   db.ref("teachingData").on("value", (snapshot) => {
@@ -292,10 +292,12 @@
         
         repairData(); 
 
-        localStorage.setItem('myGeneralMemosV24', JSON.stringify(generalMemos));
-        localStorage.setItem('myCustomQsV24', JSON.stringify(customQuestions));
-        localStorage.setItem('myQuickLinksV24', JSON.stringify(quickLinks));
-        localStorage.setItem('myDynamicClassesV24', JSON.stringify(classData));
+        try {
+          localStorage.setItem('myGeneralMemosV25', JSON.stringify(generalMemos));
+          localStorage.setItem('myCustomQsV25', JSON.stringify(customQuestions));
+          localStorage.setItem('myQuickLinksV25', JSON.stringify(quickLinks));
+          localStorage.setItem('myDynamicClassesV25', JSON.stringify(classData));
+        } catch(e) { console.warn("Local storage full, skipping local cache."); }
 
         renderNav();
         if (currentView === 'dashboard') showDashboard();
@@ -303,7 +305,7 @@
     }
   });
 
-  // V24 關鍵修復：分流 Try-Catch，不再因為本地端硬碟滿了而中斷 Firebase 雲端寫入
+  // V25 關鍵修復：分離雲端寫入與本地寫入，本地失敗時無感跳過，不打斷雲端
   function saveToCloud() {
     repairData();
     const cleanData = JSON.parse(JSON.stringify({
@@ -313,15 +315,15 @@
       classData: classData
     }));
     
-    // 1. 優先寫入雲端 (不受容量限制干擾)
-    db.ref("teachingData").set(cleanData).catch(e => console.error("Firebase Sync Error:", e));
+    // 雲端寫入 (不受本地硬碟限制)
+    db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     
-    // 2. 獨立寫入本地，若爆容量則自動靜默忽略
+    // 本地寫入 (若容量滿了則靜默失敗)
     try {
-      localStorage.setItem('myGeneralMemosV24', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV24', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV24', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV24', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV25', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV25', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV25', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV25', JSON.stringify(classData));
     } catch (err) {
       console.warn("Local storage is full. Saving to Cloud only.");
     }
@@ -357,7 +359,7 @@
   function openAddClassModal() {
     openFormModal(t('addCls'), `<input type="text" id="modal-new-class" placeholder="Class Name...">`, () => {
       const n = document.getElementById('modal-new-class').value.trim();
-      if(n) { const newId = Date.now(); classData.push({ id: newId, name: n, memos: [], dates: [], students: [], units: [] }); saveToCloud(); showClass(String(newId), 'home'); }
+      if(n) { classData.push({ id: Date.now(), name: n, memos: [], dates: [], students: [], units: [] }); saveToCloud(); showClass(String(classData[classData.length-1].id), 'home'); }
       closeFormModal();
     });
   }
@@ -434,7 +436,7 @@
     });
   }
 
-  // --- 7. 總覽與刪除邏輯 ---
+  // --- 7. 總覽與行事曆 ---
   function getCalendarHTML() {
     const mNames = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
     const fd = new Date(calYear, calMonth, 1).getDay(); const dim = new Date(calYear, calMonth + 1, 0).getDate(); const pd = new Date(calYear, calMonth, 0).getDate();
@@ -484,18 +486,12 @@
   function deleteQ(idx) { customQuestions.splice(idx, 1); saveToCloud(); }
   function deleteLink(id) { quickLinks = quickLinks.filter(l => String(l.id) !== String(id)); saveToCloud(); }
 
-  // --- 8. 班級分頁切換引擎 (V24 強效切換版) ---
-  
-  // 將 switchUnit 暴露給全域環境，徹底解決 onclick 不反應的問題
-  window.switchUnit = function(u) {
-    currentUnitId = String(u);
-    showClass(currentClassId, 'cards');
-  };
+  // --- 8. 班級分頁路由控制 ---
+  window.switchUnit = function(u) { currentUnitId = String(u); showClass(currentClassId, 'cards'); };
 
   function showClass(id, tab = 'home') {
     if (String(currentClassId) !== String(id)) currentUnitId = 'all'; 
     currentView = 'class'; currentClassId = String(id); currentTab = tab; renderNav();
-    
     const cls = classData.find(c => String(c.id) === String(id)); if (!cls) return; 
     let tabContent = '';
     const classHeader = `<h2>${cls.name} <button class="btn-icon" onclick="renameClass('${cls.id}')" title="${t('renameTip')}">✏️</button> <button class="btn-icon" style="color:#e74c3c; margin-left:5px;" onclick="deleteClass('${cls.id}')" title="${t('deleteTip')}">🗑️</button></h2>`;
@@ -637,7 +633,7 @@
   }
   function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
 
-  // --- 11. 單字卡大螢幕展演引擎 (防卡死鍵盤滾輪版) ---
+  // --- 11. 單字卡大螢幕展演引擎 (新增點擊翻頁支援) ---
   function deleteUnit(uId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ c.units = c.units.filter(u=>String(u.id)!==String(uId)); currentUnitId='all'; saveToCloud(); } } }
   function deleteWord(uId, wId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ const u=c.units.find(x=>String(x.id)===String(uId)); if(u){ u.words = u.words.filter(w=>String(w.id)!==String(wId)); saveToCloud(); } } } }
 
@@ -655,10 +651,21 @@
     const modal = document.getElementById('game-modal'); modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; 
     window.addEventListener('wheel', handleCardScroll, { passive: false }); window.addEventListener('keydown', fcKeyHandler);
     let mLabel = isShuffleMode ? `<div style="position:absolute; top:20px; left:20px; color:#f1c40f; font-weight:bold; font-size:20px;">${t('shuffleMode')} (<span id="fc-progress">1/${words.length}</span>)</div>` : '';
-    document.getElementById('modal-content-area').innerHTML = `${mLabel}<div class="nav-zone left" onclick="navCard(-1)">❮</div><div class="large-fc-container"><div id="large-fc-inner" class="large-fc-inner fc-color-0"></div><div class="fc-scroll-hint">${t('hintScroll')} (<span id="fc-counter">1</span>/4)</div></div><div class="nav-zone right" onclick="navCard(1)">❯</div>`;
+    // V25 新增： onclick="handleCardClick()" 讓觸控螢幕/滑鼠點擊可以直接翻面
+    document.getElementById('modal-content-area').innerHTML = `${mLabel}<div class="nav-zone left" onclick="navCard(-1)">❮</div><div class="large-fc-container"><div id="large-fc-inner" class="large-fc-inner fc-color-0" onclick="handleCardClick()" style="cursor:pointer;"></div><div class="fc-scroll-hint">${t('hintScroll')} (<span id="fc-counter">1</span>/4)</div></div><div class="nav-zone right" onclick="navCard(1)">❯</div>`;
     updateCardFace();
   }
-  
+
+  // 點擊翻頁引擎
+  function handleCardClick() {
+    if(isFlipping) return; 
+    const inner = document.getElementById('large-fc-inner'); if(!inner) return;
+    isFlipping = true; 
+    currentCardFace = (currentCardFace + 1) % 4; 
+    inner.style.transform = 'scale(0.9) rotateY(90deg)'; inner.style.opacity = '0.3';
+    setTimeout(() => { updateCardFace(); inner.style.transform = 'scale(1) rotateY(0deg)'; inner.style.opacity = '1'; setTimeout(() => { isFlipping = false; }, 350); }, 150);
+  }
+
   function fcKeyHandler(e) {
     if(document.getElementById('game-modal').style.display !== 'flex' || !document.getElementById('large-fc-inner')) return;
     if(e.key === 'ArrowRight') { e.preventDefault(); navCard(1); } 
@@ -666,26 +673,24 @@
     else if(e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); handleCardScroll({ preventDefault: ()=>{}, deltaY: 100 }); } 
     else if(e.key === 'ArrowUp') { e.preventDefault(); handleCardScroll({ preventDefault: ()=>{}, deltaY: -100 }); }
   }
-  
+
   function updateCardFace() {
     const wObj = currentDisplayWords[currentCardIndex]; if(!wObj) return; document.getElementById('fc-counter').innerText = currentCardFace + 1;
     if(isShuffleMode && document.getElementById('fc-progress')) document.getElementById('fc-progress').innerText = `${shuffleIndex + 1}/${currentDisplayWords.length}`;
     const inner = document.getElementById('large-fc-inner'); inner.className = `large-fc-inner fc-color-${currentCardFace}`;
     if(currentCardFace === 0) inner.innerHTML = wObj.word; else if(currentCardFace === 1) inner.innerHTML = wObj.meaning; else if(currentCardFace === 2) inner.innerHTML = wObj.imgData ? `<img src="${wObj.imgData}">` : `<span style="font-size:60px; color:#bdc3c7;">(No Image)</span>`; else if(currentCardFace === 3) inner.innerHTML = wObj.sentence;
   }
-  
+
   function handleCardScroll(e) {
-    if(e && e.preventDefault) e.preventDefault(); 
-    if(isFlipping) return; 
+    if(e && e.preventDefault) e.preventDefault(); if(isFlipping) return; 
     const inner = document.getElementById('large-fc-inner'); if(!inner) { isFlipping = false; return; }
-    
     isFlipping = true; 
     let dir = e.deltaY > 0 ? 1 : -1;
     currentCardFace = (currentCardFace + dir + 4) % 4; 
     inner.style.transform = 'scale(0.9) rotateY(90deg)'; inner.style.opacity = '0.3';
     setTimeout(() => { updateCardFace(); inner.style.transform = 'scale(1) rotateY(0deg)'; inner.style.opacity = '1'; setTimeout(() => { isFlipping = false; }, 350); }, 150);
   }
-  
+
   function navCard(direction) {
     if(isShuffleMode) {
       shuffleIndex += direction; if(shuffleIndex < 0) { shuffleIndex = 0; return; }
@@ -698,7 +703,7 @@
     setTimeout(() => { updateCardFace(); inner.style.transform = 'translateX(0) scale(1)'; inner.style.opacity = '1'; }, 200);
   }
 
-  // --- 12. 系統初始化啟動 ---
+  // --- 13. 初始化啟動 ---
   renderNav(); showDashboard();
 </script>
 </body>
