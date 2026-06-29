@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>班級管理系統 | Classroom Management</title>
   
+  <!-- 載入 Google Firebase 核心套件 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -91,7 +92,7 @@
     .form-box h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 20px; }
     .form-box input, .form-box select { width: 100%; padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 16px; box-sizing: border-box; outline: none; margin-bottom: 15px; }
 
-    /* 遊戲區 */
+    /* 遊戲區與動畫特效 */
     .student-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; }
     .student-box { background-color: #ecf0f1; padding: 20px 40px; border-radius: 12px; font-size: 24px; font-weight: bold; color: #7f8c8d; transition: all 0.1s; }
     .student-box.highlight { background-color: #f1c40f; color: #fff; transform: scale(1.2); box-shadow: 0 0 30px rgba(241, 196, 15, 0.8); }
@@ -102,6 +103,19 @@
     .small-talk-container { position: absolute; top: 10%; background: #2c3e50; border-radius: 15px; display: none; z-index: 20; width: 80%; max-width: 800px; flex-direction: row; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     .small-talk-text { flex-grow: 1; padding: 40px; color: white; font-size: 28px; font-weight: bold; text-align: center; cursor: pointer; transition: background 0.2s; }
     .small-talk-absent-btn { background: #e74c3c; color: white; border: none; padding: 0 40px; font-size: 20px; font-weight: bold; cursor: pointer; }
+
+    /* V28 新增：正向特效動畫 */
+    @keyframes superPop {
+        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+        40% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        60% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        100% { transform: translate(-50%, -150%) scale(1.1); opacity: 0; }
+    }
+    .success-effect {
+        position: fixed; top: 50%; left: 50%; font-size: clamp(60px, 8vw, 100px); font-weight: bold; color: #f1c40f;
+        text-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999; pointer-events: none;
+        animation: superPop 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
 
     /* 計時器動畫與面板 */
     .timer-setup-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center; }
@@ -150,6 +164,7 @@
 
 <div class="container" id="main-content"></div>
 
+<!-- 遊戲與大字卡 Modal -->
 <div id="game-modal" class="modal-overlay">
   <div class="modal-box">
     <button class="close-btn" onclick="closeGameModal()">✖</button>
@@ -157,6 +172,7 @@
   </div>
 </div>
 
+<!-- 統一表單 Modal -->
 <div id="form-modal" class="modal-overlay" style="z-index: 3500;">
   <div class="form-box">
     <h2 id="form-modal-title">標題</h2>
@@ -168,6 +184,7 @@
   </div>
 </div>
 
+<!-- 計時器專屬設定 Modal -->
 <div id="timer-setup-modal" class="modal-overlay" style="z-index: 3600;">
   <div class="timer-setup-box">
     <h2 id="t-setup-title">設定倒數計時器</h2>
@@ -183,6 +200,7 @@
   </div>
 </div>
 
+<!-- 計時器顯示 -->
 <div id="fullscreen-timer" class="fs-timer-display">
   <div id="fs-timer-val" class="fs-timer-text">00:00</div>
   <button id="fs-timer-close" class="btn btn-danger" style="position:absolute; bottom:15%; font-size:24px; padding:15px 50px; border-radius:30px; box-shadow:0 10px 20px rgba(0,0,0,0.5); z-index:2010;" onclick="stopTimer()">停止 / Stop</button>
@@ -193,7 +211,7 @@
 </div>
 
 <script>
-  // --- 1. Firebase 雲端配置 (安全初始化) ---
+  // --- 1. Firebase 雲端配置 ---
   let db = null;
   try {
     const firebaseConfig = { databaseURL: "https://class-management-89906-default-rtdb.asia-southeast1.firebasedatabase.app/" };
@@ -223,7 +241,7 @@
       title: "Teaching Center", dash: "👩‍🏫 Dashboard", addCls: "➕ Add Class", cal: "📅 Calendar",
       timerSetup: "Timer Setup", timerFS: "💥 Fullscreen", timerFloat: "📌 Floating", cancel: "Cancel", stop: "Stop", save: "Save",
       memoGlobal: "📌 Memos & Tasks", memoAdd: "➕ Add Task", qBank: "💬 Question Bank", qAdd: "➕ Add Q",
-      quickLinks: "🔗 Quick Links", linkName: "Site Name", linkUrl: "URL", addLink: "➕ Add Link",
+      quickLinks: "🔗 Quick Links", SiteName: "Site Name", linkUrl: "URL", addLink: "➕ Add Link",
       tabHome: "🏠 Home", tabStudents: "🧑‍🎓 Attendance", tabCards: "🔤 Flashcards",
       addStu: "➕ Add Student", addDate: "Add Date", gameBubble: "🫧 Roll Call", gameSpotlight: "🔦 Spotlight",
       unitAll: "📚 All Words", unitAdd: "➕ Add Unit", wordAdd: "➕ Add Word",
@@ -250,16 +268,15 @@
   }
 
   // --- 3. 雙引擎本機資料 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV27')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV27')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV27')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV27')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [] } ];
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV28')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV28')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV28')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV28')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
-  let attendanceWeekOffset = 0; // 新增：控制出缺勤查看的週數
+  let attendanceWeekOffset = 0; 
 
-  // 資料防護網：強制轉陣列
   function toArr(obj) {
     if (!obj) return [];
     if (Array.isArray(obj)) return obj;
@@ -283,13 +300,13 @@
   }
   repairData(); 
 
-  // --- 自動產生週間日期核心系統 ---
+  // --- 自動產生週間日期 ---
   function getWeekDays(offset) {
     let d = new Date();
-    let day = d.getDay() || 7; // Convert Sun (0) to 7
-    d.setDate(d.getDate() + (1 - day) + (offset * 7)); // 設定到目標週的星期一
+    let day = d.getDay() || 7; 
+    d.setDate(d.getDate() + (1 - day) + (offset * 7)); 
     let days = [];
-    for (let i = 0; i < 5; i++) { // 只取一到五
+    for (let i = 0; i < 5; i++) { 
         let current = new Date(d);
         current.setDate(d.getDate() + i);
         let mm = String(current.getMonth() + 1).padStart(2, '0');
@@ -302,13 +319,13 @@
   function getTodayString() {
     let curr = new Date();
     let day = curr.getDay();
-    if(day === 0 || day === 6) { curr.setDate(curr.getDate() - (day === 0 ? 2 : 1)); } // 週末轉週五
+    if(day === 0 || day === 6) { curr.setDate(curr.getDate() - (day === 0 ? 2 : 1)); } 
     let m = String(curr.getMonth() + 1).padStart(2, '0');
     let d = String(curr.getDate()).padStart(2, '0');
     return `${m}/${d}`;
   }
 
-  // --- 4. 雲端同步中控引擎 (防閃爍讀取) ---
+  // --- 4. 雲端同步引擎 ---
   let isInitialLoad = true;
   if(db) {
     db.ref("teachingData").on("value", (snapshot) => {
@@ -320,13 +337,12 @@
           classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV27', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV27', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV27', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV27', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV28', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV28', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV28', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV28', JSON.stringify(classData));
           } catch(e) {}
 
-          // 只有在第一次載入，或是使用者不在填寫資料時才大翻新畫面，避免打斷操作
           if (isInitialLoad || document.getElementById('form-modal').style.display === 'none') {
              renderNav();
              if (currentView === 'dashboard') showDashboard();
@@ -337,22 +353,19 @@
     });
   }
 
-  // V27 雲端寫入，背景執行不打斷
   function saveToCloud() {
     repairData();
-    const cleanData = JSON.parse(JSON.stringify({
-      generalMemos: generalMemos, customQuestions: customQuestions, quickLinks: quickLinks, classData: classData
-    }));
+    const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV27', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV27', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV27', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV27', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV28', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV28', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV28', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV28', JSON.stringify(classData));
     } catch (err) {}
   }
 
-  // --- 5. 視窗與通用控制 ---
+  // --- 5. 視窗控制 ---
   let currentSaveAction = null; 
 
   function renderNav() {
@@ -377,6 +390,7 @@
   function closeGameModal() { 
     clearTimeout(spotlightTimer); document.getElementById('game-modal').style.display = 'none'; 
     window.removeEventListener('wheel', handleCardScroll); window.removeEventListener('keydown', fcKeyHandler);
+    if(currentView === 'class') showClass(currentClassId, currentTab); // 關閉遊戲時確保背景同步
   }
   function openTimerModal() { document.getElementById('timer-setup-modal').style.display = 'flex'; }
 
@@ -493,13 +507,10 @@
   function deleteQ(idx) { customQuestions.splice(idx, 1); saveToCloud(); showDashboard(); }
   function deleteLink(id) { quickLinks = quickLinks.filter(l => String(l.id) !== String(id)); saveToCloud(); showDashboard(); }
 
-  // --- 8. 班級分頁路由與全自動點名系統 (V27 核心亮點) ---
+  // --- 8. 班級分頁路由與全自動點名系統 ---
   window.switchUnit = function(u) { currentUnitId = String(u); showClass(currentClassId, 'cards'); };
   
-  function changeAttendanceWeek(dir) {
-    attendanceWeekOffset += dir;
-    showClass(currentClassId, 'students');
-  }
+  function changeAttendanceWeek(dir) { attendanceWeekOffset += dir; showClass(currentClassId, 'students'); }
 
   function showClass(id, tab = 'home') {
     if (String(currentClassId) !== String(id)) { currentUnitId = 'all'; attendanceWeekOffset = 0; }
@@ -514,7 +525,6 @@
       tabContent = `<h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:10px;">任務清單 <button class="btn-icon" onclick="openAddMemoModal('${cls.id}')">➕</button></h3><ul class="memo-list">${mHTML||`<li class="memo-item">${t('noTask')}</li>`}</ul>`;
     } 
     else if (tab === 'students') {
-      // V27 自動產生平日曆，不再需要手動新增日期
       let weekDays = getWeekDays(attendanceWeekOffset);
       let todayStr = getTodayString();
       let dHeaders = weekDays.map(date => `<th>${date}</th>`).join('');
@@ -522,7 +532,6 @@
       let sRows = cls.students.map(s => {
         let recs = weekDays.map(date => {
           let stat = s.records ? s.records[date] || 'pending' : 'pending'; let selCls = stat==='present'?'att-present':(stat==='absent'?'att-absent':'att-pending');
-          // 局部更新渲染法，告別點擊延遲
           return `<td><select id="att-${s.id}-${date.replace('/','-')}" class="attendance-select ${selCls}" onchange="updateAttendanceLocal('${id}', '${s.id}', '${date}', this.value, this.id)"><option value="pending" ${stat==='pending'?'selected':''}>➖</option><option value="present" ${stat==='present'?'selected':''}>✅</option><option value="absent" ${stat==='absent'?'selected':''}>❌</option></select></td>`;
         }).join('');
         return `<tr><td><strong>${s.name}</strong></td>${recs}<td><button class="btn btn-danger" onclick="deleteStudent('${id}', '${s.id}')">✖</button></td></tr>`;
@@ -582,7 +591,6 @@
   function deleteClass(id) { if(confirm(t('deleteConfirm'))) { classData = classData.filter(c => String(c.id) !== String(id)); saveToCloud(); showDashboard(); } }
   function deleteStudent(cId, sId) { if(confirm("Del?")){ const c = classData.find(x=>String(x.id)===String(cId)); if(c){ c.students = c.students.filter(s=>String(s.id)!==String(sId)); saveToCloud(); showClass(cId, 'students'); } } }
   
-  // V27 極速局部更新演算法，不重新渲染整個表格，徹底消滅延遲
   window.updateAttendanceLocal = function(cId, sId, d, stat, elemId) {
     const c = classData.find(x=>String(x.id)===String(cId)); 
     if(c){ 
@@ -590,17 +598,20 @@
       if(s){ 
         if(!s.records) s.records={}; 
         s.records[d] = stat; 
-        
-        // 瞬間改變本地端下拉選單顏色，不等雲端回傳
         const elem = document.getElementById(elemId);
-        if(elem) {
-           elem.className = `attendance-select att-${stat}`;
-        }
-        
-        // 背景上傳，不打斷操作
+        if(elem) elem.className = `attendance-select att-${stat}`;
         saveToCloud(); 
       } 
     }
+  }
+
+  // --- V28 正向回饋特效 ---
+  function showSuccessEffect() {
+    const ef = document.createElement('div');
+    ef.className = 'success-effect';
+    ef.innerText = "✨ Excellent! ✨";
+    document.body.appendChild(ef);
+    setTimeout(() => ef.remove(), 1500);
   }
 
   // --- 9. 遊戲 Modal ---
@@ -637,11 +648,23 @@
   function ansQ(cId, sId, d, stat, isRev) { 
     document.getElementById('small-talk-display').style.display = 'none'; 
     isQuestionActive = false; 
+    
+    // 觸發正向特效
+    if (stat === 'present') showSuccessEffect();
+
     if(!isRev) { 
        const c = classData.find(x=>String(x.id)===String(cId)); 
        if(c){ 
          const s = c.students.find(x=>String(x.id)===String(sId)); 
-         if(s){ if(!s.records) s.records={}; s.records[d]=stat; saveToCloud(); } 
+         if(s){ 
+             if(!s.records) s.records={}; 
+             s.records[d]=stat; 
+             // V28 關鍵修復：背景即刻同步表格視覺
+             let selectId = `att-${s.id}-${d.replace('/','-')}`;
+             let elem = document.getElementById(selectId);
+             if(elem) { elem.value = stat; elem.className = `attendance-select att-${stat}`; }
+             saveToCloud(); 
+         } 
        } 
     } 
     if(document.querySelectorAll('.bubble').length === 0) { 
@@ -675,7 +698,7 @@
   }
   function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
 
-  // --- 11. 單字卡大螢幕展演引擎 ---
+  // --- 11. 單字卡大螢幕展演引擎 (V28 硬核綁定防呆版) ---
   function deleteUnit(uId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ c.units = c.units.filter(u=>String(u.id)!==String(uId)); currentUnitId='all'; saveToCloud(); showClass(currentClassId, 'cards'); } } }
   function deleteWord(uId, wId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ const u=c.units.find(x=>String(x.id)===String(uId)); if(u){ u.words = u.words.filter(w=>String(w.id)!==String(wId)); saveToCloud(); showClass(currentClassId, 'cards'); } } } }
 
@@ -691,13 +714,32 @@
   function openFlashcardModal(index, isShuffle = false) {
     let words = getDisplayWords(); if(words.length === 0) return; currentDisplayWords = words; isShuffleMode = isShuffle; currentCardIndex = index; currentCardFace = 0;
     const modal = document.getElementById('game-modal'); modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; 
-    window.addEventListener('wheel', handleCardScroll, { passive: false }); window.addEventListener('keydown', fcKeyHandler);
+    
     let mLabel = isShuffleMode ? `<div style="position:absolute; top:20px; left:20px; color:#f1c40f; font-weight:bold; font-size:20px;">${t('shuffleMode')} (<span id="fc-progress">1/${words.length}</span>)</div>` : '';
-    document.getElementById('modal-content-area').innerHTML = `${mLabel}<div class="nav-zone left" onclick="navCard(-1)">❮</div><div class="large-fc-container"><div id="large-fc-inner" class="large-fc-inner fc-color-0" onclick="handleCardClick()" style="cursor:pointer;"></div><div class="fc-scroll-hint">${t('hintScroll')} (<span id="fc-counter">1</span>/4)</div></div><div class="nav-zone right" onclick="navCard(1)">❯</div>`;
+    
+    // 使用純淨的 DOM 結構，移除容易干擾的 inline onclick
+    document.getElementById('modal-content-area').innerHTML = `
+      ${mLabel}
+      <div id="nav-btn-left" class="nav-zone left">❮</div>
+      <div id="card-touch-zone" class="large-fc-container">
+        <div id="large-fc-inner" class="large-fc-inner fc-color-0"></div>
+        <div class="fc-scroll-hint">${t('hintScroll')} (<span id="fc-counter">1</span>/4)</div>
+      </div>
+      <div id="nav-btn-right" class="nav-zone right">❯</div>
+    `;
+    
+    // V28 硬核綁定事件，徹底擺脫無反應困境
+    document.getElementById('nav-btn-left').addEventListener('click', (e) => { e.stopPropagation(); navCard(-1); });
+    document.getElementById('nav-btn-right').addEventListener('click', (e) => { e.stopPropagation(); navCard(1); });
+    document.getElementById('card-touch-zone').addEventListener('click', (e) => { e.stopPropagation(); handleCardClick(); });
+    
+    window.addEventListener('wheel', handleCardScroll, { passive: false }); 
+    window.addEventListener('keydown', fcKeyHandler);
+    
     updateCardFace();
   }
 
-  window.handleCardClick = function() {
+  function handleCardClick() {
     if(isFlipping) return; 
     const inner = document.getElementById('large-fc-inner'); if(!inner) return;
     isFlipping = true; currentCardFace = (currentCardFace + 1) % 4; 
@@ -707,6 +749,7 @@
 
   function fcKeyHandler(e) {
     if(document.getElementById('game-modal').style.display !== 'flex' || !document.getElementById('large-fc-inner')) return;
+    if(isFlipping) return;
     if(e.key === 'ArrowRight') { e.preventDefault(); navCard(1); } 
     else if(e.key === 'ArrowLeft') { e.preventDefault(); navCard(-1); }
     else if(e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); handleCardScroll({ preventDefault: ()=>{}, deltaY: 100 }); } 
