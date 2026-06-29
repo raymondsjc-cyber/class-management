@@ -81,7 +81,7 @@
     .week-nav button { background:#e2e8f0; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; color:#475569; transition:0.2s; font-weight:bold; }
     .week-nav button:hover { background:#cbd5e1; color:#1e293b; }
 
-    /* Modal 視窗系統 */
+    /* Modal 共用視窗底層 */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
     .modal-box { background: transparent; width: 90%; height: 90%; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; }
     .close-btn { position: absolute; top: 20px; right: 20px; background: #f1f5f9; border: none; font-size: 24px; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; color: #1e293b; z-index: 50; }
@@ -102,29 +102,9 @@
     .small-talk-text { flex-grow: 1; padding: 40px; color: white; font-size: 28px; font-weight: bold; text-align: center; cursor: pointer; transition: background 0.2s; }
     .small-talk-absent-btn { background: #e74c3c; color: white; border: none; padding: 0 40px; font-size: 20px; font-weight: bold; cursor: pointer; }
 
-    /*置中徽章正向特效 */
-    .success-effect {
-        position: fixed; top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: clamp(45px, 6vw, 80px);
-        font-weight: 900;
-        color: #fff;
-        background: linear-gradient(135deg, #f1c40f, #f39c12);
-        padding: 15px 50px;
-        border-radius: 50px;
-        border: 5px solid #fff;
-        box-shadow: 0 15px 40px rgba(241, 196, 15, 0.6);
-        white-space: nowrap; 
-        z-index: 9999; pointer-events: none;
-        animation: badgePop 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-    @keyframes badgePop {
-        0% { transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); opacity: 0; }
-        20% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); opacity: 1; }
-        40% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-        80% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-        100% { transform: translate(-50%, -150%) scale(0.8); opacity: 0; }
-    }
+    /* 置中徽章正向特效 */
+    .success-effect { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(45px, 6vw, 80px); font-weight: 900; color: #fff; background: linear-gradient(135deg, #f1c40f, #f39c12); padding: 15px 50px; border-radius: 50px; border: 5px solid #fff; box-shadow: 0 15px 40px rgba(241, 196, 15, 0.6); white-space: nowrap; z-index: 9999; pointer-events: none; animation: badgePop 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes badgePop { 0% { transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); opacity: 0; } 20% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); opacity: 1; } 40% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; } 80% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -150%) scale(0.8); opacity: 0; } }
 
     /* 計時器動畫與面板 */
     .timer-setup-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center; }
@@ -139,7 +119,7 @@
     .shake-anim { animation: shake 0.5s infinite; background: #e74c3c !important; }
     @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 25% { transform: translate(-2px, -2px) rotate(-1deg); } 50% { transform: translate(1px, 2px) rotate(1deg); } 75% { transform: translate(-2px, -1px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
-    /* 單字卡系統 */
+    /* 單字卡系統 (首頁列表) */
     .flashcard-layout { display: flex; gap: 20px; align-items: flex-start; }
     .unit-sidebar { width: 220px; background: #f1f5f9; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
     .unit-btn { padding: 12px; text-align: left; background: none; border: none; font-size: 16px; cursor: pointer; border-radius: 8px; color: #475569; font-weight: bold; transition: 0.2s; display: flex; justify-content: space-between; }
@@ -159,17 +139,12 @@
     .fc-side-btn:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.9); }
     .fc-center-zone { width: 60%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 5005; cursor: pointer; perspective: 1500px; }
     
-    .large-fc-inner { width: 100%; max-width: 800px; height: 60vh; max-height: 600px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; text-align: center; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; word-break: break-word; }
+    .large-fc-inner { width: 100%; max-width: 800px; height: 60vh; max-height: 600px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; text-align: center; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; word-break: break-word; }
     .fc-color-0 { background: #3498db; color: white; font-size: clamp(60px, 8vw, 100px); font-weight: bold; } 
     .fc-color-1 { background: #2ecc71; color: white; font-size: clamp(40px, 6vw, 70px); font-weight: bold; } 
     .fc-color-2 { background: white; } 
     .fc-color-2 img { max-width: 100%; max-height: 100%; border-radius: 12px; object-fit: contain; }
     .fc-color-3 { background: #9b59b6; color: white; font-size: clamp(30px, 4vw, 50px); font-style: italic; } 
-    
-    .nav-zone { height: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 15; color: rgba(255,255,255,0); font-size: 60px; transition: 0.3s; position: absolute; top: 0; }
-    .nav-zone:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.9); }
-    .nav-zone.left { left: 0; width: 15%; } 
-    .nav-zone.right { right: 0; width: 15%; }
     .fc-flip-hint { margin-top: 30px; color: rgba(255,255,255,0.7); font-size: 18px; width: 100%; text-align: center; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5); pointer-events: none; }
   </style>
 </head>
@@ -185,7 +160,7 @@
 <div id="game-modal" class="modal-overlay">
   <div class="modal-box">
     <button class="close-btn" onclick="closeGameModal()">✖</button>
-    <div id="modal-content-area" style="width:100%; height:100%; display:flex; flex-direction:row; justify-content:center; align-items:center; position:relative;"></div>
+    <div id="modal-content-area" style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative;"></div>
   </div>
 </div>
 
@@ -244,56 +219,63 @@
     db = firebase.database();
   } catch(e) { console.error("Firebase init failed", e); }
 
-  // --- 2. 雙語系統 (新增分數與圖片驗證語系字典) ---
+  // --- 2. 雙語系統 ---
   let currentLang = localStorage.getItem('siteLang') || 'zh';
   const i18n = {
     zh: { 
       title: "教學管理中心", dash: "👩‍🏫 教師總覽", addCls: "➕ 新增班級", cal: "📅 行事曆",
-      timerSetup: "設定倒數計時器", timerFS: "💥 全螢幕特效", timerFloat: "📌 懸浮模式", cancel: "取消", stop: "停止", save: "儲存",
+      timerSetup: "設定倒數計時器", cancel: "取消", stop: "停止", save: "儲存",
       memoGlobal: "📌 備忘錄與任務", memoAdd: "➕ 新增任務", qBank: "💬 自訂點名題庫", qAdd: "➕ 新增題庫",
       quickLinks: "🔗 常用網站連結", linkName: "網站名稱", linkUrl: "網址 (URL)", addLink: "➕ 新增連結",
-      tabHome: "🏠 班級首頁", tabStudents: "🧑‍🎓 出缺勤管理", tabScore: "📊 分數紀錄", tabCards: "🔤 單字卡",
+      tabHome: "🏠 班級首頁", tabStudents: "🧑‍🎓 出缺勤管理", tabExams: "📊 分數管理", tabCards: "🔤 單字卡",
       addStu: "➕ 新增學生", addDate: "➕ 新增日期", gameBubble: "🫧 點名", gameSpotlight: "🔦 抽籤",
       unitAll: "📚 所有單字", unitAdd: "➕ 新增單元", wordAdd: "➕ 新增單字",
       word: "單字 (Word)", meaning: "中文 (Meaning)", sentence: "例句 (Sentence)",
       shuffleBtn: "🔀 開始隨機輪播", shuffleMode: "🔀 隨機輪播", finished: "🎉 全部複習完畢！",
-      hintScroll: "穿梭控制：點擊卡片中央翻面，點擊左右兩側切換卡片", hintClickUnit: "💡 點擊特定單元，然後按下 ➕ 圖示來新增單字卡！",
+      hintScroll: "🖱️ 點擊卡片翻面，點擊左右兩側切換上/下一張", hintClickUnit: "💡 點擊特定單元，然後按下 ➕ 圖示來新增單字卡！",
       btnDraw: "🎯 開始抽籤", noTask: "目前沒有任務。", noStudent: "目前還沒有學生喔！",
       renameTip: "重新命名", deleteTip: "刪除班級", renamePrompt: "修改名稱：", deleteConfirm: "確定要刪除嗎？",
       prevWeek: "❮ 上週", nextWeek: "下週 ❯", thisWeek: "本週",
-      addExam: "➕ 新增考試", examName: "考試名稱", examTotal: "滿分分數", examDate: "考試日期", stuName: "學生姓名",
-      enterScore: "📝 登錄分數", saveScore: "💾 儲存分數"
+      addExam: "➕ 新增考試", examTitle: "考試內容", examTotal: "考試總分", noExam: "目前還沒有任何考試項目紀錄喔！"
     },
     en: { 
       title: "Teaching Center", dash: "👩‍🏫 Dashboard", addCls: "➕ Add Class", cal: "📅 Calendar",
-      timerSetup: "Timer Setup", timerFS: "💥 Fullscreen", timerFloat: "📌 Floating", cancel: "Cancel", stop: "Stop", save: "Save",
+      timerSetup: "Timer Setup", cancel: "Cancel", stop: "Stop", save: "Save",
       memoGlobal: "📌 Memos & Tasks", memoAdd: "➕ Add Task", qBank: "💬 Question Bank", qAdd: "➕ Add Q",
       quickLinks: "🔗 Quick Links", linkName: "Site Name", linkUrl: "URL", addLink: "➕ Add Link",
-      tabHome: "🏠 Home", tabStudents: "🧑‍🎓 Attendance", tabScore: "📊 Grades", tabCards: "🔤 Flashcards",
+      tabHome: "🏠 Home", tabStudents: "🧑‍🎓 Attendance", tabExams: "📊 Scores", tabCards: "🔤 Flashcards",
       addStu: "➕ Add Student", addDate: "Add Date", gameBubble: "🫧 Roll Call", gameSpotlight: "🔦 Spotlight",
       unitAll: "📚 All Words", unitAdd: "➕ Add Unit", wordAdd: "➕ Add Word",
       word: "Word", meaning: "Meaning", sentence: "Sentence",
       shuffleBtn: "🔀 Start Shuffle", shuffleMode: "🔀 Shuffle", finished: "🎉 All done!",
-      hintScroll: "Click center to flip, click left/right zones to change cards", hintClickUnit: "💡 Select a unit and click ➕ to add words!",
+      hintScroll: "🖱️ Click card to flip, click sides for Prev/Next", hintClickUnit: "💡 Select a unit and click ➕ to add words!",
       btnDraw: "🎯 Start Draw", noTask: "No tasks.", noStudent: "No students yet!",
       renameTip: "Rename", deleteTip: "Delete", renamePrompt: "Rename:", deleteConfirm: "Are you sure to delete?",
       prevWeek: "❮ Prev", nextWeek: "Next ❯", thisWeek: "This Week",
-      addExam: "➕ Add Exam", examName: "Exam Name", examTotal: "Max Score", examDate: "Date", stuName: "Student Name",
-      enterScore: "📝 Enter Grades", saveScore: "💾 Save Grades"
+      addExam: "➕ Add Exam", examTitle: "Exam Content", examTotal: "Total Score", noExam: "No exam records yet!"
     }
   };
   const t = (k) => i18n[currentLang][k] || k;
 
-  // --- 3. 雙引擎本機與雲端備份儲存庫 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV33')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV33')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV33')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV33')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
+  function toggleLanguage() { 
+    currentLang = currentLang === 'zh' ? 'en' : 'zh'; 
+    localStorage.setItem('siteLang', currentLang); 
+    renderNav(); 
+    if(currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); 
+    document.getElementById('fs-timer-close').innerText = t('stop');
+    document.getElementById('t-setup-title').innerText = t('timerSetup');
+  }
+
+  // --- 3. 雙引擎資料控制 ---
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV32')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV32')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV32')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV32')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
   let attendanceWeekOffset = 0; 
-  let activeExamEditId = null; // V33 全域控制變數：記錄當前解鎖打分模式的 Exam ID
+  let activeEditingExamId = null; // V33 新增：正在批改分數的考試 ID 鎖定器
 
   function toArr(obj) {
     if (!obj) return [];
@@ -309,17 +291,24 @@
       c.students = toArr(c.students);
       c.units = toArr(c.units);
       c.exams = toArr(c.exams);
+      
+      // V33 核心優化 2：確保考試項目永遠嚴格「按照日期時間」由舊到新自動排序
+      c.exams.sort((a, b) => {
+        return new Date(a.rawDate || a.id) - new Date(b.rawDate || b.id);
+      });
+
       c.units.forEach(u => { u.words = toArr(u.words); });
       c.exams.forEach(e => { if(!e.records) e.records = {}; });
       c.students.forEach(s => { if(!s.records) s.records = {}; });
     });
     generalMemos = toArr(generalMemos);
     customQuestions = toArr(customQuestions);
+    if(customQuestions.length === 0) customQuestions = ["What did you have for breakfast today? 🍳"];
     quickLinks = toArr(quickLinks);
   }
   repairData(); 
 
-  // --- 自動產生週間日期功能群 ---
+  // --- 週間日期生成 ---
   function getWeekDays(offset) {
     let d = new Date(); let day = d.getDay() || 7; 
     d.setDate(d.getDate() + (1 - day) + (offset * 7)); 
@@ -338,8 +327,7 @@
     return `${m}/${d}`;
   }
 
-  // --- 4. 雲端同步中控引擎 ---
-  let isInitialLoad = true;
+  // --- 4. 雲端監聽器 ---
   if(db) {
     db.ref("teachingData").on("value", (snapshot) => {
       if(snapshot.exists()) {
@@ -347,19 +335,20 @@
           generalMemos = cloudData.generalMemos; customQuestions = cloudData.customQuestions; quickLinks = cloudData.quickLinks; classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV33', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV33', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV33', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV33', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV32', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV32', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV32', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV32', JSON.stringify(classData));
           } catch(e) {}
           
           const fModal = document.getElementById('form-modal').style.display;
           const gModal = document.getElementById('game-modal').style.display;
           const fcModal = document.getElementById('flashcard-modal').style.display;
-          if (fModal !== 'flex' && gModal !== 'flex' && fcModal !== 'flex') {
+          
+          // V33：批改分數時，不因雲端每秒回傳而強刷 DOM 導致輸入被打斷
+          if (fModal !== 'flex' && gModal !== 'flex' && fcModal !== 'flex' && activeEditingExamId === null) {
              renderNav();
              if (currentView === 'dashboard') showDashboard(); else if (currentView === 'class') showClass(currentClassId, currentTab);
-             isInitialLoad = false;
           }
       }
     });
@@ -370,16 +359,24 @@
     const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV33', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV33', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV33', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV33', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV32', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV32', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV32', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV32', JSON.stringify(classData));
     } catch (err) {}
   }
 
   // --- 5. 視窗控制核心 ---
   let currentSaveAction = null; 
 
+  function renderNav() {
+    document.getElementById('site-title').innerText = t('title');
+    const nav = document.getElementById('nav-bar');
+    nav.innerHTML = `<button class="nav-btn ${currentView === 'dashboard' ? 'active' : ''}" onclick="showDashboard()">${t('dash')}</button>`;
+    classData.forEach(c => { nav.innerHTML += `<button class="nav-btn ${currentView === 'class' && String(currentClassId) === String(c.id) ? 'active' : ''}" onclick="showClass('${c.id}', 'home')">📘 ${c.name}</button>`; });
+    nav.innerHTML += `<button class="btn-icon" onclick="openAddClassModal()" title="${t('addCls')}">➕</button><button class="timer-btn" onclick="openTimerModal()">⏱️</button><button class="lang-toggle" onclick="toggleLanguage()">EN/中</button>`;
+  }
+  
   function openFormModal(title, bodyHTML, onSaveFunc) {
     currentSaveAction = onSaveFunc; 
     document.getElementById('form-modal-save').style.display = 'inline-block';
@@ -389,53 +386,70 @@
     document.getElementById('form-modal').style.display = 'flex';
     document.body.style.overflow = 'hidden'; 
   }
-  function executeFormSave() { if(currentSaveAction) { try { let res = currentSaveAction(); if(res === false) return; } catch (e) { console.error(e); } closeFormModal(); } }
+  
+  function executeFormSave() { 
+    if(currentSaveAction) {
+        try { let res = currentSaveAction(); if(res === false) return; } catch (e) { console.error(e); }
+        closeFormModal(); 
+    } 
+  }
   function closeFormModal() { document.getElementById('form-modal').style.display = 'none'; document.body.style.overflow = 'auto'; if (currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); }
-  function closeGameModal() { clearTimeout(spotlightTimer); document.getElementById('game-modal').style.display = 'none'; document.body.style.overflow = 'auto'; if(currentView === 'class') showClass(currentClassId, currentTab); }
+  function closeGameModal() { clearTimeout(spotlightTimer); document.getElementById('game-modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
   function openTimerModal() { document.getElementById('timer-setup-modal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
   function closeTimerSetupModal() { document.getElementById('timer-setup-modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
-  // --- 6. 新增表單處理群 ---
+  // --- 6. 新增表單群組 ---
   function openAddClassModal() {
     openFormModal(t('addCls'), `<input type="text" id="modal-new-class" placeholder="Class Name...">`, () => {
-      const n = document.getElementById('modal-new-class').value.trim(); if(!n) return false;
+      const n = document.getElementById('modal-new-class').value.trim();
+      if(!n) { alert("Please enter a name"); return false; }
       const newId = Date.now(); classData.push({ id: newId, name: n, memos: [], students: [], units: [], exams: [] }); 
-      currentClassId = String(newId); currentView = 'class'; currentTab = 'home'; saveToCloud(); return true;
+      currentClassId = String(newId); currentView = 'class'; currentTab = 'home';
+      saveToCloud(); return true;
     });
   }
+
   function openAddMemoModal(classId = 'general') {
     openFormModal(t('memoAdd'), `<input type="text" id="modal-memo-txt" placeholder="Task..."><input type="date" id="modal-memo-date">`, () => {
       const txt = document.getElementById('modal-memo-txt').value.trim(); const d = document.getElementById('modal-memo-date').value;
-      if(!txt) return false; const obj = {id:Date.now(), text:txt, date:d||null};
+      if(!txt) { alert("Task cannot be empty!"); return false; }
+      const obj = {id:Date.now(), text:txt, date:d||null};
       if(classId === 'general') generalMemos.push(obj); else { const c = classData.find(x=>String(x.id)===String(classId)); if(c) c.memos.push(obj); }
       saveToCloud(); return true;
     });
   }
+
   function openAddQModal() { openFormModal(t('qAdd'), `<input type="text" id="modal-q-val" placeholder="Question...">`, () => { const q = document.getElementById('modal-q-val').value.trim(); if(!q) return false; customQuestions.push(q); saveToCloud(); return true; }); }
   function openAddLinkModal() { openFormModal(t('addLink'), `<input type="text" id="modal-l-name" placeholder="${t('linkName')}"><input type="text" id="modal-l-url" placeholder="${t('linkUrl')}">`, () => { const n = document.getElementById('modal-l-name').value.trim(); let u = document.getElementById('modal-l-url').value.trim(); if(!n || !u) return false; if(!u.startsWith('http')) u = 'https://' + u; quickLinks.push({id: Date.now(), name: n, url: u}); saveToCloud(); return true; }); }
-  function openAddStudentModal(cId) { openFormModal(t('addStu'), `<input type="text" id="modal-stu-name" placeholder="Student Name...">`, () => { const n = document.getElementById('modal-stu-name').value.trim(); if(!n) return false; const cls = classData.find(c=>String(c.id)===String(cId)); if(cls) { cls.students.push({id:Date.now(), name:n, records:{}}); saveToCloud(); } return true; }); }
-  function openAddUnitModal(cId) { openFormModal(t('unitAdd'), `<input type="text" id="modal-unit-name" placeholder="Unit Name...">`, () => { const n = document.getElementById('modal-unit-name').value.trim(); if(!n) return false; const cls = classData.find(c=>String(c.id)===String(cId)); if(cls) { cls.units.push({id:'u'+Date.now(), name:n, words:[]}); currentUnitId='u'+Date.now(); saveToCloud(); } return true; }); }
+  
+  function openAddStudentModal(cId) {
+    openFormModal(t('addStu'), `<input type="text" id="modal-stu-name" placeholder="Student Name...">`, () => {
+      const n = document.getElementById('modal-stu-name').value.trim();
+      if(!n) { alert("Student name required!"); return false; }
+      const cls = classData.find(c=>String(c.id)===String(cId)); 
+      if(cls) { cls.students.push({id:Date.now(), name:n, records:{}}); saveToCloud(); }
+      return true;
+    });
+  }
 
-  // V32 新增：開啟建立新考試項目視窗
   function openAddExamModal(cId) {
     openFormModal(t('addExam'), `
-      <input type="text" id="me-title" placeholder="${t('examTitle')} (e.g. Unit 1 Quiz)">
-      <input type="date" id="me-date">
+      <input type="text" id="me-title" placeholder="${t('examTitle')}">
+      <input type="date" id="me-date" value="${new Date().toISOString().split('T')[0]}">
       <input type="number" id="me-total" placeholder="${t('examTotal')}" value="100">
     `, () => {
       const title = document.getElementById('me-title').value.trim();
       const date = document.getElementById('me-date').value;
       const total = document.getElementById('me-total').value;
-      if(!title || !date || !total) { alert("請完整輸入所有欄位項目！"); return false; }
-      
-      const cls = classData.find(c => String(c.id) === String(cId));
+      if(!title || !date || !total) { alert("請完整填寫所有考試欄位項目！"); return false; }
+      const cls = classData.find(c=>String(c.id)===String(cId));
       if(cls) {
         if(!cls.exams) cls.exams = [];
         cls.exams.push({
-          id: 'e' + Date.now(),
+          id: Date.now(),
           title: title,
-          date: date,
-          displayDate: date.substring(5).replace('-', '/'),
+          date: date.substring(5).replace('-', '/'),
+          rawDate: date, // 用於精準時間線排序
           totalScore: Number(total),
           records: {}
         });
@@ -445,78 +459,160 @@
     });
   }
 
-  // V32 優化：網址驗證與警告警報防護
+  function openAddUnitModal(cId) {
+    openFormModal(t('unitAdd'), `<input type="text" id="modal-unit-name" placeholder="Unit Name...">`, () => {
+      const n = document.getElementById('modal-unit-name').value.trim();
+      if(!n) { alert("Unit name required!"); return false; }
+      const cls = classData.find(c=>String(c.id)===String(cId)); 
+      if(cls) { cls.units.push({id:'u'+Date.now(), name:n, words:[]}); currentUnitId='u'+Date.now(); saveToCloud(); }
+      return true;
+    });
+  }
+
   function openAddWordModal(cId, uId) {
-    openFormModal(t('wordAdd'), `<input type="text" id="mw-w" placeholder="${t('word')}"><input type="text" id="mw-m" placeholder="${t('meaning')}"><input type="text" id="mw-s" placeholder="${t('sentence')}"><div style="font-size:14px; color:#64748b; margin-bottom:5px;">上傳圖片網址 (選填)</div><input type="text" id="mw-i" placeholder="https://...">`, () => {
-      const w = document.getElementById('mw-w').value.trim(); const m = document.getElementById('mw-m').value.trim() || '...'; const s = document.getElementById('mw-s').value.trim() || '...'; const iUrl = document.getElementById('mw-i').value.trim();
-      if(!w) return false;
-      if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) { alert("⚠️ 提醒事項：貼上的圖片網址格式不符或無法使用！必須以 http:// 或 https:// 開頭。"); return false; }
+    openFormModal(t('wordAdd'), `
+      <input type="text" id="mw-w" placeholder="${t('word')}">
+      <input type="text" id="mw-m" placeholder="${t('meaning')}">
+      <input type="text" id="mw-s" placeholder="${t('sentence')}">
+      <div style="font-size:14px; color:#64748b; margin-bottom:5px;">圖片網址 (直接貼上網路圖片連結)</div>
+      <input type="text" id="mw-i" placeholder="https://...">
+    `, () => {
+      const w = document.getElementById('mw-w').value.trim(); 
+      const m = document.getElementById('mw-m').value.trim() || '...'; 
+      const s = document.getElementById('mw-s').value.trim() || '...';
+      const iUrl = document.getElementById('mw-i').value.trim();
+      
+      if(!w) { alert("Word is required!"); return false; }
+      if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) {
+        alert("⚠️ 提醒事項：貼補的圖片網址格式不符！必須以 http:// 或 https:// 開頭。");
+        return false;
+      }
       const c = classData.find(x=>String(x.id)===String(cId));
       if(c) { const u = c.units.find(x=>String(x.id)===String(uId)); if(u) { u.words.push({ id:'w'+Date.now(), word:w, meaning:m, sentence:s, imgData:iUrl }); saveToCloud(); } }
       return true;
     });
   }
 
-  // V32 新增：隨時編輯字卡內容
   window.openEditWordModal = function(cId, uId, wId) {
     const c = classData.find(x => String(x.id) === String(cId)); if(!c) return;
     const u = c.units.find(x => String(x.id) === String(uId)); if(!u) return;
     const wObj = u.words.find(x => String(x.id) === String(wId)); if(!wObj) return;
-    openFormModal("編輯單字卡內容", `<input type="text" id="mw-w" value="${wObj.word}"><input type="text" id="mw-m" value="${wObj.meaning}"><input type="text" id="mw-s" value="${wObj.sentence}"><div style="font-size:14px; color:#64748b; margin-bottom:5px;">圖片網址</div><input type="text" id="mw-i" value="${wObj.imgData || ''}">`, () => {
-      const w = document.getElementById('mw-w').value.trim(); const m = document.getElementById('mw-m').value.trim() || '...'; const s = document.getElementById('mw-s').value.trim() || '...'; const iUrl = document.getElementById('mw-i').value.trim();
-      if(!w) return false;
-      if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) { alert("⚠️ 提醒事項：網址格式錯誤！"); return false; }
-      wObj.word = w; wObj.meaning = m; wObj.sentence = s; wObj.imgData = iUrl; saveToCloud(); return true;
+
+    openFormModal("編輯單字卡內容 | Edit Flashcard", `
+      <input type="text" id="mw-w" placeholder="${t('word')}" value="${wObj.word}">
+      <input type="text" id="mw-m" placeholder="${t('meaning')}" value="${wObj.meaning}">
+      <input type="text" id="mw-s" placeholder="${t('sentence')}" value="${wObj.sentence}">
+      <div style="font-size:14px; color:#64748b; margin-bottom:5px;">圖片網址 / Image URL</div>
+      <input type="text" id="mw-i" placeholder="https://..." value="${wObj.imgData || ''}">
+    `, () => {
+      const w = document.getElementById('mw-w').value.trim(); 
+      const m = document.getElementById('mw-m').value.trim() || '...'; 
+      const s = document.getElementById('mw-s').value.trim() || '...';
+      const iUrl = document.getElementById('mw-i').value.trim();
+      
+      if(!w) { alert("Word is required!"); return false; }
+      if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) {
+        alert("⚠️ 提醒事項：修改的圖片網址格式不符！必須以 http:// 或 https:// 開頭。");
+        return false;
+      }
+      wObj.word = w; wObj.meaning = m; wObj.sentence = s; wObj.imgData = iUrl;
+      saveToCloud(); return true;
     });
   };
 
   // --- 7. 總覽與行事曆 ---
+  function getCalendarHTML() {
+    const mNames = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+    const fd = new Date(calYear, calMonth, 1).getDay(); const dim = new Date(calYear, calMonth + 1, 0).getDate(); const pd = new Date(calYear, calMonth, 0).getDate();
+    let aDates = new Set(); generalMemos.forEach(m => { if(m.date) aDates.add(m.date); }); classData.forEach(c => c.memos.forEach(m => { if(m.date) aDates.add(m.date); }));
+    let dHTML = ''; const dL = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="cal-day-label">${d}</div>`).join('');
+    for (let i = fd - 1; i >= 0; i--) dHTML += `<div class="cal-day other-month">${pd - i}</div>`;
+    for (let i = 1; i <= dim; i++) {
+      let fD = `${calYear}-${(calMonth + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+      let act = fD === filterDate ? 'active' : ''; let hd = aDates.has(fD) ? `<div class="cal-dot"></div>` : '';
+      dHTML += `<div class="cal-day ${act}" onclick="toggleCalFilter('${fD}')">${i}${hd}</div>`;
+    }
+    return `<div class="cal-header"><button onclick="changeCalMonth(-1)">❮</button><div>${calYear} / ${mNames[calMonth]}</div><button onclick="changeCalMonth(1)">❯</button></div><div class="cal-grid">${dL}${dHTML}</div>`;
+  }
   function showDashboard() {
     currentView = 'dashboard'; currentClassId = null; renderNav();
-    let aM = []; generalMemos.forEach(m => aM.push({...m, txt: "🌍", tC: "tag-general", cId: 'general'})); classData.forEach(c => c.memos.forEach(m => aM.push({...m, txt: c.name, tC: "tag-dynamic", cId: c.id})));
+    let aM = [];
+    generalMemos.forEach(m => aM.push({...m, txt: "🌍", tC: "tag-general", cId: 'general'}));
+    classData.forEach(c => c.memos.forEach(m => aM.push({...m, txt: c.name, tC: "tag-dynamic", cId: c.id})));
     if(filterDate) aM = aM.filter(m => m.date === filterDate);
     aM.sort((a, b) => { if(a.date && !b.date) return -1; if(!a.date && b.date) return 1; if(a.date && b.date) return a.date.localeCompare(b.date); return 0; });
+
     let mHTML = aM.map(m => `<li class="memo-item"><div class="memo-content"><span class="class-tag ${m.tC}">${m.txt}</span>${m.date ? `<span style="font-size:12px; color:#e74c3c; margin-right:8px; font-weight:bold;">[${m.date.substring(5)}]</span>` : ''}${m.text}</div><button class="btn btn-danger" style="padding:2px 8px; border-radius:50%;" onclick="deleteMemo('${m.id}', '${m.cId}')">✖</button></li>`).join('');
     let qHTML = customQuestions.map((q, i) => `<li class="memo-item" style="padding:8px;"><div class="memo-content">🗣️ ${q}</div><button class="btn btn-danger" onclick="deleteQ(${i})">✖</button></li>`).join('');
     let linksHTML = quickLinks.map(l => `<div class="quick-link-item"><a href="${l.url}" target="_blank">${l.name}</a><button onclick="deleteLink('${l.id}')">✖</button></div>`).join('');
-    document.getElementById('main-content').innerHTML = `<div class="dashboard-layout"><div class="dashboard-main card"><h2 style="justify-content:space-between;"><span>${t('memoGlobal')}</span> <button class="btn-icon" onclick="openAddMemoModal('general')">➕</button></h2><ul class="memo-list">${mHTML || `<li class="memo-item" style="color:#94a3b8;">${t('noTask')}</li>`}</ul><h2 style="margin-top:40px; justify-content:space-between;"><span>${t('qBank')}</span> <button class="btn-icon" onclick="openAddQModal()">➕</button></h2><ul class="memo-list" style="border: 1px solid #e2e8f0; border-radius:8px;">${qHTML}</ul><h2 style="margin-top:40px; justify-content:space-between;"><span>${t('quickLinks')}</span> <button class="btn-icon" onclick="openAddLinkModal()">➕</button></h2><div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">${linksHTML || `<span style="color:#94a3b8;">Empty</span>`}</div></div><div class="dashboard-side">${getCalendarHTML()}</div></div>`;
+    let dStat = filterDate ? `<span style="color:#e74c3c;"> (${filterDate}) <button style="background:none;border:none;color:#3498db;cursor:pointer;" onclick="toggleCalFilter('${filterDate}')">Clear</button></span>` : '';
+
+    document.getElementById('main-content').innerHTML = `
+      <div class="dashboard-layout">
+        <div class="dashboard-main card">
+          <h2 style="justify-content:space-between;"><span>${t('memoGlobal')} ${dStat}</span> <button class="btn-icon" onclick="openAddMemoModal('general')">➕</button></h2>
+          <ul class="memo-list">${mHTML || `<li class="memo-item" style="color:#94a3b8;">${t('noTask')}</li>`}</ul>
+          
+          <h2 style="margin-top:40px; justify-content:space-between;"><span>${t('qBank')}</span> <button class="btn-icon" onclick="openAddQModal()">➕</button></h2>
+          <ul class="memo-list" style="border: 1px solid #e2e8f0; border-radius:8px;">${qHTML}</ul>
+
+          <h2 style="margin-top:40px; justify-content:space-between;"><span>${t('quickLinks')}</span> <button class="btn-icon" onclick="openAddLinkModal()">➕</button></h2>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">${linksHTML || `<span style="color:#94a3b8;">Empty</span>`}</div>
+        </div>
+        <div class="dashboard-side">${getCalendarHTML()}</div>
+      </div>
+    `;
   }
 
-  // --- 8. 班級分頁路由控制系統 ---
-  // V33 新增：打分模式與儲存切換控制代碼
-  window.enterExamEditMode = function(eId) {
-    activeExamEditId = String(eId);
-    showClass(currentClassId, 'exams');
-  };
-  window.saveExamScores = function() {
-    activeExamEditId = null; // 關閉鎖定
-    saveToCloud(); // 一次性寫入雲端並刷新
-  };
-  window.updateScoreMemory = function(cId, eId, sId, val) {
-    const c = classData.find(x=>String(x.id)===String(cId));
-    if(c) {
-      const e = c.exams.find(x=>String(x.id)===String(eId));
-      if(e) {
-        if(!e.records) e.records = {};
-        e.records[sId] = val === '' ? '' : Number(val);
+  // --- 8. 班級分頁路由與分數管理完全體 (V33 核心改寫點) ---
+  
+  // V33 核心優化 1：打分標誌切換解鎖與批量雲端同步引擎
+  window.toggleExamEditMode = function(cId, eId) {
+    if (activeEditingExamId === null) {
+      // 進入編輯登記模式
+      activeEditingExamId = String(eId);
+      showClass(cId, 'exams');
+    } else if (activeEditingExamId === String(eId)) {
+      // 點擊儲存，打包全班分數上傳
+      const c = classData.find(x=>String(x.id)===String(cId));
+      if(c) {
+        const e = c.exams.find(x=>String(x.id)===String(eId));
+        if(e) {
+          c.students.forEach(s => {
+             const inputElem = document.getElementById(`score-${eId}-${s.id}`);
+             if(inputElem) {
+               e.records[s.id] = inputElem.value === '' ? '' : Number(inputElem.value);
+             }
+          });
+          activeEditingExamId = null; // 釋放鎖定
+          saveToCloud(); // 一次性發送雲端
+          showClass(cId, 'exams');
+        }
       }
+    } else {
+      alert("⚠️ 提醒：請先完成並儲存目前正在登記的考試分數！");
     }
   };
+
   window.renameExam = function(cId, eId) {
     const c = classData.find(x=>String(x.id)===String(cId));
     if(c) {
       const e = c.exams.find(x=>String(x.id)===String(eId));
-      if(e) { let n = prompt("修改考試名稱：", e.title); if(n && n.trim() !== "") { e.title = n.trim(); saveToCloud(); showClass(cId, 'exams'); } }
+      if(e) {
+        let n = prompt("修改考試項目名稱：", e.title);
+        if(n && n.trim() !== "") { e.title = n.trim(); saveToCloud(); showClass(cId, 'exams'); }
+      }
     }
   };
   window.deleteExam = function(cId, eId) {
-    if(confirm("確定要刪除這項考試項目嗎？")) {
-      const c = classData.find(x=>String(x.id)===String(cId)); if(c) { c.exams = c.exams.filter(x=>String(x.id)!==String(eId)); saveToCloud(); showClass(cId, 'exams'); }
+    if(confirm("確定要刪除這項考試項目嗎？雲端分數將被清空。")) {
+      const c = classData.find(x=>String(x.id)===String(cId));
+      if(c) { c.exams = c.exams.filter(x=>String(x.id)!==String(eId)); if(activeEditingExamId===String(eId)) activeEditingExamId=null; saveToCloud(); showClass(cId, 'exams'); }
     }
   };
 
   function showClass(id, tab = 'home') {
-    if (String(currentClassId) !== String(id)) { currentUnitId = 'all'; attendanceWeekOffset = 0; activeExamEditId = null; }
+    if (String(currentClassId) !== String(id)) { currentUnitId = 'all'; attendanceWeekOffset = 0; activeEditingExamId = null; }
     currentView = 'class'; currentClassId = String(id); currentTab = tab; renderNav();
     const cls = classData.find(c => String(c.id) === String(id)); if (!cls) return; 
     let tabContent = '';
@@ -555,51 +651,49 @@
         </div>` : ''}
       `;
     } 
-    // --- V33 核心進化：分數管理介面 ---
+    // V33 核心優化 3：分數分頁表頭與欄位重構 (雙語即時切換、自動時間軸排序、防誤觸鎖定)
     else if (tab === 'exams') {
-      // 核心修復 2：考試項目依據完整年月日自動排序
-      cls.exams.sort((a, b) => (a.fullDate || '').localeCompare(b.fullDate || ''));
-
-      let dHeaders = cls.exams.map(e => {
-        let isEditing = String(e.id) === activeExamEditId;
-        // 核心修復 1：動態功能按鈕切換
-        let editBtn = isEditing 
-          ? `<button class="btn btn-success" style="padding:4px 8px; font-size:12px; margin-top:5px; display:block; width:100%;" onclick="saveExamScores()">${t('saveScore')}</button>`
-          : `<button class="btn btn-warning" style="background:#e2e8f0; color:#2c3e50; padding:4px 8px; font-size:12px; margin-top:5px; display:block; width:100%;" onclick="enterExamEditMode('${e.id}')">${t('enterScore')}</button>`;
-
-        return `<th>
-          <div style="font-size:15px; font-weight:bold; color:#1e3a8a;">${e.title}</div>
-          <div style="font-size:12px; color:#64748b;">📅 ${e.displayDate || e.date} (${e.totalScore}pt)</div>
-          <div style="display:flex; gap:3px; justify-content:center; margin-top:5px;">
-             <button style="background:none; border:none; cursor:pointer; font-size:11px;" onclick="renameExam('${id}', '${e.id}')">✏️</button>
-             <button style="background:none; border:none; cursor:pointer; font-size:11px; color:#e74c3c;" onclick="deleteExam('${id}', '${e.id}')">🗑️</button>
-          </div>
-          ${editBtn}
-        </th>`;
+      let eHeaders = cls.exams.map(e => {
+        let isEditingThis = activeEditingExamId === String(e.id);
+        let actionBtnText = isEditingThis ? '💾 儲存' : '📝 登記';
+        let actionBtnClass = isEditingThis ? 'btn-success' : 'btn-warning';
+        return `
+          <th style="min-width:160px; background:${isEditingThis ? '#fffbeb' : '#fafafa'}; border: ${isEditingThis ? '2px solid #f1c40f' : '1px solid #e2e8f0'}">
+            <div style="font-size:15px;color:#2c3e50;font-weight:700;">${e.title}</div>
+            <div style="font-size:11px;color:#7f8c8d;font-weight:normal;margin:2px 0;">📅 ${e.date}</div>
+            <div style="font-size:12px;color:#3498db;font-weight:700;">💯 ${currentLang==='zh'?'總分':'Total'}: ${e.totalScore}</div>
+            <div style="margin-top:6px;display:flex;justify-content:center;gap:4px;">
+              <button class="btn ${actionBtnClass}" style="padding:3px 8px;font-size:11px;" onclick="toggleExamEditMode('${id}', '${e.id}')">${actionBtnText}</button>
+              <button class="btn-icon" style="padding:3px 6px;font-size:11px;background:#fff;" onclick="renameExam('${id}', '${e.id}')">✏️</button>
+              <button class="btn-icon" style="padding:3px 6px;font-size:11px;color:#e74c3c;background:#fff;" onclick="deleteExam('${id}', '${e.id}')">✖</button>
+            </div>
+          </th>
+        `;
       }).join('');
 
       let sRows = cls.students.map(s => {
-        let recs = cls.exams.map(e => {
-          let score = (e.records && e.records[s.id] !== undefined) ? e.records[s.id] : '';
-          let isEditing = String(e.id) === activeExamEditId;
-          // 核心修復 1：非編輯狀態下加入 disabled 鎖定，並且使用 oninput 減少傳輸跳動
-          return `<td>
-            <input type="number" value="${score}" min="0" max="${e.totalScore}" 
-                   style="width:70px; text-align:center; font-weight:bold; border-color:${isEditing?'#3498db':'#cbd5e1'}; background-color:${isEditing?'#fff':'#f8fafc'};"
-                   placeholder="-" ${isEditing ? '' : 'disabled'}
-                   oninput="updateScoreMemory('${id}', '${e.id}', '${s.id}', this.value)">
-          </td>`;
+        let examCells = cls.exams.map(e => {
+          let score = e.records ? e.records[s.id] ?? '' : '';
+          let isReadOnly = activeEditingExamId !== String(e.id);
+          return `
+            <td style="background:${!isReadOnly ? '#fffbeb' : 'transparent'};">
+              <input type="number" id="score-${e.id}-${s.id}" value="${score}" placeholder="-" min="0" max="${e.totalScore}" 
+                     ${isReadOnly ? 'disabled' : ''}
+                     style="width:55px;text-align:center;padding:5px;border-radius:6px;border:2px solid ${isReadOnly ? '#e2e8f0' : '#cbd5e1'}; font-weight:bold; color:${isReadOnly ? '#7f8c8d' : '#2c3e50'}; background:${isReadOnly ? '#f1f5f9' : '#fff'};" >
+              <span style="font-size:13px;color:#7f8c8d;font-weight:bold;"> / ${e.totalScore}</span>
+            </td>
+          `;
         }).join('');
-        return `<tr><td><strong>${s.name}</strong></td>${recs}</tr>`;
+        return `<tr><td><strong>${s.name}</strong></td>${examCells}</tr>`;
       }).join('');
 
       tabContent = `
         <div style="display:flex; gap:15px; margin-bottom:15px;">
-          <button class="btn-icon" onclick="openAddExamModal('${id}')">${t('addExam')}</button>
+          <button class="btn-icon" onclick="openAddExamModal('${id}')" style="font-weight:bold;">${t('addExam')}</button>
         </div>
         <div style="overflow-x: auto;">
           <table class="student-table">
-            <tr><th>${t('stuName')}</th>${dHeaders}</tr>
+            <tr><th>${currentLang==='zh'?'學生姓名':'Student Name'}</th>${eHeaders}</tr>
             ${sRows || `<tr><td colspan="100%" style="color:#94a3b8;padding:30px;">${t('noExam')}</td></tr>`}
           </table>
         </div>
@@ -619,22 +713,25 @@
         </div>
       `).join('');
 
-      let titleBar = (currentUnitId !== 'all')
-        ? `<h3 style="display:flex; align-items:center; gap:10px; margin-top:0;">${(cls.units.find(u => String(u.id) === currentUnitId) || {}).name || ''} <button class="btn-icon" onclick="openAddWordModal('${cls.id}', '${currentUnitId}')" title="${t('wordAdd')}">➕</button></h3>`
-        : `<h3 style="margin-top:0;">${t('unitAll')}</h3><div style="padding:15px; background:#f1f5f9; border-radius:10px; margin-bottom:20px; font-weight:bold; color:#64748b;">${t('hintClickUnit')}</div>`;
+      let titleBar = '';
+      if (currentUnitId !== 'all') {
+        const tU = cls.units.find(u => String(u.id) === currentUnitId);
+        titleBar = `<h3 style="display:flex; align-items:center; gap:10px; margin-top:0;">${tU ? tU.name : ''} <button class="btn-icon" onclick="openAddWordModal('${cls.id}', '${currentUnitId}')" title="${t('wordAdd')}">➕</button></h3>`;
+      } else {
+        titleBar = `<h3 style="margin-top:0;">${t('unitAll')}</h3><div style="padding:15px; background:#f1f5f9; border-radius:10px; margin-bottom:20px; font-weight:bold; color:#64748b;">${t('hintClickUnit')}</div>`;
+      }
 
       let sfBtn = words.length > 0 ? `<button class="btn btn-warning" style="margin-bottom: 20px; width:100%; font-size:18px;" onclick="startShuffle()">${t('shuffleBtn')}</button>` : ``;
       tabContent = `<div class="flashcard-layout"><div class="unit-sidebar">${uHTML}</div><div style="flex-grow:1;">${titleBar}${sfBtn}<div class="flashcard-grid">${cardsHTML}</div></div></div>`;
     }
 
-    // 核心修復 3：雙語同步切換控制標籤
     document.getElementById('main-content').innerHTML = `
       <div class="card">
         ${classHeader}
         <div class="tab-bar">
           <button class="tab-btn ${tab==='home'?'active':''}" onclick="showClass('${id}', 'home')">${t('tabHome')}</button>
           <button class="tab-btn ${tab==='students'?'active':''}" onclick="showClass('${id}', 'students')">${t('tabStudents')}</button>
-          <button class="tab-btn ${tab==='exams'?'active':''}" onclick="showClass('${id}', 'exams')">${t('tabScore')}</button>
+          <button class="tab-btn ${tab==='exams'?'active':''}" onclick="showClass('${id}', 'exams')">${currentLang==='zh'?'💯 分數管理':'💯 Scores'}</button>
           <button class="tab-btn ${tab==='cards'?'active':''}" onclick="showClass('${id}', 'cards')">${t('tabCards')}</button>
         </div>
         <div id="tab-content">${tabContent}</div>
@@ -644,9 +741,22 @@
   function renameClass(id) { const cls = classData.find(c => String(c.id) === String(id)); if(cls){ let n = prompt(t('renamePrompt'), cls.name); if(n && n.trim() !== "") { cls.name = n.trim(); saveToCloud(); } } }
   function deleteClass(id) { if(confirm(t('deleteConfirm'))) { classData = classData.filter(c => String(c.id) !== String(id)); saveToCloud(); showDashboard(); } }
   function deleteStudent(cId, sId) { if(confirm("Del?")){ const c = classData.find(x=>String(x.id)===String(cId)); if(c){ c.students = c.students.filter(s=>String(s.id)!==String(sId)); saveToCloud(); showClass(cId, 'students'); } } }
-  window.updateAttendanceLocal = function(cId, sId, d, stat, elemId) { const c = classData.find(x=>String(x.id)===String(cId)); if(c){ const s = c.students.find(x=>String(x.id)===String(sId)); if(s){ if(!s.records) s.records={}; s.records[d] = stat; const elem = document.getElementById(elemId); if(elem) { elem.value = stat; elem.className = `attendance-select att-${stat}`; } saveToCloud(); } } }
+  
+  window.updateAttendanceLocal = function(cId, sId, d, stat, elemId) {
+    const c = classData.find(x=>String(x.id)===String(cId)); 
+    if(c){ 
+      const s = c.students.find(x=>String(x.id)===String(sId)); 
+      if(s){ 
+        if(!s.records) s.records={}; s.records[d] = stat; 
+        const elem = document.getElementById(elemId);
+        if(elem) { elem.value = stat; elem.className = `attendance-select att-${stat}`; }
+        saveToCloud(); 
+      } 
+    }
+  }
 
-  // --- 9. 課堂遊戲與特效模組 ---
+  // --- 9. 遊戲、正向特效與抽籤互動 ---
+  let spotlightTimer = null; let isQuestionActive = false; let isSpinning = false;
   function openGameModal(type, classId) {
     const date = document.getElementById('game-date').value; const modal = document.getElementById('game-modal'); const content = document.getElementById('modal-content-area');
     const cls = classData.find(c => String(c.id) === String(classId)); isQuestionActive = false; isSpinning = false; clearTimeout(spotlightTimer);
@@ -674,9 +784,11 @@
       content.innerHTML = `<h3 style="position:absolute; top:20px; color:#fff;">Date: ${date}</h3><div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%;"><div class="student-grid" id="spotlight-grid">${p.map(s => `<div class="student-box">${s.name}</div>`).join('')}</div></div><div style="margin-bottom: 50px;"><button class="btn btn-warning" id="spotlight-btn" onclick="runSp()" style="font-size:28px; padding:20px 60px; border-radius:40px; border:4px solid #fff;">${t('btnDraw')}</button></div>`;
     }
   }
+
   function ansQ(cId, sId, d, stat, isRev) { 
     document.getElementById('small-talk-display').style.display = 'none'; isQuestionActive = false; 
     if (stat === 'present') showSuccessEffect();
+
     if(!isRev) { 
        const c = classData.find(x=>String(x.id)===String(cId)); 
        if(c){ 
@@ -690,7 +802,10 @@
          } 
        } 
     } 
-    if(document.querySelectorAll('.bubble').length === 0) { document.getElementById('modal-content-area').innerHTML = `<h2 style="font-size:48px; color:#fff;">🎉 Finished!</h2>`; setTimeout(closeGameModal, 1500); } 
+    if(document.querySelectorAll('.bubble').length === 0) { 
+      document.getElementById('modal-content-area').innerHTML = `<h2 style="font-size:48px; color:#fff;">🎉 Finished!</h2>`; 
+      setTimeout(closeGameModal, 1500); 
+    } 
   }
   function runSp() {
     if(isSpinning) return; const bx = document.querySelectorAll('#spotlight-grid .student-box'); if(bx.length === 0) return;
@@ -703,7 +818,8 @@
   let cTimer = null;
   function startTimer(mode) {
     let s = (parseInt(document.getElementById('t-min').value)||0)*60 + (parseInt(document.getElementById('t-sec').value)||0); if(s<=0) return;
-    document.getElementById('timer-setup-modal').style.display = 'none'; clearInterval(cTimer); document.body.style.overflow = 'auto'; 
+    document.getElementById('timer-setup-modal').style.display = 'none'; clearInterval(cTimer);
+    document.body.style.overflow = 'auto'; 
     const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer');
     fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; document.getElementById('fs-timer-close').style.display = 'block';
     if(mode === 'fs') fs.style.display = 'flex'; else fl.style.display = 'flex';
@@ -717,28 +833,42 @@
   }
   function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
 
-  // --- 11. 單字卡大螢幕展演引擎 ---
+  // --- 11. 單字卡大螢幕展演引擎 (純點擊完全體) ---
   function deleteUnit(uId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ c.units = c.units.filter(u=>String(u.id)!==String(uId)); currentUnitId='all'; saveToCloud(); showClass(currentClassId, 'cards'); } } }
   function deleteWord(uId, wId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ const u=c.units.find(x=>String(x.id)===String(uId)); if(u){ u.words = u.words.filter(w=>String(w.id)!==String(wId)); saveToCloud(); showClass(currentClassId, 'cards'); } } } }
+
+  function getDisplayWords() {
+    let w = []; const cls = classData.find(c=>String(c.id)===String(currentClassId)); if (!cls) return w;
+    if(currentUnitId === 'all') cls.units.forEach(u => { if(u.words) w = w.concat(u.words.map(wd=>({...wd, unitId:u.id}))); }); 
+    else { const tU = cls.units.find(u => String(u.id) === String(currentUnitId)); if(tU && tU.words) w = tU.words.map(wd=>({...wd, unitId:tU.id})); }
+    return w;
+  }
 
   let isShuffleMode = false; let shuffleQueue = []; let shuffleIndex = 0; let currentDisplayWords = []; let currentCardIndex = 0; let currentCardFace = 0; let isFlipping = false;
 
   function startShuffle() { let words = getDisplayWords(); if(words.length === 0) return; shuffleQueue = [...Array(words.length).keys()].sort(() => Math.random() - 0.5); isShuffleMode = true; shuffleIndex = 0; openFlashcardModal(shuffleQueue[0], true); }
+  
   function openFlashcardModal(index, isShuffle = false) {
     let words = getDisplayWords(); if(words.length === 0) return; currentDisplayWords = words; isShuffleMode = isShuffle; currentCardIndex = index; currentCardFace = 0;
+    
     document.getElementById('flashcard-modal').style.display = 'flex'; document.body.style.overflow = 'hidden'; 
     let mLabel = isShuffleMode ? `${t('shuffleMode')} (<span id="fc-progress">1/${words.length}</span>)` : '';
     document.getElementById('fc-m-label').innerHTML = mLabel;
+    
     window.addEventListener('keydown', fcKeyHandler);
     updateCardFace();
   }
+
   window.closeFlashcardModal = function() { document.getElementById('flashcard-modal').style.display = 'none'; document.body.style.overflow = 'auto'; window.removeEventListener('keydown', fcKeyHandler); }
+
   window.flipCard = function() {
-    if(isFlipping) return; const inner = document.getElementById('large-fc-inner'); if(!inner) return;
+    if(isFlipping) return; 
+    const inner = document.getElementById('large-fc-inner'); if(!inner) return;
     isFlipping = true; currentCardFace = (currentCardFace + 1) % 4; 
     inner.style.transform = 'scale(0.9) rotateY(90deg)'; inner.style.opacity = '0.3';
     setTimeout(() => { updateCardFace(); inner.style.transform = 'scale(1) rotateY(0deg)'; inner.style.opacity = '1'; setTimeout(() => { isFlipping = false; }, 350); }, 150);
   }
+
   window.navCard = function(direction) {
     if(isShuffleMode) {
       shuffleIndex += direction; if(shuffleIndex < 0) { shuffleIndex = 0; return; }
@@ -750,22 +880,27 @@
     currentCardFace = 0; const inner = document.getElementById('large-fc-inner'); inner.style.transform = direction > 0 ? 'translateX(50px) scale(0.95)' : 'translateX(-50px) scale(0.95)'; inner.style.opacity = '0.5';
     setTimeout(() => { updateCardFace(); inner.style.transform = 'translateX(0) scale(1)'; inner.style.opacity = '1'; }, 200);
   }
+
   function fcKeyHandler(e) {
-    if(document.getElementById('flashcard-modal').style.display !== 'flex') return; if(isFlipping) return;
-    if(e.key === 'ArrowRight') { e.preventDefault(); window.navCard(1); } else if(e.key === 'ArrowLeft') { e.preventDefault(); window.navCard(-1); }
+    if(document.getElementById('flashcard-modal').style.display !== 'flex') return;
+    if(isFlipping) return;
+    if(e.key === 'ArrowRight') { e.preventDefault(); window.navCard(1); } 
+    else if(e.key === 'ArrowLeft') { e.preventDefault(); window.navCard(-1); }
     else if(e.key === 'ArrowDown' || e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); window.flipCard(); } 
   }
+
   function updateCardFace() {
     const wObj = currentDisplayWords[currentCardIndex]; if(!wObj) return; document.getElementById('fc-counter').innerText = currentCardFace + 1;
     if(isShuffleMode && document.getElementById('fc-progress')) document.getElementById('fc-progress').innerText = `${shuffleIndex + 1}/${currentDisplayWords.length}`;
     const inner = document.getElementById('large-fc-inner'); inner.className = `large-fc-inner fc-color-${currentCardFace}`;
-    if(currentCardFace === 0) inner.innerHTML = wObj.word; else if(currentCardFace === 1) inner.innerHTML = wObj.meaning; 
-    // 核心修復 4：內嵌圖片損壞自動攔截處理機制
-    else if(currentCardFace === 2) inner.innerHTML = wObj.imgData ? `<img src="${wObj.imgData}" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\'font-size:22px;color:#e74c3c;font-weight:bold;\'>⚠️ 圖片連結損壞或已被防盜鏈阻擋</span>';">` : `<span style="font-size:60px; color:#bdc3c7;">(No Image)</span>`; 
+    
+    if(currentCardFace === 0) inner.innerHTML = wObj.word; 
+    else if(currentCardFace === 1) inner.innerHTML = wObj.meaning; 
+    else if(currentCardFace === 2) inner.innerHTML = wObj.imgData ? `<img src="${wObj.imgData}" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\'font-size:22px;color:#e74c3c;font-weight:bold;\'>⚠️ 圖片連結損壞或已被阻擋</span>';">` : `<span style="font-size:60px; color:#bdc3c7;">(No Image)</span>`; 
     else if(currentCardFace === 3) inner.innerHTML = wObj.sentence;
   }
 
-  // --- 12. 系統初始化啟動 ---
+  // --- 12. 初始化啟動 ---
   renderNav(); showDashboard();
 </script>
 </body>
