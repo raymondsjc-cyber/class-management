@@ -78,7 +78,6 @@
     .att-absent { background-color: #fee2e2; color: #b91c1c; border-color:#b91c1c; }
     .att-pending { background-color: #f1f5f9; color: #64748b; border-color:#cbd5e1; }
     
-    /* 週次切換導航 */
     .week-nav { display:flex; align-items:center; gap:15px; font-size:16px; font-weight:bold; color:#2c3e50; }
     .week-nav button { background:#e2e8f0; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; color:#475569; transition:0.2s; font-weight:bold; }
     .week-nav button:hover { background:#cbd5e1; color:#1e293b; }
@@ -104,17 +103,28 @@
     .small-talk-text { flex-grow: 1; padding: 40px; color: white; font-size: 28px; font-weight: bold; text-align: center; cursor: pointer; transition: background 0.2s; }
     .small-talk-absent-btn { background: #e74c3c; color: white; border: none; padding: 0 40px; font-size: 20px; font-weight: bold; cursor: pointer; }
 
-    /* V28 新增：正向特效動畫 */
-    @keyframes superPop {
-        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-        40% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-        60% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        100% { transform: translate(-50%, -150%) scale(1.1); opacity: 0; }
-    }
+    /* V29 進化版：防換行+置中徽章正向特效 */
     .success-effect {
-        position: fixed; top: 50%; left: 50%; font-size: clamp(60px, 8vw, 100px); font-weight: bold; color: #f1c40f;
-        text-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999; pointer-events: none;
-        animation: superPop 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: clamp(45px, 6vw, 80px);
+        font-weight: 900;
+        color: #fff;
+        background: linear-gradient(135deg, #f1c40f, #f39c12);
+        padding: 15px 50px;
+        border-radius: 50px;
+        border: 5px solid #fff;
+        box-shadow: 0 15px 40px rgba(241, 196, 15, 0.6);
+        white-space: nowrap; /* 絕對不換行 */
+        z-index: 9999; pointer-events: none;
+        animation: badgePop 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes badgePop {
+        0% { transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); opacity: 0; }
+        20% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); opacity: 1; }
+        40% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+        80% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+        100% { transform: translate(-50%, -150%) scale(0.8); opacity: 0; }
     }
 
     /* 計時器動畫與面板 */
@@ -130,7 +140,7 @@
     .shake-anim { animation: shake 0.5s infinite; background: #e74c3c !important; }
     @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 25% { transform: translate(-2px, -2px) rotate(-1deg); } 50% { transform: translate(1px, 2px) rotate(1deg); } 75% { transform: translate(-2px, -1px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
-    /* 單字卡系統 */
+    /* 單字卡系統 (佈局重構) */
     .flashcard-layout { display: flex; gap: 20px; align-items: flex-start; }
     .unit-sidebar { width: 220px; background: #f1f5f9; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
     .unit-btn { padding: 12px; text-align: left; background: none; border: none; font-size: 16px; cursor: pointer; border-radius: 8px; color: #475569; font-weight: bold; transition: 0.2s; display: flex; justify-content: space-between; }
@@ -142,17 +152,19 @@
     .fc-delete { position: absolute; top: -10px; right: -10px; background: #e74c3c; color: white; border: none; border-radius: 50%; width: 26px; height: 26px; font-weight: bold; cursor: pointer; display: none; z-index: 10; }
     .fc-mini-box:hover .fc-delete { display: block; }
     
-    .large-fc-container { width: 600px; height: 400px; perspective: 1500px; position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+    .large-fc-container { width: 60%; height: 400px; perspective: 1500px; position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; cursor: pointer; margin: 0 5%; }
     .large-fc-inner { width: 100%; height: 100%; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; text-align: center; transition: transform 0.4s ease, opacity 0.4s ease; transform-style: preserve-3d; word-break: break-word; }
     .fc-color-0 { background: #3498db; color: white; font-size: 80px; font-weight: bold; } 
     .fc-color-1 { background: #2ecc71; color: white; font-size: 60px; font-weight: bold; } 
     .fc-color-2 { background: white; } 
     .fc-color-2 img { max-width: 100%; max-height: 100%; border-radius: 12px; object-fit: contain; }
     .fc-color-3 { background: #9b59b6; color: white; font-size: 40px; font-style: italic; } 
-    .nav-zone { position: absolute; top: 0; height: 100%; width: 25%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 15; color: rgba(255,255,255,0); font-size: 60px; transition: 0.3s; }
+    
+    .nav-zone { height: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 15; color: rgba(255,255,255,0); font-size: 60px; transition: 0.3s; position: absolute; top: 0; }
     .nav-zone:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.9); }
-    .nav-zone.left { left: 0; } .nav-zone.right { right: 0; }
-    .fc-scroll-hint { position: absolute; bottom: -50px; color: white; font-size: 18px; width: 100%; text-align: center; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .nav-zone.left { left: 0; width: 15%; } 
+    .nav-zone.right { right: 0; width: 15%; }
+    .fc-flip-hint { position: absolute; bottom: -50px; color: white; font-size: 18px; width: 100%; text-align: center; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
   </style>
 </head>
 <body>
@@ -168,7 +180,7 @@
 <div id="game-modal" class="modal-overlay">
   <div class="modal-box">
     <button class="close-btn" onclick="closeGameModal()">✖</button>
-    <div id="modal-content-area" style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative;"></div>
+    <div id="modal-content-area" style="width:100%; height:100%; display:flex; flex-direction:row; justify-content:center; align-items:center; position:relative;"></div>
   </div>
 </div>
 
@@ -232,7 +244,7 @@
       unitAll: "📚 所有單字", unitAdd: "➕ 新增單元", wordAdd: "➕ 新增單字",
       word: "單字 (Word)", meaning: "中文 (Meaning)", sentence: "例句 (Sentence)",
       shuffleBtn: "🔀 開始隨機輪播", shuffleMode: "🔀 隨機輪播", finished: "🎉 全部複習完畢！",
-      hintScroll: "🖱️ 點擊卡片、滑鼠滾輪，或按鍵盤 空白鍵/方向鍵", hintClickUnit: "💡 點擊特定單元，然後按下 ➕ 圖示來新增單字卡！",
+      hintScroll: "🖱️ 點擊卡片翻面，點擊左右兩側切換上/下一張", hintClickUnit: "💡 點擊特定單元，然後按下 ➕ 圖示來新增單字卡！",
       btnDraw: "🎯 開始抽籤", noTask: "目前沒有任務。", noStudent: "目前還沒有學生喔！",
       renameTip: "重新命名", deleteTip: "刪除班級", renamePrompt: "修改名稱：", deleteConfirm: "確定要刪除嗎？",
       prevWeek: "❮ 上週", nextWeek: "下週 ❯", thisWeek: "本週"
@@ -241,13 +253,13 @@
       title: "Teaching Center", dash: "👩‍🏫 Dashboard", addCls: "➕ Add Class", cal: "📅 Calendar",
       timerSetup: "Timer Setup", timerFS: "💥 Fullscreen", timerFloat: "📌 Floating", cancel: "Cancel", stop: "Stop", save: "Save",
       memoGlobal: "📌 Memos & Tasks", memoAdd: "➕ Add Task", qBank: "💬 Question Bank", qAdd: "➕ Add Q",
-      quickLinks: "🔗 Quick Links", SiteName: "Site Name", linkUrl: "URL", addLink: "➕ Add Link",
+      quickLinks: "🔗 Quick Links", linkName: "Site Name", linkUrl: "URL", addLink: "➕ Add Link",
       tabHome: "🏠 Home", tabStudents: "🧑‍🎓 Attendance", tabCards: "🔤 Flashcards",
       addStu: "➕ Add Student", addDate: "Add Date", gameBubble: "🫧 Roll Call", gameSpotlight: "🔦 Spotlight",
       unitAll: "📚 All Words", unitAdd: "➕ Add Unit", wordAdd: "➕ Add Word",
       word: "Word", meaning: "Meaning", sentence: "Sentence",
       shuffleBtn: "🔀 Start Shuffle", shuffleMode: "🔀 Shuffle", finished: "🎉 All done!",
-      hintScroll: "🖱️ Click card, Scroll or use Space/Arrow Keys", hintClickUnit: "💡 Select a unit and click ➕ to add words!",
+      hintScroll: "🖱️ Click card to flip, click sides for Prev/Next", hintClickUnit: "💡 Select a unit and click ➕ to add words!",
       btnDraw: "🎯 Start Draw", noTask: "No tasks.", noStudent: "No students yet!",
       renameTip: "Rename", deleteTip: "Delete", renamePrompt: "Rename:", deleteConfirm: "Are you sure to delete?",
       prevWeek: "❮ Prev", nextWeek: "Next ❯", thisWeek: "This Week"
@@ -268,10 +280,10 @@
   }
 
   // --- 3. 雙引擎本機資料 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV28')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV28')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV28')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV28')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [] } ];
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV29')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV29')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV29')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV29')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
@@ -337,10 +349,10 @@
           classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV28', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV28', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV28', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV28', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV29', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV29', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV29', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV29', JSON.stringify(classData));
           } catch(e) {}
 
           if (isInitialLoad || document.getElementById('form-modal').style.display === 'none') {
@@ -358,10 +370,10 @@
     const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV28', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV28', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV28', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV28', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV29', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV29', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV29', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV29', JSON.stringify(classData));
     } catch (err) {}
   }
 
@@ -389,8 +401,8 @@
   function closeFormModal() { document.getElementById('form-modal').style.display = 'none'; }
   function closeGameModal() { 
     clearTimeout(spotlightTimer); document.getElementById('game-modal').style.display = 'none'; 
-    window.removeEventListener('wheel', handleCardScroll); window.removeEventListener('keydown', fcKeyHandler);
-    if(currentView === 'class') showClass(currentClassId, currentTab); // 關閉遊戲時確保背景同步
+    window.removeEventListener('keydown', fcKeyHandler); // 只需移除鍵盤
+    if(currentView === 'class') showClass(currentClassId, currentTab); 
   }
   function openTimerModal() { document.getElementById('timer-setup-modal').style.display = 'flex'; }
 
@@ -507,7 +519,7 @@
   function deleteQ(idx) { customQuestions.splice(idx, 1); saveToCloud(); showDashboard(); }
   function deleteLink(id) { quickLinks = quickLinks.filter(l => String(l.id) !== String(id)); saveToCloud(); showDashboard(); }
 
-  // --- 8. 班級分頁路由與全自動點名系統 ---
+  // --- 8. 班級分頁路由與點名系統 ---
   window.switchUnit = function(u) { currentUnitId = String(u); showClass(currentClassId, 'cards'); };
   
   function changeAttendanceWeek(dir) { attendanceWeekOffset += dir; showClass(currentClassId, 'students'); }
@@ -599,13 +611,13 @@
         if(!s.records) s.records={}; 
         s.records[d] = stat; 
         const elem = document.getElementById(elemId);
-        if(elem) elem.className = `attendance-select att-${stat}`;
+        if(elem) { elem.value = stat; elem.className = `attendance-select att-${stat}`; }
         saveToCloud(); 
       } 
     }
   }
 
-  // --- V28 正向回饋特效 ---
+  // --- V29 優化：正向特效動畫 ---
   function showSuccessEffect() {
     const ef = document.createElement('div');
     ef.className = 'success-effect';
@@ -620,7 +632,7 @@
     const date = document.getElementById('game-date').value; const modal = document.getElementById('game-modal'); const content = document.getElementById('modal-content-area');
     const cls = classData.find(c => String(c.id) === String(classId)); isQuestionActive = false; isSpinning = false; clearTimeout(spotlightTimer);
     modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; 
-    window.removeEventListener('wheel', handleCardScroll); window.removeEventListener('keydown', fcKeyHandler);
+    window.removeEventListener('keydown', fcKeyHandler);
     
     if (type === 'bubble') {
       let tg = cls.students.filter(s => s.records && s.records[date] !== 'present' && s.records[date] !== 'absent');
@@ -649,7 +661,6 @@
     document.getElementById('small-talk-display').style.display = 'none'; 
     isQuestionActive = false; 
     
-    // 觸發正向特效
     if (stat === 'present') showSuccessEffect();
 
     if(!isRev) { 
@@ -659,7 +670,6 @@
          if(s){ 
              if(!s.records) s.records={}; 
              s.records[d]=stat; 
-             // V28 關鍵修復：背景即刻同步表格視覺
              let selectId = `att-${s.id}-${d.replace('/','-')}`;
              let elem = document.getElementById(selectId);
              if(elem) { elem.value = stat; elem.className = `attendance-select att-${stat}`; }
@@ -698,7 +708,7 @@
   }
   function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
 
-  // --- 11. 單字卡大螢幕展演引擎 (V28 硬核綁定防呆版) ---
+  // --- 11. 單字卡大螢幕展演引擎 (V29 純粹點擊版) ---
   function deleteUnit(uId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ c.units = c.units.filter(u=>String(u.id)!==String(uId)); currentUnitId='all'; saveToCloud(); showClass(currentClassId, 'cards'); } } }
   function deleteWord(uId, wId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ const u=c.units.find(x=>String(x.id)===String(uId)); if(u){ u.words = u.words.filter(w=>String(w.id)!==String(wId)); saveToCloud(); showClass(currentClassId, 'cards'); } } } }
 
@@ -717,25 +727,23 @@
     
     let mLabel = isShuffleMode ? `<div style="position:absolute; top:20px; left:20px; color:#f1c40f; font-weight:bold; font-size:20px;">${t('shuffleMode')} (<span id="fc-progress">1/${words.length}</span>)</div>` : '';
     
-    // 使用純淨的 DOM 結構，移除容易干擾的 inline onclick
+    // V29: 徹底移除滾輪，改用精準版面切割綁定點擊
     document.getElementById('modal-content-area').innerHTML = `
       ${mLabel}
       <div id="nav-btn-left" class="nav-zone left">❮</div>
       <div id="card-touch-zone" class="large-fc-container">
         <div id="large-fc-inner" class="large-fc-inner fc-color-0"></div>
-        <div class="fc-scroll-hint">${t('hintScroll')} (<span id="fc-counter">1</span>/4)</div>
+        <div class="fc-flip-hint">${t('hintScroll')} (<span id="fc-counter">1</span>/4)</div>
       </div>
       <div id="nav-btn-right" class="nav-zone right">❯</div>
     `;
     
-    // V28 硬核綁定事件，徹底擺脫無反應困境
+    // 獨立事件綁定，不受父層干擾
     document.getElementById('nav-btn-left').addEventListener('click', (e) => { e.stopPropagation(); navCard(-1); });
     document.getElementById('nav-btn-right').addEventListener('click', (e) => { e.stopPropagation(); navCard(1); });
     document.getElementById('card-touch-zone').addEventListener('click', (e) => { e.stopPropagation(); handleCardClick(); });
     
-    window.addEventListener('wheel', handleCardScroll, { passive: false }); 
     window.addEventListener('keydown', fcKeyHandler);
-    
     updateCardFace();
   }
 
@@ -752,8 +760,7 @@
     if(isFlipping) return;
     if(e.key === 'ArrowRight') { e.preventDefault(); navCard(1); } 
     else if(e.key === 'ArrowLeft') { e.preventDefault(); navCard(-1); }
-    else if(e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); handleCardScroll({ preventDefault: ()=>{}, deltaY: 100 }); } 
-    else if(e.key === 'ArrowUp') { e.preventDefault(); handleCardScroll({ preventDefault: ()=>{}, deltaY: -100 }); }
+    else if(e.key === 'ArrowDown' || e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); handleCardClick(); } 
   }
 
   function updateCardFace() {
@@ -761,14 +768,6 @@
     if(isShuffleMode && document.getElementById('fc-progress')) document.getElementById('fc-progress').innerText = `${shuffleIndex + 1}/${currentDisplayWords.length}`;
     const inner = document.getElementById('large-fc-inner'); inner.className = `large-fc-inner fc-color-${currentCardFace}`;
     if(currentCardFace === 0) inner.innerHTML = wObj.word; else if(currentCardFace === 1) inner.innerHTML = wObj.meaning; else if(currentCardFace === 2) inner.innerHTML = wObj.imgData ? `<img src="${wObj.imgData}">` : `<span style="font-size:60px; color:#bdc3c7;">(No Image)</span>`; else if(currentCardFace === 3) inner.innerHTML = wObj.sentence;
-  }
-
-  function handleCardScroll(e) {
-    if(e && e.preventDefault) e.preventDefault(); if(isFlipping) return; 
-    const inner = document.getElementById('large-fc-inner'); if(!inner) { isFlipping = false; return; }
-    isFlipping = true; let dir = e.deltaY > 0 ? 1 : -1; currentCardFace = (currentCardFace + dir + 4) % 4; 
-    inner.style.transform = 'scale(0.9) rotateY(90deg)'; inner.style.opacity = '0.3';
-    setTimeout(() => { updateCardFace(); inner.style.transform = 'scale(1) rotateY(0deg)'; inner.style.opacity = '1'; setTimeout(() => { isFlipping = false; }, 350); }, 150);
   }
 
   function navCard(direction) {
