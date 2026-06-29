@@ -185,7 +185,7 @@
     <div id="form-modal-body"></div>
     <div style="display:flex; gap:15px; justify-content:center; margin-top:20px;">
       <button class="btn btn-primary" id="form-modal-save" onclick="executeFormSave()">儲存 / Save</button>
-      <button class="btn btn-danger" onclick="closeFormModal()">取消 / Cancel</button>
+      <button class="btn btn-danger" id="form-modal-cancel" onclick="closeFormModal()">取消 / Cancel</button>
     </div>
   </div>
 </div>
@@ -195,13 +195,13 @@
   <div class="timer-setup-box">
     <h2 id="t-setup-title">設定倒數計時器</h2>
     <div style="margin: 20px 0 30px; font-size: 24px; font-weight: bold; display:flex; justify-content:center; gap:10px; align-items:center;">
-      <input type="number" id="t-min" value="05" min="0" max="60" style="width:70px; text-align:center; padding:10px; border:2px solid #cbd5e1; border-radius:8px;"> 分 
-      <input type="number" id="t-sec" value="00" min="0" max="59" style="width:70px; text-align:center; padding:10px; border:2px solid #cbd5e1; border-radius:8px;"> 秒
+      <input type="number" id="t-min" value="05" min="0" max="60" style="width:70px; text-align:center; padding:10px; border:2px solid #cbd5e1; border-radius:8px;"> <span id="t-lbl-min">分</span> 
+      <input type="number" id="t-sec" value="00" min="0" max="59" style="width:70px; text-align:center; padding:10px; border:2px solid #cbd5e1; border-radius:8px;"> <span id="t-lbl-sec">秒</span>
     </div>
     <div style="display:flex; gap:15px; justify-content:center;">
       <button class="btn btn-warning" id="btn-timer-fs" onclick="startTimer('fs')">💥 全螢幕特效</button>
       <button class="btn btn-primary" id="btn-timer-fl" onclick="startTimer('floating')">📌 懸浮模式</button>
-      <button class="btn btn-danger" onclick="closeTimerSetupModal()">取消</button>
+      <button class="btn btn-danger" id="btn-timer-cc" onclick="closeTimerSetupModal()">取消</button>
     </div>
   </div>
 </div>
@@ -242,11 +242,12 @@
       btnDraw: "🎯 開始抽籤", noTask: "目前沒有任務。", noStudent: "目前還沒有學生喔！",
       renameTip: "重新命名", deleteTip: "刪除班級", renamePrompt: "修改名稱：", deleteConfirm: "確定要刪除嗎？",
       prevWeek: "❮ 上週", nextWeek: "下週 ❯", thisWeek: "本週",
-      addExam: "➕ 新增考試", examTitle: "考試內容", examDate: "考試日期 / Date", examTotal: "考試總分", noExam: "目前還沒有任何考試項目紀錄喔！",
+      addExam: "➕ 新增考試", examTitle: "考試內容", examDate: "考試日期", examTotal: "考試總分", noExam: "目前還沒有任何考試項目紀錄喔！",
       taskList: "任務清單", record: "登記", imgUrlHint: "圖片網址 (直接貼上網路圖片連結)", editCardTitle: "編輯單字卡內容",
       deleteExamConfirm: "確定要刪除這項考試項目嗎？雲端分數將被清空。",
       fillAllExam: "請完整填寫所有考試欄位項目！", finishCurrentExam: "⚠️ 提醒：請先完成並儲存目前正在登記的考試分數！",
-      urlFormatError: "⚠️ 提醒事項：圖片網址格式不符！必須以 http:// 或 https:// 開頭。", imgLoadError: "⚠️ 圖片連結損壞或已被阻擋"
+      urlFormatError: "⚠️ 提醒事項：圖片網址格式不符！必須以 http:// 或 https:// 開頭。", imgLoadError: "⚠️ 圖片連結損壞或已被阻擋",
+      minLbl: "分", secLbl: "秒", timerFS: "💥 全螢幕特效", timerFloat: "📌 懸浮模式"
     },
     en: { 
       title: "Teaching Center", dash: "👩‍🏫 Dashboard", addCls: "➕ Add Class", cal: "📅 Calendar",
@@ -266,27 +267,39 @@
       taskList: "Task List", record: "Record", imgUrlHint: "Image URL (Paste web image link)", editCardTitle: "Edit Flashcard",
       deleteExamConfirm: "Are you sure to delete this exam? Cloud scores will be cleared.",
       fillAllExam: "Please fill in all exam fields!", finishCurrentExam: "⚠️ Reminder: Please save the current exam scores first!",
-      urlFormatError: "⚠️ Reminder: Image URL format is incorrect! Must start with http:// or https://", imgLoadError: "⚠️ Image link broken or blocked"
+      urlFormatError: "⚠️ Reminder: Image URL format is incorrect! Must start with http:// or https://", imgLoadError: "⚠️ Image link broken or blocked",
+      minLbl: "Min", secLbl: "Sec", timerFS: "💥 Fullscreen", timerFloat: "📌 Floating"
     }
   };
   const t = (k) => i18n[currentLang][k] || k;
+
+  function updateStaticI18n() {
+    document.getElementById('fs-timer-close').innerText = t('stop');
+    document.getElementById('t-setup-title').innerText = t('timerSetup');
+    document.getElementById('t-lbl-min').innerText = t('minLbl');
+    document.getElementById('t-lbl-sec').innerText = t('secLbl');
+    document.getElementById('btn-timer-fs').innerText = t('timerFS');
+    document.getElementById('btn-timer-fl').innerText = t('timerFloat');
+    document.getElementById('btn-timer-cc').innerText = t('cancel');
+    document.getElementById('form-modal-save').innerText = t('save');
+    document.getElementById('form-modal-cancel').innerText = t('cancel');
+    const fcHintText = document.getElementById('fc-hint-text');
+    if(fcHintText) fcHintText.innerText = t('clickToFlip');
+  }
 
   function toggleLanguage() { 
     currentLang = currentLang === 'zh' ? 'en' : 'zh'; 
     localStorage.setItem('siteLang', currentLang); 
     renderNav(); 
     if(currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); 
-    document.getElementById('fs-timer-close').innerText = t('stop');
-    document.getElementById('t-setup-title').innerText = t('timerSetup');
-    const fcHintText = document.getElementById('fc-hint-text');
-    if(fcHintText) fcHintText.innerText = t('clickToFlip');
+    updateStaticI18n();
   }
 
   // --- 3. 雙引擎資料控制 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV36')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV36')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV36')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV36')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV37')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV37')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV37')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV37')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
@@ -357,10 +370,10 @@
           generalMemos = cloudData.generalMemos; customQuestions = cloudData.customQuestions; quickLinks = cloudData.quickLinks; classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV36', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV36', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV36', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV36', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV37', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV37', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV37', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV37', JSON.stringify(classData));
           } catch(e) {}
           
           const fModal = document.getElementById('form-modal').style.display;
@@ -380,10 +393,10 @@
     const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV36', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV36', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV36', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV36', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV37', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV37', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV37', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV37', JSON.stringify(classData));
     } catch (err) {}
   }
 
@@ -404,6 +417,7 @@
     document.getElementById('form-modal-title').innerText = title;
     document.getElementById('form-modal-body').innerHTML = bodyHTML;
     document.getElementById('form-modal-save').innerText = t('save');
+    document.getElementById('form-modal-cancel').innerText = t('cancel');
     document.getElementById('form-modal').style.display = 'flex';
     document.body.style.overflow = 'hidden'; 
   }
@@ -887,7 +901,7 @@
   }
   function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
 
-  // --- 11. 單字卡大螢幕引擎 ---
+  // --- 11. 單字卡大螢幕展演引擎 ---
   function deleteUnit(uId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ c.units = c.units.filter(u=>String(u.id)!==String(uId)); currentUnitId='all'; saveToCloud(); showClass(currentClassId, 'cards'); } } }
   function deleteWord(uId, wId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ const u=c.units.find(x=>String(x.id)===String(uId)); if(u){ u.words = u.words.filter(w=>String(w.id)!==String(wId)); saveToCloud(); showClass(currentClassId, 'cards'); } } } }
 
@@ -911,7 +925,6 @@
     let mLabel = isShuffleMode ? `${t('shuffleMode')} (<span id="fc-progress">1/${words.length}</span>)` : '';
     document.getElementById('fc-m-label').innerHTML = mLabel;
     
-    // 初始化為當前語言的提示字
     const fcHintText = document.getElementById('fc-hint-text');
     if(fcHintText) fcHintText.innerText = t('clickToFlip');
 
@@ -965,8 +978,7 @@
   }
 
   // --- 12. 初始化啟動 ---
-  const fcHintInit = document.getElementById('fc-hint-text');
-  if(fcHintInit) fcHintInit.innerText = t('clickToFlip');
+  updateStaticI18n(); // 初始化雙語文字
   renderNav(); showDashboard();
 </script>
 </body>
