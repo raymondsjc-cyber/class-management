@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>班級管理系統 | Classroom Management</title>
   
+  <!-- 載入 Google Firebase 核心套件 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -119,7 +120,7 @@
     .shake-anim { animation: shake 0.5s infinite; background: #e74c3c !important; }
     @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 25% { transform: translate(-2px, -2px) rotate(-1deg); } 50% { transform: translate(1px, 2px) rotate(1deg); } 75% { transform: translate(-2px, -1px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
-    /* 單字卡系統 (首頁列表) */
+    /* 單字卡系統 (首頁列表縮圖) */
     .flashcard-layout { display: flex; gap: 20px; align-items: flex-start; }
     .unit-sidebar { width: 220px; background: #f1f5f9; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
     .unit-btn { padding: 12px; text-align: left; background: none; border: none; font-size: 16px; cursor: pointer; border-radius: 8px; color: #475569; font-weight: bold; transition: 0.2s; display: flex; justify-content: space-between; }
@@ -139,7 +140,7 @@
     .fc-side-btn:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.9); }
     .fc-center-zone { width: 60%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 5005; cursor: pointer; perspective: 1500px; }
     
-    .large-fc-inner { width: 100%; max-width: 800px; height: 60vh; max-height: 600px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; text-align: center; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; word-break: break-word; }
+    .large-fc-inner { width: 100%; max-width: 800px; height: 60vh; max-height: 600px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; text-align: center; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; word-break: break-word; }
     .fc-color-0 { background: #3498db; color: white; font-size: clamp(60px, 8vw, 100px); font-weight: bold; } 
     .fc-color-1 { background: #2ecc71; color: white; font-size: clamp(40px, 6vw, 70px); font-weight: bold; } 
     .fc-color-2 { background: white; } 
@@ -157,13 +158,15 @@
 
 <div class="container" id="main-content"></div>
 
+<!-- 遊戲 Modal -->
 <div id="game-modal" class="modal-overlay">
   <div class="modal-box">
     <button class="close-btn" onclick="closeGameModal()">✖</button>
-    <div id="modal-content-area" style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative;"></div>
+    <div id="modal-content-area" style="width:100%; height:100%; display:flex; flex-direction:row; justify-content:center; align-items:center; position:relative;"></div>
   </div>
 </div>
 
+<!-- 獨立單字卡大圖層 -->
 <div id="flashcard-modal" class="fc-full-overlay" style="display:none;">
     <button class="close-btn" style="z-index: 6000;" onclick="closeFlashcardModal()">✖</button>
     <div class="fc-side-btn" onclick="navCard(-1)">❮</div>
@@ -175,6 +178,7 @@
     <div class="fc-side-btn" onclick="navCard(1)">❯</div>
 </div>
 
+<!-- 統一表單 Modal -->
 <div id="form-modal" class="modal-overlay" style="z-index: 3500;">
   <div class="form-box">
     <h2 id="form-modal-title">標題</h2>
@@ -186,6 +190,7 @@
   </div>
 </div>
 
+<!-- 計時器設定 Modal -->
 <div id="timer-setup-modal" class="modal-overlay" style="z-index: 3600;">
   <div class="timer-setup-box">
     <h2 id="t-setup-title">設定倒數計時器</h2>
@@ -201,6 +206,7 @@
   </div>
 </div>
 
+<!-- 計時器顯示 -->
 <div id="fullscreen-timer" class="fs-timer-display">
   <div id="fs-timer-val" class="fs-timer-text">00:00</div>
   <button id="fs-timer-close" class="btn btn-danger" style="position:absolute; bottom:15%; font-size:24px; padding:15px 50px; border-radius:30px; box-shadow:0 10px 20px rgba(0,0,0,0.5); z-index:2010;" onclick="stopTimer()">停止 / Stop</button>
@@ -267,15 +273,15 @@
   }
 
   // --- 3. 雙引擎資料控制 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV32')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV32')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV32')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV32')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV34')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV34')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV34')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV34')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
   let attendanceWeekOffset = 0; 
-  let activeEditingExamId = null; // V33 新增：正在批改分數的考試 ID 鎖定器
+  let activeEditingExamId = null; 
 
   function toArr(obj) {
     if (!obj) return [];
@@ -292,7 +298,6 @@
       c.units = toArr(c.units);
       c.exams = toArr(c.exams);
       
-      // V33 核心優化 2：確保考試項目永遠嚴格「按照日期時間」由舊到新自動排序
       c.exams.sort((a, b) => {
         return new Date(a.rawDate || a.id) - new Date(b.rawDate || b.id);
       });
@@ -335,17 +340,16 @@
           generalMemos = cloudData.generalMemos; customQuestions = cloudData.customQuestions; quickLinks = cloudData.quickLinks; classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV32', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV32', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV32', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV32', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV34', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV34', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV34', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV34', JSON.stringify(classData));
           } catch(e) {}
           
           const fModal = document.getElementById('form-modal').style.display;
           const gModal = document.getElementById('game-modal').style.display;
           const fcModal = document.getElementById('flashcard-modal').style.display;
           
-          // V33：批改分數時，不因雲端每秒回傳而強刷 DOM 導致輸入被打斷
           if (fModal !== 'flex' && gModal !== 'flex' && fcModal !== 'flex' && activeEditingExamId === null) {
              renderNav();
              if (currentView === 'dashboard') showDashboard(); else if (currentView === 'class') showClass(currentClassId, currentTab);
@@ -359,10 +363,10 @@
     const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV32', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV32', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV32', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV32', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV34', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV34', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV34', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV34', JSON.stringify(classData));
     } catch (err) {}
   }
 
@@ -398,7 +402,7 @@
   function openTimerModal() { document.getElementById('timer-setup-modal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
   function closeTimerSetupModal() { document.getElementById('timer-setup-modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
-  // --- 6. 新增表單群組 ---
+  // --- 6. 新增表單 Modal 集群 ---
   function openAddClassModal() {
     openFormModal(t('addCls'), `<input type="text" id="modal-new-class" placeholder="Class Name...">`, () => {
       const n = document.getElementById('modal-new-class').value.trim();
@@ -434,8 +438,11 @@
 
   function openAddExamModal(cId) {
     openFormModal(t('addExam'), `
+      <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examTitle')}</div>
       <input type="text" id="me-title" placeholder="${t('examTitle')}">
+      <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">考試日期 / Date</div>
       <input type="date" id="me-date" value="${new Date().toISOString().split('T')[0]}">
+      <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examTotal')}</div>
       <input type="number" id="me-total" placeholder="${t('examTotal')}" value="100">
     `, () => {
       const title = document.getElementById('me-title').value.trim();
@@ -449,7 +456,7 @@
           id: Date.now(),
           title: title,
           date: date.substring(5).replace('-', '/'),
-          rawDate: date, // 用於精準時間線排序
+          rawDate: date, 
           totalScore: Number(total),
           records: {}
         });
@@ -534,6 +541,9 @@
     }
     return `<div class="cal-header"><button onclick="changeCalMonth(-1)">❮</button><div>${calYear} / ${mNames[calMonth]}</div><button onclick="changeCalMonth(1)">❯</button></div><div class="cal-grid">${dL}${dHTML}</div>`;
   }
+  function changeCalMonth(dir) { calMonth += dir; if(calMonth > 11) { calMonth = 0; calYear++; } else if(calMonth < 0) { calMonth = 11; calYear--; } showDashboard(); }
+  function toggleCalFilter(d) { filterDate = filterDate === d ? null : d; showDashboard(); }
+
   function showDashboard() {
     currentView = 'dashboard'; currentClassId = null; renderNav();
     let aM = [];
@@ -563,17 +573,19 @@
       </div>
     `;
   }
+  function deleteMemo(id, ctx) { if(ctx==='general') generalMemos = generalMemos.filter(m=>String(m.id)!==String(id)); else { const c=classData.find(x=>String(x.id)===String(ctx)); if(c) c.memos=c.memos.filter(m=>String(m.id)!==String(id)); } saveToCloud(); showDashboard(); }
+  function deleteQ(idx) { customQuestions.splice(idx, 1); saveToCloud(); showDashboard(); }
+  function deleteLink(id) { quickLinks = quickLinks.filter(l => String(l.id) !== String(id)); saveToCloud(); showDashboard(); }
 
-  // --- 8. 班級分頁路由與分數管理完全體 (V33 核心改寫點) ---
-  
-  // V33 核心優化 1：打分標誌切換解鎖與批量雲端同步引擎
+  // --- 8. 班級分頁路由與分數管理完全體 ---
+  window.switchUnit = function(u) { currentUnitId = String(u); showClass(currentClassId, 'cards'); };
+  function changeAttendanceWeek(dir) { attendanceWeekOffset += dir; showClass(currentClassId, 'students'); }
+
   window.toggleExamEditMode = function(cId, eId) {
     if (activeEditingExamId === null) {
-      // 進入編輯登記模式
       activeEditingExamId = String(eId);
       showClass(cId, 'exams');
     } else if (activeEditingExamId === String(eId)) {
-      // 點擊儲存，打包全班分數上傳
       const c = classData.find(x=>String(x.id)===String(cId));
       if(c) {
         const e = c.exams.find(x=>String(x.id)===String(eId));
@@ -584,8 +596,8 @@
                e.records[s.id] = inputElem.value === '' ? '' : Number(inputElem.value);
              }
           });
-          activeEditingExamId = null; // 釋放鎖定
-          saveToCloud(); // 一次性發送雲端
+          activeEditingExamId = null; 
+          saveToCloud(); 
           showClass(cId, 'exams');
         }
       }
@@ -594,16 +606,39 @@
     }
   };
 
-  window.renameExam = function(cId, eId) {
+  // V34 修復: 完整編輯考試項目的 Modal，取代原本的陽春 prompt
+  window.editExamModal = function(cId, eId) {
     const c = classData.find(x=>String(x.id)===String(cId));
     if(c) {
       const e = c.exams.find(x=>String(x.id)===String(eId));
       if(e) {
-        let n = prompt("修改考試項目名稱：", e.title);
-        if(n && n.trim() !== "") { e.title = n.trim(); saveToCloud(); showClass(cId, 'exams'); }
+        let defaultDate = e.rawDate || new Date().toISOString().split('T')[0];
+        openFormModal("編輯考試項目 | Edit Exam", `
+          <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examTitle')}</div>
+          <input type="text" id="me-title" placeholder="${t('examTitle')}" value="${e.title}">
+          <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">考試日期 / Date</div>
+          <input type="date" id="me-date" value="${defaultDate}">
+          <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examTotal')}</div>
+          <input type="number" id="me-total" placeholder="${t('examTotal')}" value="${e.totalScore}">
+        `, () => {
+          const title = document.getElementById('me-title').value.trim();
+          const date = document.getElementById('me-date').value;
+          const total = document.getElementById('me-total').value;
+          if(!title || !date || !total) { alert("請完整填寫所有考試欄位項目！"); return false; }
+          
+          e.title = title;
+          e.rawDate = date;
+          e.date = date.substring(5).replace('-', '/');
+          e.totalScore = Number(total);
+          
+          saveToCloud(); 
+          showClass(cId, 'exams'); 
+          return true;
+        });
       }
     }
   };
+
   window.deleteExam = function(cId, eId) {
     if(confirm("確定要刪除這項考試項目嗎？雲端分數將被清空。")) {
       const c = classData.find(x=>String(x.id)===String(cId));
@@ -651,7 +686,6 @@
         </div>` : ''}
       `;
     } 
-    // V33 核心優化 3：分數分頁表頭與欄位重構 (雙語即時切換、自動時間軸排序、防誤觸鎖定)
     else if (tab === 'exams') {
       let eHeaders = cls.exams.map(e => {
         let isEditingThis = activeEditingExamId === String(e.id);
@@ -664,7 +698,7 @@
             <div style="font-size:12px;color:#3498db;font-weight:700;">💯 ${currentLang==='zh'?'總分':'Total'}: ${e.totalScore}</div>
             <div style="margin-top:6px;display:flex;justify-content:center;gap:4px;">
               <button class="btn ${actionBtnClass}" style="padding:3px 8px;font-size:11px;" onclick="toggleExamEditMode('${id}', '${e.id}')">${actionBtnText}</button>
-              <button class="btn-icon" style="padding:3px 6px;font-size:11px;background:#fff;" onclick="renameExam('${id}', '${e.id}')">✏️</button>
+              <button class="btn-icon" style="padding:3px 6px;font-size:11px;background:#fff;" onclick="editExamModal('${id}', '${e.id}')">✏️</button>
               <button class="btn-icon" style="padding:3px 6px;font-size:11px;color:#e74c3c;background:#fff;" onclick="deleteExam('${id}', '${e.id}')">✖</button>
             </div>
           </th>
@@ -755,7 +789,7 @@
     }
   }
 
-  // --- 9. 遊戲、正向特效與抽籤互動 ---
+  // --- 9. 課堂互動模組 ---
   let spotlightTimer = null; let isQuestionActive = false; let isSpinning = false;
   function openGameModal(type, classId) {
     const date = document.getElementById('game-date').value; const modal = document.getElementById('game-modal'); const content = document.getElementById('modal-content-area');
@@ -783,6 +817,14 @@
       const p = cls.students.filter(s => s.records && s.records[date] === 'present');
       content.innerHTML = `<h3 style="position:absolute; top:20px; color:#fff;">Date: ${date}</h3><div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%;"><div class="student-grid" id="spotlight-grid">${p.map(s => `<div class="student-box">${s.name}</div>`).join('')}</div></div><div style="margin-bottom: 50px;"><button class="btn btn-warning" id="spotlight-btn" onclick="runSp()" style="font-size:28px; padding:20px 60px; border-radius:40px; border:4px solid #fff;">${t('btnDraw')}</button></div>`;
     }
+  }
+
+  function showSuccessEffect() {
+    const ef = document.createElement('div');
+    ef.className = 'success-effect';
+    ef.innerText = "✨ Excellent! ✨";
+    document.body.appendChild(ef);
+    setTimeout(() => ef.remove(), 1500);
   }
 
   function ansQ(cId, sId, d, stat, isRev) { 
@@ -833,7 +875,7 @@
   }
   function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
 
-  // --- 11. 單字卡大螢幕展演引擎 (純點擊完全體) ---
+  // --- 11. 單字卡大螢幕展演引擎 ---
   function deleteUnit(uId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ c.units = c.units.filter(u=>String(u.id)!==String(uId)); currentUnitId='all'; saveToCloud(); showClass(currentClassId, 'cards'); } } }
   function deleteWord(uId, wId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ const u=c.units.find(x=>String(x.id)===String(uId)); if(u){ u.words = u.words.filter(w=>String(w.id)!==String(wId)); saveToCloud(); showClass(currentClassId, 'cards'); } } } }
 
@@ -851,7 +893,9 @@
   function openFlashcardModal(index, isShuffle = false) {
     let words = getDisplayWords(); if(words.length === 0) return; currentDisplayWords = words; isShuffleMode = isShuffle; currentCardIndex = index; currentCardFace = 0;
     
-    document.getElementById('flashcard-modal').style.display = 'flex'; document.body.style.overflow = 'hidden'; 
+    document.getElementById('flashcard-modal').style.display = 'flex'; 
+    document.body.style.overflow = 'hidden'; 
+    
     let mLabel = isShuffleMode ? `${t('shuffleMode')} (<span id="fc-progress">1/${words.length}</span>)` : '';
     document.getElementById('fc-m-label').innerHTML = mLabel;
     
@@ -859,7 +903,11 @@
     updateCardFace();
   }
 
-  window.closeFlashcardModal = function() { document.getElementById('flashcard-modal').style.display = 'none'; document.body.style.overflow = 'auto'; window.removeEventListener('keydown', fcKeyHandler); }
+  window.closeFlashcardModal = function() {
+    document.getElementById('flashcard-modal').style.display = 'none';
+    document.body.style.overflow = 'auto'; 
+    window.removeEventListener('keydown', fcKeyHandler);
+  }
 
   window.flipCard = function() {
     if(isFlipping) return; 
@@ -900,7 +948,7 @@
     else if(currentCardFace === 3) inner.innerHTML = wObj.sentence;
   }
 
-  // --- 12. 初始化啟動 ---
+  // --- 12. 系統初始化啟動 ---
   renderNav(); showDashboard();
 </script>
 </body>
