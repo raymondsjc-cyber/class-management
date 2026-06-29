@@ -273,10 +273,10 @@
   }
 
   // --- 3. 雙引擎資料控制 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV34')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV34')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV34')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV34')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV35')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV35')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV35')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV35')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
@@ -290,6 +290,17 @@
     return [];
   }
 
+  // V35 核心定序器：專門處理考試的強制時間軸排序
+  function sortExams(examsArray) {
+    if (!Array.isArray(examsArray)) return;
+    examsArray.sort((a, b) => {
+      let timeA = a.rawDate ? new Date(a.rawDate).getTime() : Number(a.id);
+      let timeB = b.rawDate ? new Date(b.rawDate).getTime() : Number(b.id);
+      if (timeA === timeB) { return Number(a.id) - Number(b.id); } // 同天新增，按先後順序
+      return timeA - timeB;
+    });
+  }
+
   function repairData() {
     classData = toArr(classData);
     classData.forEach(c => {
@@ -298,9 +309,7 @@
       c.units = toArr(c.units);
       c.exams = toArr(c.exams);
       
-      c.exams.sort((a, b) => {
-        return new Date(a.rawDate || a.id) - new Date(b.rawDate || b.id);
-      });
+      sortExams(c.exams); // 嚴格日期排序保護網
 
       c.units.forEach(u => { u.words = toArr(u.words); });
       c.exams.forEach(e => { if(!e.records) e.records = {}; });
@@ -340,10 +349,10 @@
           generalMemos = cloudData.generalMemos; customQuestions = cloudData.customQuestions; quickLinks = cloudData.quickLinks; classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV34', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV34', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV34', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV34', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV35', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV35', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV35', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV35', JSON.stringify(classData));
           } catch(e) {}
           
           const fModal = document.getElementById('form-modal').style.display;
@@ -363,10 +372,10 @@
     const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV34', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV34', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV34', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV34', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV35', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV35', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV35', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV35', JSON.stringify(classData));
     } catch (err) {}
   }
 
@@ -436,6 +445,7 @@
     });
   }
 
+  // V35 核心保護：新增考試後強制呼叫 sortExams 即時排序
   function openAddExamModal(cId) {
     openFormModal(t('addExam'), `
       <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examTitle')}</div>
@@ -460,6 +470,7 @@
           totalScore: Number(total),
           records: {}
         });
+        sortExams(cls.exams); // 強制立刻歸位排序
         saveToCloud();
       }
       return true;
@@ -577,7 +588,7 @@
   function deleteQ(idx) { customQuestions.splice(idx, 1); saveToCloud(); showDashboard(); }
   function deleteLink(id) { quickLinks = quickLinks.filter(l => String(l.id) !== String(id)); saveToCloud(); showDashboard(); }
 
-  // --- 8. 班級分頁路由與分數管理完全體 ---
+  // --- 8. 班級分頁路由與分數管理 ---
   window.switchUnit = function(u) { currentUnitId = String(u); showClass(currentClassId, 'cards'); };
   function changeAttendanceWeek(dir) { attendanceWeekOffset += dir; showClass(currentClassId, 'students'); }
 
@@ -606,7 +617,7 @@
     }
   };
 
-  // V34 修復: 完整編輯考試項目的 Modal，取代原本的陽春 prompt
+  // V35 修復完整版：編輯並強制呼叫時間排序引擎
   window.editExamModal = function(cId, eId) {
     const c = classData.find(x=>String(x.id)===String(cId));
     if(c) {
@@ -631,6 +642,7 @@
           e.date = date.substring(5).replace('-', '/');
           e.totalScore = Number(total);
           
+          sortExams(c.exams); // 變更日期後強制重新排序歸位
           saveToCloud(); 
           showClass(cId, 'exams'); 
           return true;
@@ -875,7 +887,7 @@
   }
   function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
 
-  // --- 11. 單字卡大螢幕展演引擎 ---
+  // --- 11. 單字卡大螢幕引擎 ---
   function deleteUnit(uId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ c.units = c.units.filter(u=>String(u.id)!==String(uId)); currentUnitId='all'; saveToCloud(); showClass(currentClassId, 'cards'); } } }
   function deleteWord(uId, wId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ const u=c.units.find(x=>String(x.id)===String(uId)); if(u){ u.words = u.words.filter(w=>String(w.id)!==String(wId)); saveToCloud(); showClass(currentClassId, 'cards'); } } } }
 
@@ -948,7 +960,7 @@
     else if(currentCardFace === 3) inner.innerHTML = wObj.sentence;
   }
 
-  // --- 12. 系統初始化啟動 ---
+  // --- 12. 初始化啟動 ---
   renderNav(); showDashboard();
 </script>
 </body>
