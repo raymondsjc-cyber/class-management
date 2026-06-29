@@ -173,7 +173,7 @@
     <div class="fc-center-zone" onclick="flipCard()">
         <div id="fc-m-label" style="position:absolute; top:20px; left:20px; color:#f1c40f; font-weight:bold; font-size:20px;"></div>
         <div id="large-fc-inner" class="large-fc-inner fc-color-0"></div>
-        <div class="fc-flip-hint"><span id="fc-hint-text">點擊卡片翻面</span> (<span id="fc-counter">1</span>/4)</div>
+        <div class="fc-flip-hint"><span id="fc-hint-text"></span> (<span id="fc-counter">1</span>/4)</div>
     </div>
     <div class="fc-side-btn" onclick="navCard(1)">❯</div>
 </div>
@@ -238,11 +238,15 @@
       unitAll: "📚 所有單字", unitAdd: "➕ 新增單元", wordAdd: "➕ 新增單字",
       word: "單字 (Word)", meaning: "中文 (Meaning)", sentence: "例句 (Sentence)",
       shuffleBtn: "🔀 開始隨機輪播", shuffleMode: "🔀 隨機輪播", finished: "🎉 全部複習完畢！",
-      hintScroll: "🖱️ 點擊卡片翻面，點擊左右兩側切換上/下一張", hintClickUnit: "💡 點擊特定單元，然後按下 ➕ 圖示來新增單字卡！",
+      clickToFlip: "🖱️ 點擊卡片翻面，點擊左右兩側切換上/下一張", hintClickUnit: "💡 點擊特定單元，然後按下 ➕ 圖示來新增單字卡！",
       btnDraw: "🎯 開始抽籤", noTask: "目前沒有任務。", noStudent: "目前還沒有學生喔！",
       renameTip: "重新命名", deleteTip: "刪除班級", renamePrompt: "修改名稱：", deleteConfirm: "確定要刪除嗎？",
       prevWeek: "❮ 上週", nextWeek: "下週 ❯", thisWeek: "本週",
-      addExam: "➕ 新增考試", examTitle: "考試內容", examTotal: "考試總分", noExam: "目前還沒有任何考試項目紀錄喔！"
+      addExam: "➕ 新增考試", examTitle: "考試內容", examDate: "考試日期 / Date", examTotal: "考試總分", noExam: "目前還沒有任何考試項目紀錄喔！",
+      taskList: "任務清單", record: "登記", imgUrlHint: "圖片網址 (直接貼上網路圖片連結)", editCardTitle: "編輯單字卡內容",
+      deleteExamConfirm: "確定要刪除這項考試項目嗎？雲端分數將被清空。",
+      fillAllExam: "請完整填寫所有考試欄位項目！", finishCurrentExam: "⚠️ 提醒：請先完成並儲存目前正在登記的考試分數！",
+      urlFormatError: "⚠️ 提醒事項：圖片網址格式不符！必須以 http:// 或 https:// 開頭。", imgLoadError: "⚠️ 圖片連結損壞或已被阻擋"
     },
     en: { 
       title: "Teaching Center", dash: "👩‍🏫 Dashboard", addCls: "➕ Add Class", cal: "📅 Calendar",
@@ -254,11 +258,15 @@
       unitAll: "📚 All Words", unitAdd: "➕ Add Unit", wordAdd: "➕ Add Word",
       word: "Word", meaning: "Meaning", sentence: "Sentence",
       shuffleBtn: "🔀 Start Shuffle", shuffleMode: "🔀 Shuffle", finished: "🎉 All done!",
-      hintScroll: "🖱️ Click card to flip, click sides for Prev/Next", hintClickUnit: "💡 Select a unit and click ➕ to add words!",
+      clickToFlip: "🖱️ Click card to flip, click sides for Prev/Next", hintClickUnit: "💡 Select a unit and click ➕ to add words!",
       btnDraw: "🎯 Start Draw", noTask: "No tasks.", noStudent: "No students yet!",
       renameTip: "Rename", deleteTip: "Delete", renamePrompt: "Rename:", deleteConfirm: "Are you sure to delete?",
       prevWeek: "❮ Prev", nextWeek: "Next ❯", thisWeek: "This Week",
-      addExam: "➕ Add Exam", examTitle: "Exam Content", examTotal: "Total Score", noExam: "No exam records yet!"
+      addExam: "➕ Add Exam", examTitle: "Exam Content", examDate: "Date", examTotal: "Total Score", noExam: "No exam records yet!",
+      taskList: "Task List", record: "Record", imgUrlHint: "Image URL (Paste web image link)", editCardTitle: "Edit Flashcard",
+      deleteExamConfirm: "Are you sure to delete this exam? Cloud scores will be cleared.",
+      fillAllExam: "Please fill in all exam fields!", finishCurrentExam: "⚠️ Reminder: Please save the current exam scores first!",
+      urlFormatError: "⚠️ Reminder: Image URL format is incorrect! Must start with http:// or https://", imgLoadError: "⚠️ Image link broken or blocked"
     }
   };
   const t = (k) => i18n[currentLang][k] || k;
@@ -270,13 +278,15 @@
     if(currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); 
     document.getElementById('fs-timer-close').innerText = t('stop');
     document.getElementById('t-setup-title').innerText = t('timerSetup');
+    const fcHintText = document.getElementById('fc-hint-text');
+    if(fcHintText) fcHintText.innerText = t('clickToFlip');
   }
 
   // --- 3. 雙引擎資料控制 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV35')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV35')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV35')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV35')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV36')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV36')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV36')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV36')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
@@ -290,13 +300,12 @@
     return [];
   }
 
-  // V35 核心定序器：專門處理考試的強制時間軸排序
   function sortExams(examsArray) {
     if (!Array.isArray(examsArray)) return;
     examsArray.sort((a, b) => {
       let timeA = a.rawDate ? new Date(a.rawDate).getTime() : Number(a.id);
       let timeB = b.rawDate ? new Date(b.rawDate).getTime() : Number(b.id);
-      if (timeA === timeB) { return Number(a.id) - Number(b.id); } // 同天新增，按先後順序
+      if (timeA === timeB) { return Number(a.id) - Number(b.id); } 
       return timeA - timeB;
     });
   }
@@ -308,8 +317,7 @@
       c.students = toArr(c.students);
       c.units = toArr(c.units);
       c.exams = toArr(c.exams);
-      
-      sortExams(c.exams); // 嚴格日期排序保護網
+      sortExams(c.exams); 
 
       c.units.forEach(u => { u.words = toArr(u.words); });
       c.exams.forEach(e => { if(!e.records) e.records = {}; });
@@ -349,10 +357,10 @@
           generalMemos = cloudData.generalMemos; customQuestions = cloudData.customQuestions; quickLinks = cloudData.quickLinks; classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV35', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV35', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV35', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV35', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV36', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV36', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV36', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV36', JSON.stringify(classData));
           } catch(e) {}
           
           const fModal = document.getElementById('form-modal').style.display;
@@ -372,10 +380,10 @@
     const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV35', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV35', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV35', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV35', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV36', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV36', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV36', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV36', JSON.stringify(classData));
     } catch (err) {}
   }
 
@@ -415,7 +423,7 @@
   function openAddClassModal() {
     openFormModal(t('addCls'), `<input type="text" id="modal-new-class" placeholder="Class Name...">`, () => {
       const n = document.getElementById('modal-new-class').value.trim();
-      if(!n) { alert("Please enter a name"); return false; }
+      if(!n) { alert(currentLang === 'zh' ? "名稱不能為空" : "Name cannot be empty"); return false; }
       const newId = Date.now(); classData.push({ id: newId, name: n, memos: [], students: [], units: [], exams: [] }); 
       currentClassId = String(newId); currentView = 'class'; currentTab = 'home';
       saveToCloud(); return true;
@@ -425,7 +433,7 @@
   function openAddMemoModal(classId = 'general') {
     openFormModal(t('memoAdd'), `<input type="text" id="modal-memo-txt" placeholder="Task..."><input type="date" id="modal-memo-date">`, () => {
       const txt = document.getElementById('modal-memo-txt').value.trim(); const d = document.getElementById('modal-memo-date').value;
-      if(!txt) { alert("Task cannot be empty!"); return false; }
+      if(!txt) { alert(currentLang === 'zh' ? "任務不能為空！" : "Task cannot be empty!"); return false; }
       const obj = {id:Date.now(), text:txt, date:d||null};
       if(classId === 'general') generalMemos.push(obj); else { const c = classData.find(x=>String(x.id)===String(classId)); if(c) c.memos.push(obj); }
       saveToCloud(); return true;
@@ -438,19 +446,18 @@
   function openAddStudentModal(cId) {
     openFormModal(t('addStu'), `<input type="text" id="modal-stu-name" placeholder="Student Name...">`, () => {
       const n = document.getElementById('modal-stu-name').value.trim();
-      if(!n) { alert("Student name required!"); return false; }
+      if(!n) { alert(currentLang === 'zh' ? "請輸入學生姓名！" : "Student name required!"); return false; }
       const cls = classData.find(c=>String(c.id)===String(cId)); 
       if(cls) { cls.students.push({id:Date.now(), name:n, records:{}}); saveToCloud(); }
       return true;
     });
   }
 
-  // V35 核心保護：新增考試後強制呼叫 sortExams 即時排序
   function openAddExamModal(cId) {
     openFormModal(t('addExam'), `
       <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examTitle')}</div>
       <input type="text" id="me-title" placeholder="${t('examTitle')}">
-      <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">考試日期 / Date</div>
+      <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examDate')}</div>
       <input type="date" id="me-date" value="${new Date().toISOString().split('T')[0]}">
       <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examTotal')}</div>
       <input type="number" id="me-total" placeholder="${t('examTotal')}" value="100">
@@ -458,7 +465,7 @@
       const title = document.getElementById('me-title').value.trim();
       const date = document.getElementById('me-date').value;
       const total = document.getElementById('me-total').value;
-      if(!title || !date || !total) { alert("請完整填寫所有考試欄位項目！"); return false; }
+      if(!title || !date || !total) { alert(t('fillAllExam')); return false; }
       const cls = classData.find(c=>String(c.id)===String(cId));
       if(cls) {
         if(!cls.exams) cls.exams = [];
@@ -470,7 +477,7 @@
           totalScore: Number(total),
           records: {}
         });
-        sortExams(cls.exams); // 強制立刻歸位排序
+        sortExams(cls.exams); 
         saveToCloud();
       }
       return true;
@@ -480,7 +487,7 @@
   function openAddUnitModal(cId) {
     openFormModal(t('unitAdd'), `<input type="text" id="modal-unit-name" placeholder="Unit Name...">`, () => {
       const n = document.getElementById('modal-unit-name').value.trim();
-      if(!n) { alert("Unit name required!"); return false; }
+      if(!n) { alert(currentLang === 'zh' ? "單元名稱不能為空！" : "Unit name required!"); return false; }
       const cls = classData.find(c=>String(c.id)===String(cId)); 
       if(cls) { cls.units.push({id:'u'+Date.now(), name:n, words:[]}); currentUnitId='u'+Date.now(); saveToCloud(); }
       return true;
@@ -492,7 +499,7 @@
       <input type="text" id="mw-w" placeholder="${t('word')}">
       <input type="text" id="mw-m" placeholder="${t('meaning')}">
       <input type="text" id="mw-s" placeholder="${t('sentence')}">
-      <div style="font-size:14px; color:#64748b; margin-bottom:5px;">圖片網址 (直接貼上網路圖片連結)</div>
+      <div style="font-size:14px; color:#64748b; margin-bottom:5px;">${t('imgUrlHint')}</div>
       <input type="text" id="mw-i" placeholder="https://...">
     `, () => {
       const w = document.getElementById('mw-w').value.trim(); 
@@ -500,11 +507,8 @@
       const s = document.getElementById('mw-s').value.trim() || '...';
       const iUrl = document.getElementById('mw-i').value.trim();
       
-      if(!w) { alert("Word is required!"); return false; }
-      if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) {
-        alert("⚠️ 提醒事項：貼補的圖片網址格式不符！必須以 http:// 或 https:// 開頭。");
-        return false;
-      }
+      if(!w) { alert(currentLang === 'zh' ? "單字不能為空！" : "Word is required!"); return false; }
+      if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) { alert(t('urlFormatError')); return false; }
       const c = classData.find(x=>String(x.id)===String(cId));
       if(c) { const u = c.units.find(x=>String(x.id)===String(uId)); if(u) { u.words.push({ id:'w'+Date.now(), word:w, meaning:m, sentence:s, imgData:iUrl }); saveToCloud(); } }
       return true;
@@ -516,11 +520,11 @@
     const u = c.units.find(x => String(x.id) === String(uId)); if(!u) return;
     const wObj = u.words.find(x => String(x.id) === String(wId)); if(!wObj) return;
 
-    openFormModal("編輯單字卡內容 | Edit Flashcard", `
+    openFormModal(t('editCardTitle'), `
       <input type="text" id="mw-w" placeholder="${t('word')}" value="${wObj.word}">
       <input type="text" id="mw-m" placeholder="${t('meaning')}" value="${wObj.meaning}">
       <input type="text" id="mw-s" placeholder="${t('sentence')}" value="${wObj.sentence}">
-      <div style="font-size:14px; color:#64748b; margin-bottom:5px;">圖片網址 / Image URL</div>
+      <div style="font-size:14px; color:#64748b; margin-bottom:5px;">${t('imgUrlHint')}</div>
       <input type="text" id="mw-i" placeholder="https://..." value="${wObj.imgData || ''}">
     `, () => {
       const w = document.getElementById('mw-w').value.trim(); 
@@ -528,11 +532,8 @@
       const s = document.getElementById('mw-s').value.trim() || '...';
       const iUrl = document.getElementById('mw-i').value.trim();
       
-      if(!w) { alert("Word is required!"); return false; }
-      if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) {
-        alert("⚠️ 提醒事項：修改的圖片網址格式不符！必須以 http:// 或 https:// 開頭。");
-        return false;
-      }
+      if(!w) { alert(currentLang === 'zh' ? "單字不能為空！" : "Word is required!"); return false; }
+      if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) { alert(t('urlFormatError')); return false; }
       wObj.word = w; wObj.meaning = m; wObj.sentence = s; wObj.imgData = iUrl;
       saveToCloud(); return true;
     });
@@ -613,11 +614,10 @@
         }
       }
     } else {
-      alert("⚠️ 提醒：請先完成並儲存目前正在登記的考試分數！");
+      alert(t('finishCurrentExam'));
     }
   };
 
-  // V35 修復完整版：編輯並強制呼叫時間排序引擎
   window.editExamModal = function(cId, eId) {
     const c = classData.find(x=>String(x.id)===String(cId));
     if(c) {
@@ -627,7 +627,7 @@
         openFormModal("編輯考試項目 | Edit Exam", `
           <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examTitle')}</div>
           <input type="text" id="me-title" placeholder="${t('examTitle')}" value="${e.title}">
-          <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">考試日期 / Date</div>
+          <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examDate')}</div>
           <input type="date" id="me-date" value="${defaultDate}">
           <div style="font-size:14px; color:#64748b; margin-bottom:5px; text-align:left;">${t('examTotal')}</div>
           <input type="number" id="me-total" placeholder="${t('examTotal')}" value="${e.totalScore}">
@@ -635,14 +635,14 @@
           const title = document.getElementById('me-title').value.trim();
           const date = document.getElementById('me-date').value;
           const total = document.getElementById('me-total').value;
-          if(!title || !date || !total) { alert("請完整填寫所有考試欄位項目！"); return false; }
+          if(!title || !date || !total) { alert(t('fillAllExam')); return false; }
           
           e.title = title;
           e.rawDate = date;
           e.date = date.substring(5).replace('-', '/');
           e.totalScore = Number(total);
           
-          sortExams(c.exams); // 變更日期後強制重新排序歸位
+          sortExams(c.exams); 
           saveToCloud(); 
           showClass(cId, 'exams'); 
           return true;
@@ -652,7 +652,7 @@
   };
 
   window.deleteExam = function(cId, eId) {
-    if(confirm("確定要刪除這項考試項目嗎？雲端分數將被清空。")) {
+    if(confirm(t('deleteExamConfirm'))) {
       const c = classData.find(x=>String(x.id)===String(cId));
       if(c) { c.exams = c.exams.filter(x=>String(x.id)!==String(eId)); if(activeEditingExamId===String(eId)) activeEditingExamId=null; saveToCloud(); showClass(cId, 'exams'); }
     }
@@ -667,7 +667,7 @@
     
     if (tab === 'home') {
       let mHTML = cls.memos.map(m => `<li class="memo-item"><div class="memo-content">${m.date?`<span style="color:#e74c3c;">[${m.date.substring(5)}]</span> `:''}${m.text}</div><button class="btn btn-danger" onclick="deleteMemo('${m.id}', '${cls.id}')">✖</button></li>`).join('');
-      tabContent = `<h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:10px;">任務清單 <button class="btn-icon" onclick="openAddMemoModal('${cls.id}')">➕</button></h3><ul class="memo-list">${mHTML||`<li class="memo-item">${t('noTask')}</li>`}</ul>`;
+      tabContent = `<h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:10px;">${t('taskList')} <button class="btn-icon" onclick="openAddMemoModal('${cls.id}')">➕</button></h3><ul class="memo-list">${mHTML||`<li class="memo-item">${t('noTask')}</li>`}</ul>`;
     } 
     else if (tab === 'students') {
       let weekDays = getWeekDays(attendanceWeekOffset); let todayStr = getTodayString();
@@ -701,7 +701,7 @@
     else if (tab === 'exams') {
       let eHeaders = cls.exams.map(e => {
         let isEditingThis = activeEditingExamId === String(e.id);
-        let actionBtnText = isEditingThis ? '💾 儲存' : '📝 登記';
+        let actionBtnText = isEditingThis ? '💾 ' + t('save') : '📝 ' + t('record');
         let actionBtnClass = isEditingThis ? 'btn-success' : 'btn-warning';
         return `
           <th style="min-width:160px; background:${isEditingThis ? '#fffbeb' : '#fafafa'}; border: ${isEditingThis ? '2px solid #f1c40f' : '1px solid #e2e8f0'}">
@@ -777,7 +777,7 @@
         <div class="tab-bar">
           <button class="tab-btn ${tab==='home'?'active':''}" onclick="showClass('${id}', 'home')">${t('tabHome')}</button>
           <button class="tab-btn ${tab==='students'?'active':''}" onclick="showClass('${id}', 'students')">${t('tabStudents')}</button>
-          <button class="tab-btn ${tab==='exams'?'active':''}" onclick="showClass('${id}', 'exams')">${currentLang==='zh'?'💯 分數管理':'💯 Scores'}</button>
+          <button class="tab-btn ${tab==='exams'?'active':''}" onclick="showClass('${id}', 'exams')">${t('tabExams')}</button>
           <button class="tab-btn ${tab==='cards'?'active':''}" onclick="showClass('${id}', 'cards')">${t('tabCards')}</button>
         </div>
         <div id="tab-content">${tabContent}</div>
@@ -911,6 +911,10 @@
     let mLabel = isShuffleMode ? `${t('shuffleMode')} (<span id="fc-progress">1/${words.length}</span>)` : '';
     document.getElementById('fc-m-label').innerHTML = mLabel;
     
+    // 初始化為當前語言的提示字
+    const fcHintText = document.getElementById('fc-hint-text');
+    if(fcHintText) fcHintText.innerText = t('clickToFlip');
+
     window.addEventListener('keydown', fcKeyHandler);
     updateCardFace();
   }
@@ -956,11 +960,13 @@
     
     if(currentCardFace === 0) inner.innerHTML = wObj.word; 
     else if(currentCardFace === 1) inner.innerHTML = wObj.meaning; 
-    else if(currentCardFace === 2) inner.innerHTML = wObj.imgData ? `<img src="${wObj.imgData}" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\'font-size:22px;color:#e74c3c;font-weight:bold;\'>⚠️ 圖片連結損壞或已被阻擋</span>';">` : `<span style="font-size:60px; color:#bdc3c7;">(No Image)</span>`; 
+    else if(currentCardFace === 2) inner.innerHTML = wObj.imgData ? `<img src="${wObj.imgData}" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\\'font-size:22px;color:#e74c3c;font-weight:bold;\\'>${t('imgLoadError')}</span>';">` : `<span style="font-size:60px; color:#bdc3c7;">(No Image)</span>`; 
     else if(currentCardFace === 3) inner.innerHTML = wObj.sentence;
   }
 
   // --- 12. 初始化啟動 ---
+  const fcHintInit = document.getElementById('fc-hint-text');
+  if(fcHintInit) fcHintInit.innerText = t('clickToFlip');
   renderNav(); showDashboard();
 </script>
 </body>
