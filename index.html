@@ -46,13 +46,13 @@
     .cal-header button { background: none; border: none; font-size: 18px; cursor: pointer; color: #475569; font-weight:bold; }
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
     .cal-day-label { font-size: 12px; color: #475569; font-weight: bold; padding-bottom: 5px; }
-    .cal-day { padding: 10px 0; border-radius: 8px; cursor: pointer; transition: 0.2s; position: relative; font-size: 15px; font-weight: 600; color:#334155; }
+    .cal-day { padding: 10px 0; border-radius: 8px; cursor: pointer; transition: 0.2s; position: relative; font-size: 15px; font-weight: 500; }
     .cal-day:hover { background: #e0f2fe; }
     .cal-day.active { background: #3498db; color: white; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
     .cal-day.other-month { color: #94a3b8; }
     .cal-dot { width: 6px; height: 6px; background: #e74c3c; border-radius: 50%; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); }
 
-    /* 分頁欄美術風格 (響應式滑動優化) */
+    /* 分頁欄美術風格 */
     .tab-bar { display: flex; gap: 8px; border-bottom: 2px solid #cbd5e1; margin-bottom: 25px; padding-left: 10px; overflow-x: auto; white-space: nowrap; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
     .tab-btn { padding: 12px 24px; cursor: pointer; background: #f8fafc; border: 1px solid #cbd5e1; border-bottom: none; font-size: 16px; font-weight: 700; color: #475569; border-radius: 12px 12px 0 0; transition: all 0.3s ease; position: relative; margin-bottom: -2px; flex-shrink: 0; }
     .tab-btn:hover { color: #3498db; background: #f1f5f9; }
@@ -65,11 +65,11 @@
     .tag-general { background-color: #e2e8f0; color: #334155; }
     .tag-dynamic { background-color: #dbeafe; color: #1e40af; }
     
-    .quick-link-item { background: #e2e8f0; padding: 8px 15px; border-radius: 20px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid #94a3b8; }
+    .quick-link-item { background: #e2e8f0; padding: 8px 15px; border-radius: 20px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid #cbd5e1; }
     .quick-link-item a { text-decoration: none; color: #1e40af; font-weight: bold; font-size: 14px; }
     .quick-link-item button { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 14px; padding: 0; }
 
-    /* 出缺勤與分數紀錄表 (高對比) */
+    /* 出缺勤與分數紀錄表 */
     .student-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; white-space: nowrap; }
     .student-table th, .student-table td { border-bottom: 1px solid #cbd5e1; padding: 12px; text-align: center; color: #1e293b; }
     .student-table th:first-child, .student-table td:first-child { text-align: left; position: sticky; left: 0; background: white; font-weight: 800; border-right: 1px solid #e2e8f0; z-index: 10; }
@@ -84,7 +84,7 @@
 
     /* Modal 共用視窗底層 */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-    .modal-box { background: transparent; width: 95%; height: 95%; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.3s ease; }
+    .modal-box { background: transparent; width: 95%; height: 95%; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.3s ease; overflow: hidden; }
     .close-btn { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; font-size: 24px; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; color: #1e293b; z-index: 50; }
     
     .form-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
@@ -92,19 +92,7 @@
     .form-box input, .form-box select { width: 100%; padding: 12px; border: 2px solid #94a3b8; border-radius: 8px; font-size: 16px; box-sizing: border-box; outline: none; margin-bottom: 15px; color: #1e293b; font-weight: 500; }
     .form-box input:focus { border-color: #3498db; }
 
-    /* 遊戲區與動畫特效 (V39：劇場抽籤 & 全屏碰撞氣泡) */
-    .student-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; }
-    .student-box { background-color: #ecf0f1; padding: 20px 40px; border-radius: 12px; font-size: 24px; font-weight: bold; color: #475569; transition: all 0.1s; border: 2px solid #cbd5e1; }
-    
-    /* V39 劇場抽籤特效 */
-    #spotlight-grid .student-box { background: #1e293b; color: #64748b; border-color: #0f172a; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    #spotlight-grid .student-box.dim { opacity: 0.15; transform: scale(0.9); }
-    #spotlight-grid .student-box.highlight { 
-        background: #f1c40f; color: #000; transform: scale(1.3); 
-        box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.7); 
-        border: 2px solid #fff; z-index: 20; opacity: 1;
-    }
-    
+    /* --- 動態氣泡點名系統 --- */
     .bubble-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
     .dynamic-bubble { 
         position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
@@ -113,10 +101,39 @@
         pointer-events: auto; transition: transform 0.2s ease, border 0.2s;
     }
     .dynamic-bubble:hover { transform: scale(1.15) !important; z-index: 100 !important; border: 4px solid #fff; }
-
     .small-talk-container { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #1e293b; border-radius: 15px; display: none; z-index: 200; width: 90%; max-width: 800px; flex-direction: row; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 3px solid #cbd5e1; }
     .small-talk-text { flex-grow: 1; padding: 40px 20px; color: white; font-size: clamp(20px, 4vw, 32px); font-weight: 800; text-align: center; cursor: pointer; transition: background 0.2s; }
     .small-talk-absent-btn { background: #e74c3c; color: white; border: none; padding: 0 30px; font-size: 24px; font-weight: bold; cursor: pointer; }
+
+    /* --- V40 劇院聚光燈抽籤特效 --- */
+    .theatre-stage { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; background: radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 80%); }
+    .seat-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 1200px; margin: 0 auto; z-index: 5; perspective: 1000px; padding: 80px 20px 20px 20px; }
+    .seat-box { 
+        background: rgba(30, 41, 59, 0.7); color: #64748b; padding: 18px 35px; border-radius: 12px; 
+        font-size: 22px; font-weight: 800; border: 1px solid rgba(255,255,255,0.05); 
+        transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); backdrop-filter: blur(5px); 
+    }
+    
+    .seat-box.scan { 
+        background: #3b82f6; color: #fff; transform: scale(1.15) translateZ(20px); 
+        box-shadow: 0 0 25px rgba(59,130,246,0.8), 0 0 50px rgba(59,130,246,0.4); 
+        border-color: #93c5fd; z-index: 10; 
+    }
+    .seat-box.dim { opacity: 0.15; filter: blur(3px); transform: scale(0.9); }
+    .seat-box.winner { 
+        background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; 
+        transform: scale(1.8) translateZ(50px); z-index: 50; border: 3px solid #fff; 
+        box-shadow: 0 20px 50px rgba(241,196,15,0.8), 0 0 100px rgba(241,196,15,0.6); 
+    }
+    
+    /* 真實聚光燈光束 */
+    .stage-beam { 
+        position: absolute; top: -50px; left: calc(50% - 400px); width: 800px; height: 150vh; 
+        background: conic-gradient(from 180deg at 50% 0%, transparent 160deg, rgba(241,196,15,0.5) 180deg, transparent 200deg); 
+        transform-origin: 50% 0%; opacity: 0; pointer-events: none; z-index: 20; 
+        mix-blend-mode: screen; transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); 
+    }
 
     /* 置中徽章正向特效 */
     .success-effect { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(45px, 6vw, 80px); font-weight: 900; color: #fff; background: linear-gradient(135deg, #f1c40f, #f39c12); padding: 15px 50px; border-radius: 50px; border: 5px solid #fff; box-shadow: 0 15px 40px rgba(241, 196, 15, 0.6); white-space: nowrap; z-index: 9999; pointer-events: none; animation: badgePop 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -125,7 +142,6 @@
     /* 計時器動畫與面板 */
     .timer-setup-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center; }
     .timer-setup-box h2 { margin-top: 0; color: #0f172a; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; margin-bottom: 20px; font-weight:800; }
-    
     .floating-timer { position: fixed; bottom: 30px; right: 30px; background: rgba(15, 23, 42, 0.95); color: #fff; padding: 15px 25px; border-radius: 30px; font-size: 28px; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 9999; display: none; align-items: center; gap: 15px; border: 2px solid #cbd5e1; }
     .fs-timer-display { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.95); z-index: 2000; display:none; flex-direction:column; justify-content:center; align-items:center; color:white; transition: background 0.3s; }
     .fs-timer-text { font-size: clamp(80px, 15vw, 250px); font-weight: bold; font-variant-numeric: tabular-nums; text-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
@@ -149,10 +165,10 @@
     .fc-edit { position: absolute; top: -10px; left: -10px; background: #f1c40f; color: #0f172a; border: 2px solid #fff; border-radius: 50%; width: 28px; height: 28px; font-weight: bold; cursor: pointer; display: none; z-index: 10; font-size:12px; line-height:1; }
     .fc-mini-box:hover .fc-delete, .fc-mini-box:hover .fc-edit { display: block; }
     
-    /* 獨立單字卡大圖層 (響應式優化) */
+    /* 獨立單字卡大圖層 */
     .fc-full-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.95); z-index: 5000; display: flex; flex-direction: row; }
-    .fc-side-btn { width: 20%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); font-size: clamp(40px, 8vw, 80px); cursor: pointer; transition: 0.3s; user-select: none; z-index: 5010; font-weight: bold; }
-    .fc-side-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    .fc-side-btn { width: 20%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2); font-size: 60px; cursor: pointer; transition: 0.3s; user-select: none; z-index: 5010; font-weight: bold; }
+    .fc-side-btn:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.9); }
     .fc-center-zone { width: 60%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 5005; cursor: pointer; perspective: 1500px; }
     
     .large-fc-inner { width: 100%; max-width: 900px; height: 60vh; max-height: 600px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; text-align: center; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; word-break: break-word; border: 4px solid rgba(255,255,255,0.2); }
@@ -163,7 +179,7 @@
     .fc-color-3 { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; font-size: clamp(25px, 4vw, 60px); font-style: italic; font-weight: 600; } 
     .fc-flip-hint { margin-top: 30px; color: rgba(255,255,255,0.9); font-size: 18px; width: 100%; text-align: center; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); pointer-events: none; }
 
-    /* 平板與手機 RWD 優化 */
+    /* RWD 優化 */
     @media (max-width: 768px) {
         header { flex-direction: column; gap: 10px; padding: 15px; }
         .dashboard-layout { flex-direction: column; }
@@ -188,9 +204,9 @@
 
 <div class="container" id="main-content"></div>
 
-<!-- 遊戲 Modal (抽籤固定底部、氣泡滿版) -->
+<!-- 遊戲 Modal (抽籤劇場 & 氣泡滿版共用) -->
 <div id="game-modal" class="modal-overlay">
-  <div class="modal-box" id="game-modal-box" style="width: 100%; height: 100%; background: rgba(15,23,42,0.95); justify-content: flex-start; transition: background 0.3s;">
+  <div class="modal-box" id="game-modal-box" style="width: 100%; height: 100%; background: transparent; padding: 0;">
     <button class="close-btn" style="top: 20px; right: 30px; z-index: 6000;" onclick="closeGameModal()">✖</button>
     <div id="modal-content-area" style="width:100%; height:100%; display:flex; flex-direction:column; position:relative;"></div>
   </div>
@@ -362,10 +378,9 @@
       c.exams = toArr(c.exams);
       sortExams(c.exams); 
 
-      // V39: 班級專屬題庫初始化與轉移
       c.questions = toArr(c.questions);
       if(c.questions.length === 0 && customQuestions.length > 0) {
-          c.questions = [...customQuestions]; // 無痛承接舊全域題庫
+          c.questions = [...customQuestions]; 
       } else if (c.questions.length === 0) {
           c.questions = ["What did you have for breakfast today? 🍳"];
       }
@@ -471,7 +486,7 @@
   function openTimerModal() { document.getElementById('timer-setup-modal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
   function closeTimerSetupModal() { document.getElementById('timer-setup-modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
-  // --- 6. 新增表單群組 ---
+  // --- 6. 新增表單 Modal 集群 ---
   function openAddClassModal() {
     openFormModal(t('addCls'), `<input type="text" id="modal-new-class" placeholder="Class Name...">`, () => {
       const n = document.getElementById('modal-new-class').value.trim();
@@ -492,7 +507,6 @@
     });
   }
 
-  // V39: 新增班級專屬題庫 Modal
   window.openAddClassQModal = function(cId) {
     openFormModal(t('qAdd'), `<input type="text" id="modal-q-val" placeholder="Question...">`, () => { 
       const q = document.getElementById('modal-q-val').value.trim(); 
@@ -640,7 +654,7 @@
   function deleteMemo(id, ctx) { if(ctx==='general') generalMemos = generalMemos.filter(m=>String(m.id)!==String(id)); else { const c=classData.find(x=>String(x.id)===String(ctx)); if(c) c.memos=c.memos.filter(m=>String(m.id)!==String(id)); } saveToCloud(); showDashboard(); }
   function deleteLink(id) { quickLinks = quickLinks.filter(l => String(l.id) !== String(id)); saveToCloud(); showDashboard(); }
 
-  // --- 8. 班級分頁路由與分數管理 ---
+  // --- 8. 班級分頁路由 ---
   window.switchUnit = function(u) { currentUnitId = String(u); showClass(currentClassId, 'cards'); };
   function changeAttendanceWeek(dir) { attendanceWeekOffset += dir; showClass(currentClassId, 'students'); }
 
@@ -701,7 +715,6 @@
     let tabContent = '';
     const classHeader = `<h2>${cls.name} <button class="btn-icon" onclick="renameClass('${cls.id}')" title="${t('renameTip')}">✏️</button> <button class="btn-icon" style="color:#e74c3c; margin-left:5px;" onclick="deleteClass('${cls.id}')" title="${t('deleteTip')}">🗑️</button></h2>`;
     
-    // V39: 首頁改版，加入班級專屬題庫
     if (tab === 'home') {
       let mHTML = cls.memos.map(m => `<li class="memo-item"><div class="memo-content">${m.date?`<span style="color:#e74c3c;">[${m.date.substring(5)}]</span> `:''}${m.text}</div><button class="btn btn-danger" onclick="deleteMemo('${m.id}', '${cls.id}')">✖</button></li>`).join('');
       let qHTML = (cls.questions || []).map((q, i) => `<li class="memo-item" style="padding:8px;"><div class="memo-content">🗣️ ${q}</div><button class="btn btn-danger" onclick="deleteClassQ('${id}', ${i})">✖</button></li>`).join('');
@@ -851,7 +864,7 @@
     }
   }
 
-  // --- 9. V39 有機氣泡 & 劇場抽籤模組 ---
+  // --- 9. V40 劇院聚光燈特效 & 動態氣泡引擎 ---
   let spotlightTimer = null; let isQuestionActive = false; let isSpinning = false;
   let bubbleAnimationId = null; let bubblesData = [];
   
@@ -868,7 +881,7 @@
     modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; 
     
     if (type === 'bubble') {
-      modalBox.style.background = 'rgba(15,23,42,0.95)'; // 氣泡模式底色
+      modalBox.style.background = 'rgba(15,23,42,0.95)';
       let tg = cls.students.filter(s => s.records && s.records[date] !== 'present' && s.records[date] !== 'absent');
       let isRev = false; if(tg.length === 0) { tg = cls.students.filter(s => s.records && s.records[date] !== 'absent'); isRev = true; }
       
@@ -888,12 +901,10 @@
 
       tg.forEach(s => {
         const b = document.createElement('div'); b.className = 'dynamic-bubble'; b.innerText = s.name; 
-        
         let size = Math.floor(Math.random() * 80) + 140; 
         let x = Math.random() * Math.max(0, rect.width - size);
         let y = Math.random() * Math.max(0, rect.height - size);
-        let vx = (Math.random() - 0.5) * 6; 
-        let vy = (Math.random() - 0.5) * 6;
+        let vx = (Math.random() - 0.5) * 6; let vy = (Math.random() - 0.5) * 6;
         let color = colors[Math.floor(Math.random() * colors.length)];
         
         b.style.width = size + 'px'; b.style.height = size + 'px';
@@ -931,15 +942,22 @@
       animateBubbles();
 
     } else if (type === 'spotlight') {
-      modalBox.style.background = '#020617'; // 劇場聚光燈模式底色
+      modalBox.style.background = 'transparent';
       const p = cls.students.filter(s => s.records && s.records[date] === 'present');
+      
+      // V40 劇院觀眾席與立體聚光燈渲染
       content.innerHTML = `
-        <h3 style="position:absolute; top:20px; color:#fff; z-index:100;">Date: ${date}</h3>
-        <div style="flex-grow: 1; overflow-y: auto; width: 100%; display: flex; align-content: flex-start; justify-content: center; padding: 80px 20px 20px 20px; box-sizing: border-box;">
-            <div class="student-grid" id="spotlight-grid">${p.map(s => `<div class="student-box">${s.name}</div>`).join('')}</div>
-        </div>
-        <div style="flex-shrink: 0; height: 120px; width: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(transparent, #020617); z-index:100;">
-            <button class="btn btn-warning" id="spotlight-btn" onclick="runSp()" style="font-size:28px; padding:15px 50px; border-radius:40px; border:4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">${t('btnDraw')}</button>
+        <div class="theatre-stage" id="theatre-stage">
+            <h3 style="position:absolute; top:20px; left:30px; color:#94a3b8; z-index:100; margin:0;">Date: ${date}</h3>
+            <div class="stage-beam" id="stage-beam"></div>
+            <div style="flex-grow: 1; overflow-y: auto; width: 100%; display: flex; align-content: flex-start; justify-content: center; padding: 60px 20px 20px 20px; box-sizing: border-box; z-index:5;">
+                <div class="seat-grid" id="spotlight-grid">
+                    ${p.map(s => `<div class="seat-box">${s.name}</div>`).join('')}
+                </div>
+            </div>
+            <div style="flex-shrink: 0; height: 120px; width: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(transparent, #020617); z-index:100;">
+                <button class="btn btn-warning glow-btn" id="spotlight-btn" onclick="runSp()" style="font-size:28px; padding:15px 50px; border-radius:50px; border:3px solid #fff; box-shadow: 0 5px 25px rgba(241,196,15,0.5); font-weight:900;">${t('btnDraw')}</button>
+            </div>
         </div>
       `;
     }
@@ -975,17 +993,86 @@
       setTimeout(closeGameModal, 1500); 
     } 
   }
+  
+  // V40 全新多束聚光燈動態掃描引擎
   function runSp() {
-    if(isSpinning) return; const bx = document.querySelectorAll('#spotlight-grid .student-box'); if(bx.length === 0) return;
-    isSpinning = true; document.getElementById('spotlight-btn').innerText = "..."; let c = 0, sp = 50;
-    function jl() { 
-      bx.forEach(b => { b.classList.remove('highlight'); b.classList.add('dim'); }); 
-      const target = bx[Math.floor(Math.random()*bx.length)];
-      target.classList.remove('dim'); target.classList.add('highlight'); 
-      c++; 
-      if(c < 25) spotlightTimer = setTimeout(jl, sp); else if(c < 45) { sp += 20; spotlightTimer = setTimeout(jl, sp); } else { isSpinning = false; document.getElementById('spotlight-btn').innerText = t('btnDraw'); } 
+    if(isSpinning) return; 
+    const bx = document.querySelectorAll('#spotlight-grid .seat-box'); 
+    if(bx.length === 0) return;
+    
+    isSpinning = true; 
+    const btn = document.getElementById('spotlight-btn');
+    btn.innerText = "DRAWING..."; btn.disabled = true;
+    
+    // 初始化狀態
+    bx.forEach(b => { b.classList.remove('scan', 'winner', 'dim'); });
+    const beam = document.getElementById('stage-beam');
+    if(beam) beam.style.opacity = '0';
+    
+    let c = 0; 
+    let maxC = 40 + Math.floor(Math.random() * 20); 
+    let sp = 40;
+    let activeIndices = [];
+    let beamCount = Math.min(3, Math.ceil(bx.length / 4)); // 人數多時最多出現3道光芒
+
+    function jump() {
+      // 移除上一幀的光圈
+      activeIndices.forEach(idx => bx[idx].classList.remove('scan'));
+      activeIndices = [];
+      
+      // 快結束時收束為 1 道光芒
+      let currentBeams = (c > maxC * 0.7) ? 1 : beamCount; 
+      
+      while(activeIndices.length < currentBeams) {
+         let r = Math.floor(Math.random() * bx.length);
+         if(!activeIndices.includes(r)) activeIndices.push(r);
+      }
+      activeIndices.forEach(idx => bx[idx].classList.add('scan'));
+      
+      c++;
+      
+      if(c < maxC * 0.6) {
+          sp = 50; spotlightTimer = setTimeout(jump, sp);
+      } else if (c < maxC) {
+          sp += 15; spotlightTimer = setTimeout(jump, sp);
+      } else {
+          isSpinning = false; 
+          btn.innerText = t('btnDraw'); btn.disabled = false;
+          
+          let winnerIdx = activeIndices[0];
+          
+          // 其他人暗燈
+          bx.forEach((b, i) => {
+              if(i !== winnerIdx) b.classList.add('dim');
+              b.classList.remove('scan');
+          });
+          
+          // 得獎者高光
+          let winnerBox = bx[winnerIdx];
+          winnerBox.classList.add('winner');
+          
+          // 黃金聚光燈物理投射運算
+          if(beam) {
+              let boxRect = winnerBox.getBoundingClientRect();
+              let stage = document.getElementById('theatre-stage');
+              let stageRect = stage.getBoundingClientRect();
+              
+              // 計算卡片中心相對於舞台整體的水平偏移量
+              let centerPixel = boxRect.left - stageRect.left + boxRect.width/2;
+              let stageCenter = stageRect.width / 2;
+              let offset = centerPixel - stageCenter;
+              
+              // 最大旋轉角 45度
+              let angle = (offset / stageRect.width) * 45; 
+              
+              beam.style.transform = `rotate(${angle}deg)`;
+              beam.style.opacity = '1';
+          }
+          
+          showSuccessEffect(); 
+      }
     }
-    jl();
+    jump();
   }
 
   // --- 10. 計時器邏輯 ---
@@ -1096,7 +1183,6 @@
     const wObj = currentDisplayWords[currentCardIndex]; if(!wObj) return; 
     document.getElementById('fc-counter').innerText = currentFaceIndex + 1;
     if(isShuffleMode && document.getElementById('fc-progress')) document.getElementById('fc-progress').innerText = `${shuffleIndex + 1}/${currentDisplayWords.length}`;
-    
     const inner = document.getElementById('large-fc-inner'); inner.className = `large-fc-inner fc-color-${currentCardFace}`;
     
     if(currentCardFace === 0) inner.innerHTML = wObj.word; 
