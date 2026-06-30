@@ -10,7 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <style>
-    /* --- 基礎與版面 --- */
+    /* --- 基礎與版面 (高對比優化) --- */
     body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f7f9; margin: 0; color: #1e293b; line-height: 1.6; overflow-x: hidden; }
     header { background: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100; }
     h1 { margin: 0; font-size: 24px; font-weight: 700; color: #0f172a; }
@@ -92,11 +92,10 @@
     .form-box input, .form-box select { width: 100%; padding: 12px; border: 2px solid #94a3b8; border-radius: 8px; font-size: 16px; box-sizing: border-box; outline: none; margin-bottom: 15px; color: #1e293b; font-weight: 500; }
     .form-box input:focus { border-color: #3498db; }
 
-    /* --- V42 動態氣泡點名系統 (新增背景氣泡與置中結束特效) --- */
+    /* --- V43 動態氣泡點名系統 --- */
     .bubble-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; z-index: 10; }
     .bubble-bg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 1; pointer-events: none; }
     .decor-bubble { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); animation: floatUp linear infinite; }
-    
     @keyframes floatUp { 0% { transform: translateY(100vh) scale(0.8); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-20vh) scale(1.2); opacity: 0; } }
 
     .dynamic-bubble { 
@@ -107,42 +106,53 @@
     }
     .dynamic-bubble:hover { transform: scale(1.15) !important; z-index: 100 !important; border: 5px solid #fff; box-shadow: 0 15px 40px rgba(255,255,255,0.4); }
     
-    .small-talk-container { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: rgba(30,41,59,0.95); border-radius: 20px; display: none; z-index: 200; width: 90%; max-width: 800px; flex-direction: row; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 2px solid #cbd5e1; backdrop-filter: blur(10px); }
+    .small-talk-container { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: rgba(30,41,59,0.95); border-radius: 20px; display: none; z-index: 200; width: 90%; max-width: 800px; flex-direction: row; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 2px solid #cbd5e1; backdrop-filter: blur(10px); align-items: stretch; }
     .small-talk-text { flex-grow: 1; padding: 50px 30px; color: white; font-size: clamp(24px, 4vw, 38px); font-weight: 800; text-align: center; cursor: pointer; transition: background 0.2s; line-height: 1.4; }
-    .small-talk-absent-btn { background: #e74c3c; color: white; border: none; padding: 0 40px; font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .small-talk-absent-btn { flex-shrink: 0; background: #e74c3c; color: white; border: none; border-left: 2px solid #cbd5e1; padding: 0 40px; font-size: 32px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
     .small-talk-absent-btn:hover { background: #c0392b; }
 
-    /* --- V42 劇院手電筒抽籤特效 --- */
-    .theatre-stage { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; background: linear-gradient(135deg, #0f172a 0%, #020617 100%); overflow: hidden; }
+    /* --- V43 劇院手電筒抽籤特效 --- */
+    .theatre-stage { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; background: linear-gradient(135deg, #0f172a 0%, #000000 100%); overflow: hidden; }
     .seat-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 1200px; margin: 0 auto; z-index: 5; padding: 80px 30px 30px 30px; align-content: center; height: 100%; }
     
-    /* 告別墓碑！科技感玻璃票卡 */
     .seat-box { 
-        background: rgba(255,255,255,0.05); color: #f8fafc; padding: 15px 30px; 
-        border-radius: 50px; border: 1px solid rgba(255,255,255,0.15); 
+        background: rgba(255,255,255,0.08); color: #f8fafc; padding: 15px 30px; 
+        border-radius: 50px; border: 1px solid rgba(255,255,255,0.2); 
         font-size: clamp(18px, 2vw, 28px); font-weight: 800; display: flex; align-items: center; justify-content: center; text-align: center;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        box-shadow: 0 8px 20px rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.5); backdrop-filter: blur(8px);
         flex-grow: 1; flex-basis: clamp(150px, 20%, 250px); max-width: 300px;
     }
-    
-    .seat-box.dim { opacity: 0.2; filter: blur(3px); transform: scale(0.95); }
+    .seat-box.dim { opacity: 0.2; filter: blur(3px); transform: scale(0.95); border-color: transparent; }
     .seat-box.winner { 
         background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; 
         transform: scale(1.3) translateY(-10px); 
         border: 4px solid #fff; box-shadow: 0 20px 50px rgba(241,196,15,0.8), 0 0 100px rgba(241,196,15,0.5); z-index: 50; 
     }
     
-    /* 柔和手電筒光束 */
+    /* V43 增亮手電筒光束 */
     .light-beam {
         position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; z-index: 15;
-        mix-blend-mode: overlay; transform: translate(-50%, -50%);
+        mix-blend-mode: screen; transform: translate(-50%, -50%);
         transition: top 0.4s ease-in-out, left 0.4s ease-in-out, width 1s, height 1s, background 1s, opacity 0.5s;
     }
 
-    /* 置中徽章正向特效 & 結束特效 */
-    .success-effect { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(45px, 6vw, 80px); font-weight: 900; color: #fff; background: linear-gradient(135deg, #f1c40f, #f39c12); padding: 15px 50px; border-radius: 50px; border: 5px solid #fff; box-shadow: 0 15px 40px rgba(241, 196, 15, 0.6); white-space: nowrap; z-index: 9999; pointer-events: none; animation: badgePop 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-    @keyframes badgePop { 0% { transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); opacity: 0; } 20% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); opacity: 1; } 40% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; } 80% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -150%) scale(0.8); opacity: 0; } }
+    /* 中獎者彈出大卡 */
+    .winner-popup {
+        position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
+        width: 260px; height: 260px; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000;
+        font-size: 48px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-align: center;
+        border-radius: 20px 20px 8px 8px; border: 6px solid #fff; border-bottom: 18px solid #b9770e;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 120px rgba(241,196,15,0.9);
+        z-index: 9999; word-break: break-all; padding: 20px; box-sizing: border-box;
+        animation: winnerPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes winnerPop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+
+    /* V43 點擊即消失的 Excellent 特效 */
+    .success-effect-wrapper { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .success-effect { font-size: clamp(50px, 7vw, 100px); font-weight: 900; color: #fff; background: linear-gradient(135deg, #f1c40f, #f39c12); padding: 15px 60px; border-radius: 60px; border: 6px solid #fff; box-shadow: 0 20px 50px rgba(241, 196, 15, 0.6); white-space: nowrap; animation: badgePop 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes badgePop { 0% { transform: scale(0.3) rotate(-10deg); opacity: 0; } 20% { transform: scale(1.1) rotate(5deg); opacity: 1; } 40% { transform: scale(1) rotate(0deg); opacity: 1; } 80% { transform: scale(1) rotate(0deg); opacity: 1; } 100% { transform: translateY(-100px) scale(0.8); opacity: 0; } }
 
     /* 計時器動畫與面板 */
     .timer-setup-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center; }
@@ -153,8 +163,10 @@
     .explosion-msg { font-size: clamp(40px, 8vw, 120px); font-weight: bold; animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-shadow: 0 10px 20px rgba(0,0,0,0.5); padding: 0 20px; line-height: 1.2; text-align: center; }
     .explode-anim { animation: explodeBg 1.5s forwards; }
     @keyframes explodeBg { 0% { background: #e74c3c; transform: scale(1); } 50% { background: #f1c40f; transform: scale(1.05); } 100% { background: #c0392b; transform: scale(1); } }
+    .shake-anim { animation: shake 0.5s infinite; background: #e74c3c !important; }
+    @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 25% { transform: translate(-2px, -2px) rotate(-1deg); } 50% { transform: translate(1px, 2px) rotate(1deg); } 75% { transform: translate(-2px, -1px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
-    /* 單字卡系統 */
+    /* 單字卡系統 (首頁列表縮圖) */
     .flashcard-layout { display: flex; gap: 20px; align-items: flex-start; }
     .unit-sidebar { width: 220px; background: #f1f5f9; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; border: 1px solid #cbd5e1; }
     .unit-btn { padding: 12px; text-align: left; background: none; border: 1px solid transparent; font-size: 16px; cursor: pointer; border-radius: 8px; color: #334155; font-weight: 700; transition: 0.2s; display: flex; justify-content: space-between; }
@@ -345,10 +357,10 @@
   }
 
   // --- 3. 雙引擎資料控制 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV42')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV42')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV42')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV42')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [], questions: [] } ];
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV43')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV43')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV43')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV43')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [], questions: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
@@ -420,10 +432,10 @@
           generalMemos = cloudData.generalMemos; customQuestions = cloudData.customQuestions; quickLinks = cloudData.quickLinks; classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV42', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV42', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV42', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV42', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV43', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV43', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV43', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV43', JSON.stringify(classData));
           } catch(e) {}
           
           const fModal = document.getElementById('form-modal').style.display;
@@ -443,10 +455,10 @@
     const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV42', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV42', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV42', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV42', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV43', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV43', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV43', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV43', JSON.stringify(classData));
     } catch (err) {}
   }
 
@@ -578,6 +590,7 @@
       const m = document.getElementById('mw-m').value.trim() || '...'; 
       const s = document.getElementById('mw-s').value.trim() || '...';
       const iUrl = document.getElementById('mw-i').value.trim();
+      
       if(!w) { alert(currentLang === 'zh' ? "單字不能為空！" : "Word is required!"); return false; }
       if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) { alert(t('urlFormatError')); return false; }
       const c = classData.find(x=>String(x.id)===String(cId));
@@ -602,6 +615,7 @@
       const m = document.getElementById('mw-m').value.trim() || '...'; 
       const s = document.getElementById('mw-s').value.trim() || '...';
       const iUrl = document.getElementById('mw-i').value.trim();
+      
       if(!w) { alert(currentLang === 'zh' ? "單字不能為空！" : "Word is required!"); return false; }
       if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) { alert(t('urlFormatError')); return false; }
       wObj.word = w; wObj.meaning = m; wObj.sentence = s; wObj.imgData = iUrl;
@@ -631,7 +645,6 @@
     }
     return `<div class="cal-header"><button onclick="changeCalMonth(-1)">❮</button><div>${calYear} / ${mNames[calMonth]}</div><button onclick="changeCalMonth(1)">❯</button></div><div class="cal-grid">${dL}${dHTML}</div>`;
   }
-  
   function changeCalMonth(dir) { calMonth += dir; if(calMonth > 11) { calMonth = 0; calYear++; } else if(calMonth < 0) { calMonth = 11; calYear--; } if(currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); }
   function toggleCalFilter(d) { filterDate = filterDate === d ? null : d; if(currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); }
 
@@ -890,7 +903,7 @@
     }
   }
 
-  // --- 9. V42 頂級視覺特效模組 ---
+  // --- 9. V43 互動模組 (全螢幕特效感應、常駐缺席按鈕、增亮聚光燈) ---
   let spotlightTimer = null; let isQuestionActive = false; let isSpinning = false;
   let bubbleAnimationId = null; let bubblesData = [];
   
@@ -908,7 +921,6 @@
     let safeDateKey = date.replace('/', '-');
 
     if (type === 'bubble') {
-      // V42 背景氣泡裝飾
       modalBox.style.background = 'linear-gradient(to bottom, #0f172a, #1e293b)';
       let bgBubbles = '';
       for(let i=0; i<20; i++) {
@@ -926,39 +938,39 @@
         <div class="bubble-area" id="bubble-container"></div>
       `;
       const con = document.getElementById('bubble-container');
-      
-      const colors = [
-          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #ff9a9e)', 
-          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #a18cd1)', 
-          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #84fab0)', 
-          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #8fd3f4)', 
-          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #fccb90)'  
-      ];
-
+      const colors = ['radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #ff9a9e)', 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #a18cd1)', 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #84fab0)', 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #8fd3f4)', 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #fccb90)'];
       bubblesData = [];
       let rect = con.getBoundingClientRect();
 
       tg.forEach(s => {
         const b = document.createElement('div'); b.className = 'dynamic-bubble'; b.innerText = s.name; 
-        
-        let size = Math.floor(Math.random() * 80) + 160; // 放大基礎尺寸
+        let size = Math.floor(Math.random() * 80) + 160; 
         let x = Math.random() * Math.max(0, rect.width - size);
         let y = Math.random() * Math.max(0, rect.height - size);
         let vx = (Math.random() - 0.5) * 6; let vy = (Math.random() - 0.5) * 6;
-        let color = colors[Math.floor(Math.random() * colors.length)];
         
         b.style.width = size + 'px'; b.style.height = size + 'px';
         b.style.fontSize = Math.floor(size / 4.5) + 'px';
-        b.style.background = color;
+        b.style.background = colors[Math.floor(Math.random() * colors.length)];
         b.style.left = x + 'px'; b.style.top = y + 'px';
 
         b.onclick = function() {
           if (isQuestionActive) return; isQuestionActive = true;
           b.style.transform = 'scale(0)'; setTimeout(() => b.remove(), 200);
+          
           const qBank = (cls.questions && cls.questions.length > 0) ? cls.questions : ["Hello!"];
           const talkBox = document.getElementById('small-talk-display');
-          let abBtn = isRev ? '' : `<button class="small-talk-absent-btn" onclick="ansQ('${classId}', '${s.id}', '${date}', 'absent', ${isRev})">❌</button>`;
-          talkBox.innerHTML = `<div class="small-talk-text" onclick="ansQ('${classId}', '${s.id}', '${date}', 'present', ${isRev})"><div style="font-size:18px;color:#cbd5e1;margin-bottom:15px;font-weight:bold;">🎯 Target: ${s.name}</div>${qBank[Math.floor(Math.random() * qBank.length)]}</div>${abBtn}`;
+          
+          // V43 修復：強制常駐缺席按鈕
+          let abBtn = `<button class="small-talk-absent-btn" onclick="event.stopPropagation(); ansQ('${classId}', '${s.id}', '${date}', 'absent', ${isRev})">❌</button>`;
+          
+          talkBox.innerHTML = `
+             <div class="small-talk-text" onclick="ansQ('${classId}', '${s.id}', '${date}', 'present', ${isRev})">
+                 <div style="font-size:18px;color:#cbd5e1;margin-bottom:15px;font-weight:bold;">🎯 Target: ${s.name}</div>
+                 ${qBank[Math.floor(Math.random() * qBank.length)]}
+             </div>
+             ${abBtn}
+          `;
           talkBox.style.display = 'flex';
         }; 
         con.appendChild(b);
@@ -985,14 +997,14 @@
       modalBox.style.background = 'transparent';
       const p = cls.students.filter(s => s.records && s.records[safeDateKey] === 'present');
       
-      // V42 柔和手電筒尋找特效
+      // V43：大幅調亮聚光燈的底色透明度，讓視覺更強烈
       content.innerHTML = `
         <div class="theatre-stage" id="theatre-stage">
             <h3 style="position:absolute; top:20px; left:30px; color:#cbd5e1; z-index:100; margin:0; text-shadow:0 2px 4px rgba(0,0,0,0.8);">Date: ${date}</h3>
             
-            <div class="light-beam" id="beam-1" style="width:400px; height:400px; background:radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 65%);"></div>
-            <div class="light-beam" id="beam-2" style="width:500px; height:500px; background:radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 65%);"></div>
-            <div class="light-beam" id="beam-3" style="width:350px; height:350px; background:radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 65%);"></div>
+            <div class="light-beam" id="beam-1" style="width:500px; height:500px; background:radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 65%);"></div>
+            <div class="light-beam" id="beam-2" style="width:600px; height:600px; background:radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 65%);"></div>
+            <div class="light-beam" id="beam-3" style="width:450px; height:450px; background:radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 65%);"></div>
 
             <div style="flex-grow: 1; overflow-y: auto; width: 100%; display: flex; align-content: flex-start; justify-content: center; z-index:5;">
                 <div class="seat-grid" id="spotlight-grid">
@@ -1007,12 +1019,25 @@
     }
   }
 
+  // V43：點擊螢幕任意處即可關閉特效
   function showSuccessEffect() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'success-effect-wrapper';
+    
     const ef = document.createElement('div');
     ef.className = 'success-effect';
     ef.innerText = "✨ Excellent! ✨";
-    document.body.appendChild(ef);
-    setTimeout(() => ef.remove(), 1500);
+    
+    wrapper.appendChild(ef);
+    document.body.appendChild(wrapper);
+    
+    let isRemoved = false;
+    const removeFunc = () => {
+        if(!isRemoved) { isRemoved = true; wrapper.remove(); }
+    };
+    
+    wrapper.onclick = removeFunc;
+    setTimeout(removeFunc, 1500);
   }
 
   function ansQ(cId, sId, rawDate, stat, isRev) { 
@@ -1027,7 +1052,6 @@
              if(!s.records) s.records={}; 
              let safeDateKey = rawDate.replace('/', '-');
              s.records[safeDateKey] = stat; 
-             
              let selectId = `att-${s.id}-${safeDateKey}`;
              let elem = document.getElementById(selectId);
              if(elem) { elem.value = stat; elem.className = `attendance-select att-${stat}`; }
@@ -1045,7 +1069,6 @@
     } 
   }
   
-  // V42 手電筒游移鎖定引擎
   function runSp() {
     if(isSpinning) return; 
     const bx = document.querySelectorAll('#spotlight-grid .seat-box'); 
@@ -1069,7 +1092,6 @@
     function moveBeams() {
       let now = Date.now();
       if (now - startTime > duration) {
-          // 鎖定中獎者
           let winnerIdx = Math.floor(Math.random() * bx.length);
           let winnerBox = bx[winnerIdx];
           
@@ -1088,17 +1110,16 @@
                  b.style.left = cx + 'px';
                  b.style.width = '600px';
                  b.style.height = '600px';
-                 b.style.background = 'radial-gradient(circle, rgba(241,196,15,0.85) 0%, rgba(241,196,15,0) 60%)';
+                 b.style.background = 'radial-gradient(circle, rgba(241,196,15,0.95) 0%, rgba(241,196,15,0) 60%)';
              }
           });
           
           btn.innerText = t('btnDraw'); btn.disabled = false;
-          showSuccessEffect();
+          // V43 移除 showSuccessEffect()，因為大卡片本身就是高亮提示了
           isSpinning = false;
           return;
       }
       
-      // 隨機游移
       beams.forEach(b => {
           if(b) {
               b.style.top = Math.random() * 100 + '%';
