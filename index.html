@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>班級管理系統 | Classroom Management</title>
   
+  <!-- 載入 Google Firebase 核心套件 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -83,7 +84,7 @@
 
     /* Modal 共用視窗底層 */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-    .modal-box { background: transparent; width: 95%; height: 95%; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .modal-box { background: transparent; width: 95%; height: 95%; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.3s ease; }
     .close-btn { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; font-size: 24px; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; color: #1e293b; z-index: 50; }
     
     .form-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
@@ -91,27 +92,28 @@
     .form-box input, .form-box select { width: 100%; padding: 12px; border: 2px solid #94a3b8; border-radius: 8px; font-size: 16px; box-sizing: border-box; outline: none; margin-bottom: 15px; color: #1e293b; font-weight: 500; }
     .form-box input:focus { border-color: #3498db; }
 
-    /* 遊戲區與動畫特效 (固定按鈕、有機氣泡) */
+    /* 遊戲區與動畫特效 (V39：劇場抽籤 & 全屏碰撞氣泡) */
     .student-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; }
     .student-box { background-color: #ecf0f1; padding: 20px 40px; border-radius: 12px; font-size: 24px; font-weight: bold; color: #475569; transition: all 0.1s; border: 2px solid #cbd5e1; }
-    .student-box.highlight { background-color: #f1c40f; color: #0f172a; transform: scale(1.2); box-shadow: 0 0 30px rgba(241, 196, 15, 0.8); border-color: #fff; }
     
-    .bubble-area { position: relative; width: 100%; height: 100%; overflow: hidden; }
-    .bubble { 
+    /* V39 劇場抽籤特效 */
+    #spotlight-grid .student-box { background: #1e293b; color: #64748b; border-color: #0f172a; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    #spotlight-grid .student-box.dim { opacity: 0.15; transform: scale(0.9); }
+    #spotlight-grid .student-box.highlight { 
+        background: #f1c40f; color: #000; transform: scale(1.3); 
+        box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.7); 
+        border: 2px solid #fff; z-index: 20; opacity: 1;
+    }
+    
+    .bubble-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
+    .dynamic-bubble { 
         position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-        color: white; font-weight: 800; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.4);
-        transition: transform 0.2s; 
+        color: white; font-weight: 800; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.4); 
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.3);
+        pointer-events: auto; transition: transform 0.2s ease, border 0.2s;
     }
-    .bubble:hover { transform: scale(1.15) !important; z-index: 100 !important; }
-    
-    @keyframes organicFloat {
-        0% { transform: translate(0, 0) scale(1); }
-        33% { transform: translate(15px, -20px) scale(1.02); }
-        66% { transform: translate(-10px, 15px) scale(0.98); }
-        100% { transform: translate(5px, -10px) scale(1.05); }
-    }
-    
+    .dynamic-bubble:hover { transform: scale(1.15) !important; z-index: 100 !important; border: 4px solid #fff; }
+
     .small-talk-container { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #1e293b; border-radius: 15px; display: none; z-index: 200; width: 90%; max-width: 800px; flex-direction: row; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 3px solid #cbd5e1; }
     .small-talk-text { flex-grow: 1; padding: 40px 20px; color: white; font-size: clamp(20px, 4vw, 32px); font-weight: 800; text-align: center; cursor: pointer; transition: background 0.2s; }
     .small-talk-absent-btn { background: #e74c3c; color: white; border: none; padding: 0 30px; font-size: 24px; font-weight: bold; cursor: pointer; }
@@ -186,13 +188,15 @@
 
 <div class="container" id="main-content"></div>
 
+<!-- 遊戲 Modal (抽籤固定底部、氣泡滿版) -->
 <div id="game-modal" class="modal-overlay">
-  <div class="modal-box" style="width: 100%; height: 100%; background: rgba(15,23,42,0.95); justify-content: flex-start;">
+  <div class="modal-box" id="game-modal-box" style="width: 100%; height: 100%; background: rgba(15,23,42,0.95); justify-content: flex-start; transition: background 0.3s;">
     <button class="close-btn" style="top: 20px; right: 30px; z-index: 6000;" onclick="closeGameModal()">✖</button>
     <div id="modal-content-area" style="width:100%; height:100%; display:flex; flex-direction:column; position:relative;"></div>
   </div>
 </div>
 
+<!-- 獨立單字卡大圖層 -->
 <div id="flashcard-modal" class="fc-full-overlay" style="display:none;">
     <button class="close-btn" style="z-index: 6000;" onclick="closeFlashcardModal()">✖</button>
     <div class="fc-side-btn left" onclick="navCard(-1)">❮</div>
@@ -204,6 +208,7 @@
     <div class="fc-side-btn right" onclick="navCard(1)">❯</div>
 </div>
 
+<!-- 統一表單 Modal -->
 <div id="form-modal" class="modal-overlay" style="z-index: 3500;">
   <div class="form-box">
     <h2 id="form-modal-title">標題</h2>
@@ -215,6 +220,7 @@
   </div>
 </div>
 
+<!-- 計時器設定 Modal -->
 <div id="timer-setup-modal" class="modal-overlay" style="z-index: 3600;">
   <div class="timer-setup-box">
     <h2 id="t-setup-title">設定倒數計時器</h2>
@@ -230,6 +236,7 @@
   </div>
 </div>
 
+<!-- 計時器顯示 -->
 <div id="fullscreen-timer" class="fs-timer-display">
   <div id="fs-timer-val" class="fs-timer-text">00:00</div>
   <button id="fs-timer-close" class="btn btn-danger" style="position:absolute; bottom:15%; font-size:24px; padding:15px 50px; border-radius:30px; box-shadow:0 10px 20px rgba(0,0,0,0.5); z-index:2010;" onclick="stopTimer()">停止 / Stop</button>
@@ -254,7 +261,7 @@
     zh: { 
       title: "教學管理中心", dash: "👩‍🏫 教師總覽", addCls: "➕ 新增班級", cal: "📅 行事曆",
       timerSetup: "設定倒數計時器", cancel: "取消", stop: "停止", save: "儲存",
-      memoGlobal: "📌 備忘錄與任務", memoAdd: "➕ 新增任務", qBank: "💬 自訂點名題庫", qAdd: "➕ 新增題庫",
+      memoGlobal: "📌 全域備忘錄", memoAdd: "➕ 新增任務", qBank: "💬 提問題庫", qAdd: "➕ 新增題庫",
       quickLinks: "🔗 常用網站連結", linkName: "網站名稱", linkUrl: "網址 (URL)", addLink: "➕ 新增連結",
       tabHome: "🏠 班級首頁", tabStudents: "🧑‍🎓 出缺勤管理", tabExams: "📊 分數管理", tabCards: "🔤 單字卡",
       addStu: "➕ 新增學生", addDate: "➕ 新增日期", gameBubble: "🫧 點名", gameSpotlight: "🔦 抽籤",
@@ -270,12 +277,12 @@
       deleteExamConfirm: "確定要刪除這項考試項目嗎？雲端分數將被清空。",
       fillAllExam: "請完整填寫所有考試欄位項目！", finishCurrentExam: "⚠️ 提醒：請先完成並儲存目前正在登記的考試分數！",
       urlFormatError: "⚠️ 提醒事項：圖片網址格式不符！必須以 http:// 或 https:// 開頭。", imgLoadError: "⚠️ 圖片連結損壞或已被阻擋",
-      minLbl: "分", secLbl: "秒", timerFS: "💥 全螢幕特效", timerFloat: "📌 懸浮模式"
+      minLbl: "分", secLbl: "秒", timerFS: "💥 全螢幕特效", timerFloat: "📌 懸浮模式", noQBank: "目前還沒有專屬題庫"
     },
     en: { 
       title: "Teaching Center", dash: "👩‍🏫 Dashboard", addCls: "➕ Add Class", cal: "📅 Calendar",
       timerSetup: "Timer Setup", cancel: "Cancel", stop: "Stop", save: "Save",
-      memoGlobal: "📌 Memos & Tasks", memoAdd: "➕ Add Task", qBank: "💬 Question Bank", qAdd: "➕ Add Q",
+      memoGlobal: "📌 Global Memos", memoAdd: "➕ Add Task", qBank: "💬 Question Bank", qAdd: "➕ Add Q",
       quickLinks: "🔗 Quick Links", linkName: "Site Name", linkUrl: "URL", addLink: "➕ Add Link",
       tabHome: "🏠 Home", tabStudents: "🧑‍🎓 Attendance", tabExams: "📊 Scores", tabCards: "🔤 Flashcards",
       addStu: "➕ Add Student", addDate: "Add Date", gameBubble: "🫧 Roll Call", gameSpotlight: "🔦 Spotlight",
@@ -291,7 +298,7 @@
       deleteExamConfirm: "Are you sure to delete this exam? Cloud scores will be cleared.",
       fillAllExam: "Please fill in all exam fields!", finishCurrentExam: "⚠️ Reminder: Please save the current exam scores first!",
       urlFormatError: "⚠️ Reminder: Image URL format is incorrect! Must start with http:// or https://", imgLoadError: "⚠️ Image link broken or blocked",
-      minLbl: "Min", secLbl: "Sec", timerFS: "💥 Fullscreen", timerFloat: "📌 Floating"
+      minLbl: "Min", secLbl: "Sec", timerFS: "💥 Fullscreen", timerFloat: "📌 Floating", noQBank: "No custom questions yet"
     }
   };
   const t = (k) => i18n[currentLang][k] || k;
@@ -319,10 +326,10 @@
   }
 
   // --- 3. 雙引擎資料控制 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV38')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV38')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV38')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV38')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [] } ];
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV39')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV39')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV39')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV39')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [], questions: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
@@ -355,13 +362,19 @@
       c.exams = toArr(c.exams);
       sortExams(c.exams); 
 
+      // V39: 班級專屬題庫初始化與轉移
+      c.questions = toArr(c.questions);
+      if(c.questions.length === 0 && customQuestions.length > 0) {
+          c.questions = [...customQuestions]; // 無痛承接舊全域題庫
+      } else if (c.questions.length === 0) {
+          c.questions = ["What did you have for breakfast today? 🍳"];
+      }
+
       c.units.forEach(u => { u.words = toArr(u.words); });
       c.exams.forEach(e => { if(!e.records) e.records = {}; });
       c.students.forEach(s => { if(!s.records) s.records = {}; });
     });
     generalMemos = toArr(generalMemos);
-    customQuestions = toArr(customQuestions);
-    if(customQuestions.length === 0) customQuestions = ["What did you have for breakfast today? 🍳"];
     quickLinks = toArr(quickLinks);
   }
   repairData(); 
@@ -392,10 +405,10 @@
           generalMemos = cloudData.generalMemos; customQuestions = cloudData.customQuestions; quickLinks = cloudData.quickLinks; classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV38', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV38', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV38', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV38', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV39', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV39', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV39', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV39', JSON.stringify(classData));
           } catch(e) {}
           
           const fModal = document.getElementById('form-modal').style.display;
@@ -415,14 +428,14 @@
     const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV38', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV38', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV38', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV38', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV39', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV39', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV39', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV39', JSON.stringify(classData));
     } catch (err) {}
   }
 
-  // --- 5. 視窗控制 ---
+  // --- 5. 視窗控制核心 ---
   let currentSaveAction = null; 
 
   function renderNav() {
@@ -451,16 +464,19 @@
     } 
   }
   function closeFormModal() { document.getElementById('form-modal').style.display = 'none'; document.body.style.overflow = 'auto'; if (currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); }
-  function closeGameModal() { clearTimeout(spotlightTimer); document.getElementById('game-modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
+  function closeGameModal() { 
+    clearTimeout(spotlightTimer); cancelAnimationFrame(bubbleAnimationId);
+    document.getElementById('game-modal').style.display = 'none'; document.body.style.overflow = 'auto'; 
+  }
   function openTimerModal() { document.getElementById('timer-setup-modal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
   function closeTimerSetupModal() { document.getElementById('timer-setup-modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
-  // --- 6. 新增表單 Modal 集 ---
+  // --- 6. 新增表單群組 ---
   function openAddClassModal() {
     openFormModal(t('addCls'), `<input type="text" id="modal-new-class" placeholder="Class Name...">`, () => {
       const n = document.getElementById('modal-new-class').value.trim();
       if(!n) { alert(currentLang === 'zh' ? "名稱不能為空" : "Name cannot be empty"); return false; }
-      const newId = Date.now(); classData.push({ id: newId, name: n, memos: [], students: [], units: [], exams: [] }); 
+      const newId = Date.now(); classData.push({ id: newId, name: n, memos: [], students: [], units: [], exams: [], questions: ["What did you have for breakfast today? 🍳"] }); 
       currentClassId = String(newId); currentView = 'class'; currentTab = 'home';
       saveToCloud(); return true;
     });
@@ -476,7 +492,21 @@
     });
   }
 
-  function openAddQModal() { openFormModal(t('qAdd'), `<input type="text" id="modal-q-val" placeholder="Question...">`, () => { const q = document.getElementById('modal-q-val').value.trim(); if(!q) return false; customQuestions.push(q); saveToCloud(); return true; }); }
+  // V39: 新增班級專屬題庫 Modal
+  window.openAddClassQModal = function(cId) {
+    openFormModal(t('qAdd'), `<input type="text" id="modal-q-val" placeholder="Question...">`, () => { 
+      const q = document.getElementById('modal-q-val').value.trim(); 
+      if(!q) return false; 
+      const c = classData.find(x=>String(x.id)===String(cId));
+      if(c) { c.questions.push(q); saveToCloud(); showClass(cId, 'home'); }
+      return true; 
+    }); 
+  };
+  window.deleteClassQ = function(cId, idx) {
+    const c = classData.find(x=>String(x.id)===String(cId));
+    if(c) { c.questions.splice(idx, 1); saveToCloud(); showClass(cId, 'home'); }
+  };
+
   function openAddLinkModal() { openFormModal(t('addLink'), `<input type="text" id="modal-l-name" placeholder="${t('linkName')}"><input type="text" id="modal-l-url" placeholder="${t('linkUrl')}">`, () => { const n = document.getElementById('modal-l-name').value.trim(); let u = document.getElementById('modal-l-url').value.trim(); if(!n || !u) return false; if(!u.startsWith('http')) u = 'https://' + u; quickLinks.push({id: Date.now(), name: n, url: u}); saveToCloud(); return true; }); }
   
   function openAddStudentModal(cId) {
@@ -505,16 +535,8 @@
       const cls = classData.find(c=>String(c.id)===String(cId));
       if(cls) {
         if(!cls.exams) cls.exams = [];
-        cls.exams.push({
-          id: Date.now(),
-          title: title,
-          date: date.substring(5).replace('-', '/'),
-          rawDate: date, 
-          totalScore: Number(total),
-          records: {}
-        });
-        sortExams(cls.exams); 
-        saveToCloud();
+        cls.exams.push({ id: Date.now(), title: title, date: date.substring(5).replace('-', '/'), rawDate: date, totalScore: Number(total), records: {} });
+        sortExams(cls.exams); saveToCloud();
       }
       return true;
     });
@@ -542,7 +564,6 @@
       const m = document.getElementById('mw-m').value.trim() || '...'; 
       const s = document.getElementById('mw-s').value.trim() || '...';
       const iUrl = document.getElementById('mw-i').value.trim();
-      
       if(!w) { alert(currentLang === 'zh' ? "單字不能為空！" : "Word is required!"); return false; }
       if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) { alert(t('urlFormatError')); return false; }
       const c = classData.find(x=>String(x.id)===String(cId));
@@ -567,7 +588,6 @@
       const m = document.getElementById('mw-m').value.trim() || '...'; 
       const s = document.getElementById('mw-s').value.trim() || '...';
       const iUrl = document.getElementById('mw-i').value.trim();
-      
       if(!w) { alert(currentLang === 'zh' ? "單字不能為空！" : "Word is required!"); return false; }
       if(iUrl && !iUrl.startsWith('http://') && !iUrl.startsWith('https://')) { alert(t('urlFormatError')); return false; }
       wObj.word = w; wObj.meaning = m; wObj.sentence = s; wObj.imgData = iUrl;
@@ -575,7 +595,7 @@
     });
   };
 
-  // --- 7. 總覽與行事曆 ---
+  // --- 7. 總覽儀表板 ---
   function getCalendarHTML() {
     const mNames = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
     const fd = new Date(calYear, calMonth, 1).getDay(); const dim = new Date(calYear, calMonth + 1, 0).getDate(); const pd = new Date(calYear, calMonth, 0).getDate();
@@ -601,7 +621,6 @@
     aM.sort((a, b) => { if(a.date && !b.date) return -1; if(!a.date && b.date) return 1; if(a.date && b.date) return a.date.localeCompare(b.date); return 0; });
 
     let mHTML = aM.map(m => `<li class="memo-item"><div class="memo-content"><span class="class-tag ${m.tC}">${m.txt}</span>${m.date ? `<span style="font-size:12px; color:#e74c3c; margin-right:8px; font-weight:bold;">[${m.date.substring(5)}]</span>` : ''}${m.text}</div><button class="btn btn-danger" style="padding:2px 8px; border-radius:50%;" onclick="deleteMemo('${m.id}', '${m.cId}')">✖</button></li>`).join('');
-    let qHTML = customQuestions.map((q, i) => `<li class="memo-item" style="padding:8px;"><div class="memo-content">🗣️ ${q}</div><button class="btn btn-danger" onclick="deleteQ(${i})">✖</button></li>`).join('');
     let linksHTML = quickLinks.map(l => `<div class="quick-link-item"><a href="${l.url}" target="_blank">${l.name}</a><button onclick="deleteLink('${l.id}')">✖</button></div>`).join('');
     let dStat = filterDate ? `<span style="color:#e74c3c;"> (${filterDate}) <button style="background:none;border:none;color:#3498db;cursor:pointer;" onclick="toggleCalFilter('${filterDate}')">Clear</button></span>` : '';
 
@@ -610,9 +629,6 @@
         <div class="dashboard-main card">
           <h2 style="justify-content:space-between;"><span>${t('memoGlobal')} ${dStat}</span> <button class="btn-icon" onclick="openAddMemoModal('general')">➕</button></h2>
           <ul class="memo-list">${mHTML || `<li class="memo-item" style="color:#94a3b8;">${t('noTask')}</li>`}</ul>
-          
-          <h2 style="margin-top:40px; justify-content:space-between;"><span>${t('qBank')}</span> <button class="btn-icon" onclick="openAddQModal()">➕</button></h2>
-          <ul class="memo-list" style="border: 1px solid #cbd5e1; border-radius:8px;">${qHTML}</ul>
 
           <h2 style="margin-top:40px; justify-content:space-between;"><span>${t('quickLinks')}</span> <button class="btn-icon" onclick="openAddLinkModal()">➕</button></h2>
           <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">${linksHTML || `<span style="color:#94a3b8;">Empty</span>`}</div>
@@ -622,7 +638,6 @@
     `;
   }
   function deleteMemo(id, ctx) { if(ctx==='general') generalMemos = generalMemos.filter(m=>String(m.id)!==String(id)); else { const c=classData.find(x=>String(x.id)===String(ctx)); if(c) c.memos=c.memos.filter(m=>String(m.id)!==String(id)); } saveToCloud(); showDashboard(); }
-  function deleteQ(idx) { customQuestions.splice(idx, 1); saveToCloud(); showDashboard(); }
   function deleteLink(id) { quickLinks = quickLinks.filter(l => String(l.id) !== String(id)); saveToCloud(); showDashboard(); }
 
   // --- 8. 班級分頁路由與分數管理 ---
@@ -631,8 +646,7 @@
 
   window.toggleExamEditMode = function(cId, eId) {
     if (activeEditingExamId === null) {
-      activeEditingExamId = String(eId);
-      showClass(cId, 'exams');
+      activeEditingExamId = String(eId); showClass(cId, 'exams');
     } else if (activeEditingExamId === String(eId)) {
       const c = classData.find(x=>String(x.id)===String(cId));
       if(c) {
@@ -687,9 +701,23 @@
     let tabContent = '';
     const classHeader = `<h2>${cls.name} <button class="btn-icon" onclick="renameClass('${cls.id}')" title="${t('renameTip')}">✏️</button> <button class="btn-icon" style="color:#e74c3c; margin-left:5px;" onclick="deleteClass('${cls.id}')" title="${t('deleteTip')}">🗑️</button></h2>`;
     
+    // V39: 首頁改版，加入班級專屬題庫
     if (tab === 'home') {
       let mHTML = cls.memos.map(m => `<li class="memo-item"><div class="memo-content">${m.date?`<span style="color:#e74c3c;">[${m.date.substring(5)}]</span> `:''}${m.text}</div><button class="btn btn-danger" onclick="deleteMemo('${m.id}', '${cls.id}')">✖</button></li>`).join('');
-      tabContent = `<h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #cbd5e1; padding-bottom:10px; color:#0f172a;">${t('taskList')} <button class="btn-icon" onclick="openAddMemoModal('${cls.id}')">➕</button></h3><ul class="memo-list">${mHTML||`<li class="memo-item">${t('noTask')}</li>`}</ul>`;
+      let qHTML = (cls.questions || []).map((q, i) => `<li class="memo-item" style="padding:8px;"><div class="memo-content">🗣️ ${q}</div><button class="btn btn-danger" onclick="deleteClassQ('${id}', ${i})">✖</button></li>`).join('');
+      
+      tabContent = `
+        <div style="display:flex; gap:25px; flex-wrap:wrap;">
+           <div style="flex:1; min-width:300px;">
+               <h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #cbd5e1; padding-bottom:10px; color:#0f172a;">${t('taskList')} <button class="btn-icon" onclick="openAddMemoModal('${cls.id}')">➕</button></h3>
+               <ul class="memo-list">${mHTML||`<li class="memo-item">${t('noTask')}</li>`}</ul>
+           </div>
+           <div style="flex:1; min-width:300px;">
+               <h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #cbd5e1; padding-bottom:10px; color:#0f172a;">${t('qBank')} <button class="btn-icon" onclick="openAddClassQModal('${cls.id}')">➕</button></h3>
+               <ul class="memo-list" style="border: 1px solid #cbd5e1; border-radius:8px;">${qHTML||`<li class="memo-item" style="color:#94a3b8;">${t('noQBank')}</li>`}</ul>
+           </div>
+        </div>
+      `;
     } 
     else if (tab === 'students') {
       let weekDays = getWeekDays(attendanceWeekOffset); let todayStr = getTodayString();
@@ -823,64 +851,94 @@
     }
   }
 
-  // --- 9. V38 互動模組 (生動氣泡) ---
+  // --- 9. V39 有機氣泡 & 劇場抽籤模組 ---
   let spotlightTimer = null; let isQuestionActive = false; let isSpinning = false;
+  let bubbleAnimationId = null; let bubblesData = [];
   
   function openGameModal(type, classId) {
-    const date = document.getElementById('game-date').value; const modal = document.getElementById('game-modal'); const content = document.getElementById('modal-content-area');
-    const cls = classData.find(c => String(c.id) === String(classId)); isQuestionActive = false; isSpinning = false; clearTimeout(spotlightTimer);
+    const date = document.getElementById('game-date').value; 
+    const modal = document.getElementById('game-modal'); 
+    const content = document.getElementById('modal-content-area');
+    const modalBox = document.getElementById('game-modal-box');
+    
+    const cls = classData.find(c => String(c.id) === String(classId)); 
+    isQuestionActive = false; isSpinning = false; 
+    clearTimeout(spotlightTimer); cancelAnimationFrame(bubbleAnimationId);
+    
     modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; 
     
     if (type === 'bubble') {
+      modalBox.style.background = 'rgba(15,23,42,0.95)'; // 氣泡模式底色
       let tg = cls.students.filter(s => s.records && s.records[date] !== 'present' && s.records[date] !== 'absent');
       let isRev = false; if(tg.length === 0) { tg = cls.students.filter(s => s.records && s.records[date] !== 'absent'); isRev = true; }
+      
       content.innerHTML = `<h3 style="position:absolute; top:20px; color:#fff; z-index:100;">Date: ${date}</h3><div id="small-talk-display" class="small-talk-container"></div><div class="bubble-area" id="bubble-container"></div>`;
       const con = document.getElementById('bubble-container');
       
       const colors = [
-          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #ff9a9e)', // Pink
-          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #a18cd1)', // Purple
-          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #84fab0)', // Green
-          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #8fd3f4)', // Blue
-          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #fccb90)'  // Orange
+          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #ff9a9e)', 
+          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #a18cd1)', 
+          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #84fab0)', 
+          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #8fd3f4)', 
+          'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), #fccb90)'  
       ];
 
+      bubblesData = [];
+      let rect = con.getBoundingClientRect();
+
       tg.forEach(s => {
-        const b = document.createElement('div'); b.className = 'bubble'; b.innerText = s.name; 
+        const b = document.createElement('div'); b.className = 'dynamic-bubble'; b.innerText = s.name; 
         
-        let size = Math.floor(Math.random() * 50) + 100; // 100px ~ 150px
-        let top = Math.random() * 60 + 10; // 10% ~ 70%
-        let left = Math.random() * 70 + 10; // 10% ~ 80%
-        let animDur = Math.random() * 3 + 3; // 3s ~ 6s
-        let delay = Math.random() * 2;
+        let size = Math.floor(Math.random() * 80) + 140; 
+        let x = Math.random() * Math.max(0, rect.width - size);
+        let y = Math.random() * Math.max(0, rect.height - size);
+        let vx = (Math.random() - 0.5) * 6; 
+        let vy = (Math.random() - 0.5) * 6;
         let color = colors[Math.floor(Math.random() * colors.length)];
         
-        b.style.width = size + 'px';
-        b.style.height = size + 'px';
-        b.style.top = top + '%';
-        b.style.left = left + '%';
+        b.style.width = size + 'px'; b.style.height = size + 'px';
+        b.style.fontSize = Math.floor(size / 4.5) + 'px';
         b.style.background = color;
-        b.style.animation = `organicFloat ${animDur}s ease-in-out ${delay}s infinite alternate`;
+        b.style.left = x + 'px'; b.style.top = y + 'px';
 
         b.onclick = function() {
           if (isQuestionActive) return; isQuestionActive = true;
           b.style.transform = 'scale(0)'; setTimeout(() => b.remove(), 200);
-          const qBank = customQuestions.length > 0 ? customQuestions : ["Hello!"];
+          const qBank = (cls.questions && cls.questions.length > 0) ? cls.questions : ["Hello!"];
           const talkBox = document.getElementById('small-talk-display');
           let abBtn = isRev ? '' : `<button class="small-talk-absent-btn" onclick="ansQ('${classId}', '${s.id}', '${date}', 'absent', ${isRev})">❌</button>`;
           talkBox.innerHTML = `<div class="small-talk-text" onclick="ansQ('${classId}', '${s.id}', '${date}', 'present', ${isRev})"><div style="font-size:16px;color:#94a3b8;margin-bottom:10px;">Target: ${s.name}</div>${qBank[Math.floor(Math.random() * qBank.length)]}</div>${abBtn}`;
           talkBox.style.display = 'flex';
-        }; con.appendChild(b);
+        }; 
+        con.appendChild(b);
+        bubblesData.push({el: b, x, y, vx, vy, size});
       });
+
+      function animateBubbles() {
+          if (document.getElementById('game-modal').style.display === 'none') return;
+          rect = con.getBoundingClientRect();
+          bubblesData.forEach(b => {
+              if (!b.el.isConnected) return; 
+              b.x += b.vx; b.y += b.vy;
+              if (b.x <= 0) { b.x = 0; b.vx *= -1; }
+              if (b.y <= 0) { b.y = 0; b.vy *= -1; }
+              if (b.x + b.size >= rect.width) { b.x = Math.max(0, rect.width - b.size); b.vx *= -1; }
+              if (b.y + b.size >= rect.height) { b.y = Math.max(0, rect.height - b.size); b.vy *= -1; }
+              b.el.style.left = b.x + 'px'; b.el.style.top = b.y + 'px';
+          });
+          bubbleAnimationId = requestAnimationFrame(animateBubbles);
+      }
+      animateBubbles();
+
     } else if (type === 'spotlight') {
-      // V38 修復：抽籤按鈕絕對固定置底，捲動軸包裹名單區
+      modalBox.style.background = '#020617'; // 劇場聚光燈模式底色
       const p = cls.students.filter(s => s.records && s.records[date] === 'present');
       content.innerHTML = `
-        <h3 style="position:absolute; top:20px; color:#fff;">Date: ${date}</h3>
+        <h3 style="position:absolute; top:20px; color:#fff; z-index:100;">Date: ${date}</h3>
         <div style="flex-grow: 1; overflow-y: auto; width: 100%; display: flex; align-content: flex-start; justify-content: center; padding: 80px 20px 20px 20px; box-sizing: border-box;">
             <div class="student-grid" id="spotlight-grid">${p.map(s => `<div class="student-box">${s.name}</div>`).join('')}</div>
         </div>
-        <div style="flex-shrink: 0; height: 120px; width: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(transparent, rgba(15,23,42,0.9)); z-index:100;">
+        <div style="flex-shrink: 0; height: 120px; width: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(transparent, #020617); z-index:100;">
             <button class="btn btn-warning" id="spotlight-btn" onclick="runSp()" style="font-size:28px; padding:15px 50px; border-radius:40px; border:4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">${t('btnDraw')}</button>
         </div>
       `;
@@ -912,7 +970,7 @@
          } 
        } 
     } 
-    if(document.querySelectorAll('.bubble').length === 0) { 
+    if(document.querySelectorAll('.dynamic-bubble').length === 0) { 
       document.getElementById('modal-content-area').innerHTML = `<h2 style="font-size:48px; color:#fff;">🎉 Finished!</h2>`; 
       setTimeout(closeGameModal, 1500); 
     } 
@@ -920,7 +978,13 @@
   function runSp() {
     if(isSpinning) return; const bx = document.querySelectorAll('#spotlight-grid .student-box'); if(bx.length === 0) return;
     isSpinning = true; document.getElementById('spotlight-btn').innerText = "..."; let c = 0, sp = 50;
-    function jl() { bx.forEach(b=>b.classList.remove('highlight')); bx[Math.floor(Math.random()*bx.length)].classList.add('highlight'); c++; if(c < 25) spotlightTimer = setTimeout(jl, sp); else if(c < 45) { sp += 20; spotlightTimer = setTimeout(jl, sp); } else { isSpinning = false; document.getElementById('spotlight-btn').innerText = t('btnDraw'); } }
+    function jl() { 
+      bx.forEach(b => { b.classList.remove('highlight'); b.classList.add('dim'); }); 
+      const target = bx[Math.floor(Math.random()*bx.length)];
+      target.classList.remove('dim'); target.classList.add('highlight'); 
+      c++; 
+      if(c < 25) spotlightTimer = setTimeout(jl, sp); else if(c < 45) { sp += 20; spotlightTimer = setTimeout(jl, sp); } else { isSpinning = false; document.getElementById('spotlight-btn').innerText = t('btnDraw'); } 
+    }
     jl();
   }
 
@@ -943,7 +1007,7 @@
   }
   function stopTimer() { clearInterval(cTimer); const fs = document.getElementById('fullscreen-timer'); const fl = document.getElementById('floating-timer'); fs.style.display = 'none'; fl.style.display = 'none'; fs.className = 'fs-timer-display'; fl.className = 'floating-timer'; }
 
-  // --- 11. 單字卡大螢幕引擎 (V38 動態智慧略過版) ---
+  // --- 11. 單字卡大螢幕引擎 ---
   function deleteUnit(uId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ c.units = c.units.filter(u=>String(u.id)!==String(uId)); currentUnitId='all'; saveToCloud(); showClass(currentClassId, 'cards'); } } }
   function deleteWord(uId, wId) { if(confirm("Del?")){ const c=classData.find(x=>String(x.id)===String(currentClassId)); if(c){ const u=c.units.find(x=>String(x.id)===String(uId)); if(u){ u.words = u.words.filter(w=>String(w.id)!==String(wId)); saveToCloud(); showClass(currentClassId, 'cards'); } } } }
 
@@ -964,7 +1028,6 @@
     let words = getDisplayWords(); if(words.length === 0) return; 
     currentDisplayWords = words; isShuffleMode = isShuffle; 
     
-    // 初始化卡片資料與面數
     initCardData(index);
     
     document.getElementById('flashcard-modal').style.display = 'flex'; 
@@ -980,7 +1043,6 @@
     updateCardFace();
   }
 
-  // V38 新增：智慧辨識有無圖片，決定有幾個面 (3 或 4)
   function initCardData(index) {
     currentCardIndex = index;
     const wObj = currentDisplayWords[currentCardIndex];
