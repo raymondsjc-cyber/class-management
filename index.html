@@ -6,8 +6,8 @@
   <title>班級管理系統 | Classroom Management</title>
   
   <!-- 載入 Google Firebase 核心套件 -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="[https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js](https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js)"></script>
+  <script src="[https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js](https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js)"></script>
 
   <style>
     /* --- 基礎與版面 (高對比優化) --- */
@@ -46,8 +46,8 @@
     .cal-header button { background: none; border: none; font-size: 18px; cursor: pointer; color: #475569; font-weight:bold; }
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
     .cal-day-label { font-size: 12px; color: #475569; font-weight: bold; padding-bottom: 5px; }
-    .cal-day { padding: 10px 0; border-radius: 8px; cursor: pointer; transition: 0.2s; position: relative; font-size: 15px; font-weight: 500; }
-    .cal-day:hover { background: #e0f2fe; }
+    .cal-day { padding: 10px 0; border-radius: 8px; cursor: pointer; transition: 0.2s; position: relative; font-size: 15px; font-weight: 600; color:#334155; border:1px solid transparent; }
+    .cal-day:hover { background: #e0f2fe; border-color:#bae6fd; }
     .cal-day.active { background: #3498db; color: white; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
     .cal-day.other-month { color: #94a3b8; }
     .cal-dot { width: 6px; height: 6px; background: #e74c3c; border-radius: 50%; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); }
@@ -69,7 +69,7 @@
     .quick-link-item a { text-decoration: none; color: #1e40af; font-weight: bold; font-size: 14px; }
     .quick-link-item button { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 14px; padding: 0; }
 
-    /* 出缺勤與分數紀錄表 */
+    /* 出缺勤與分數紀錄表 (高對比) */
     .student-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; white-space: nowrap; }
     .student-table th, .student-table td { border-bottom: 1px solid #cbd5e1; padding: 12px; text-align: center; color: #1e293b; }
     .student-table th:first-child, .student-table td:first-child { text-align: left; position: sticky; left: 0; background: white; font-weight: 800; border-right: 1px solid #e2e8f0; z-index: 10; }
@@ -92,45 +92,50 @@
     .form-box input, .form-box select { width: 100%; padding: 12px; border: 2px solid #94a3b8; border-radius: 8px; font-size: 16px; box-sizing: border-box; outline: none; margin-bottom: 15px; color: #1e293b; font-weight: 500; }
     .form-box input:focus { border-color: #3498db; }
 
-    /* --- 動態氣泡點名系統 --- */
+    /* 動態氣泡點名系統 */
     .bubble-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
-    .dynamic-bubble { 
-        position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-        color: white; font-weight: 800; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.4); 
-        text-shadow: 1px 1px 4px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.3);
-        pointer-events: auto; transition: transform 0.2s ease, border 0.2s;
-    }
+    .dynamic-bubble { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.4); text-shadow: 1px 1px 4px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.3); pointer-events: auto; transition: transform 0.2s ease, border 0.2s; }
     .dynamic-bubble:hover { transform: scale(1.15) !important; z-index: 100 !important; border: 4px solid #fff; }
     .small-talk-container { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #1e293b; border-radius: 15px; display: none; z-index: 200; width: 90%; max-width: 800px; flex-direction: row; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 3px solid #cbd5e1; }
     .small-talk-text { flex-grow: 1; padding: 40px 20px; color: white; font-size: clamp(20px, 4vw, 32px); font-weight: 800; text-align: center; cursor: pointer; transition: background 0.2s; }
     .small-talk-absent-btn { background: #e74c3c; color: white; border: none; padding: 0 30px; font-size: 24px; font-weight: bold; cursor: pointer; }
 
-    /* --- V40 劇院聚光燈抽籤特效 --- */
+    /* --- V41 真實劇院座椅與置中黃金大賞特效 --- */
     .theatre-stage { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; background: radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 80%); }
-    .seat-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 1200px; margin: 0 auto; z-index: 5; perspective: 1000px; padding: 80px 20px 20px 20px; }
+    .seat-grid { display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; width: 100%; max-width: 1200px; margin: 0 auto; z-index: 5; perspective: 1000px; padding: 80px 20px 20px 20px; }
+    
+    /* 座椅設計 */
     .seat-box { 
-        background: rgba(30, 41, 59, 0.7); color: #64748b; padding: 18px 35px; border-radius: 12px; 
-        font-size: 22px; font-weight: 800; border: 1px solid rgba(255,255,255,0.05); 
-        transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); backdrop-filter: blur(5px); 
+        background: #1e293b; color: #94a3b8; width: 85px; height: 80px; 
+        display: flex; align-items: center; justify-content: center; 
+        border-radius: 12px 12px 6px 6px; font-size: 16px; font-weight: 800; 
+        border: 2px solid #334155; border-bottom: 8px solid #0f172a; 
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4); overflow: hidden;
+        padding: 5px; text-align: center; word-break: break-all; line-height: 1.1;
     }
-    
     .seat-box.scan { 
-        background: #3b82f6; color: #fff; transform: scale(1.15) translateZ(20px); 
-        box-shadow: 0 0 25px rgba(59,130,246,0.8), 0 0 50px rgba(59,130,246,0.4); 
-        border-color: #93c5fd; z-index: 10; 
+        background: #3b82f6; color: #fff; transform: scale(1.15) translateZ(10px); 
+        box-shadow: 0 0 20px rgba(59,130,246,0.8); border-color: #93c5fd; 
+        border-bottom-color: #1e3a8a; z-index: 10; 
     }
-    .seat-box.dim { opacity: 0.15; filter: blur(3px); transform: scale(0.9); }
-    .seat-box.winner { 
-        background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; 
-        transform: scale(1.8) translateZ(50px); z-index: 50; border: 3px solid #fff; 
-        box-shadow: 0 20px 50px rgba(241,196,15,0.8), 0 0 100px rgba(241,196,15,0.6); 
-    }
+    .seat-box.dim { opacity: 0.15; filter: blur(2px); transform: scale(0.9); border-color: transparent; }
     
-    /* 真實聚光燈光束 */
+    /* 巨大置中得獎卡 */
+    .winner-popup {
+        position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(0);
+        background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000;
+        padding: 40px 80px; border-radius: 20px; border: 5px solid #fff;
+        box-shadow: 0 30px 60px rgba(241,196,15,0.6); z-index: 200;
+        font-size: clamp(40px, 8vw, 80px); font-weight: 900; white-space: nowrap;
+        transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        pointer-events: none; text-align: center;
+    }
+    .winner-popup.show { transform: translate(-50%, -50%) scale(1); }
+
     .stage-beam { 
         position: absolute; top: -50px; left: calc(50% - 400px); width: 800px; height: 150vh; 
-        background: conic-gradient(from 180deg at 50% 0%, transparent 160deg, rgba(241,196,15,0.5) 180deg, transparent 200deg); 
+        background: conic-gradient(from 180deg at 50% 0%, transparent 160deg, rgba(241,196,15,0.4) 180deg, transparent 200deg); 
         transform-origin: 50% 0%; opacity: 0; pointer-events: none; z-index: 20; 
         mix-blend-mode: screen; transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); 
     }
@@ -149,11 +154,10 @@
     .explode-anim { animation: explodeBg 1.5s forwards; }
     @keyframes explodeBg { 0% { background: #e74c3c; transform: scale(1); } 50% { background: #f1c40f; transform: scale(1.05); } 100% { background: #c0392b; transform: scale(1); } }
     .shake-anim { animation: shake 0.5s infinite; background: #e74c3c !important; }
-    @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 25% { transform: translate(-2px, -2px) rotate(-1deg); } 50% { transform: translate(1px, 2px) rotate(1deg); } 75% { transform: translate(-2px, -1px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
     /* 單字卡系統 (首頁列表縮圖) */
     .flashcard-layout { display: flex; gap: 20px; align-items: flex-start; }
-    .unit-sidebar { width: 220px; background: #f1f5f9; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; border: 1px solid #cbd5e1; }
+    .unit-sidebar { width: 220px; background: #f8fafc; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; border: 1px solid #cbd5e1; }
     .unit-btn { padding: 12px; text-align: left; background: none; border: 1px solid transparent; font-size: 16px; cursor: pointer; border-radius: 8px; color: #334155; font-weight: 700; transition: 0.2s; display: flex; justify-content: space-between; }
     .unit-btn.active { background: #3498db; color: white; border-color: #2980b9; }
     
@@ -167,8 +171,8 @@
     
     /* 獨立單字卡大圖層 */
     .fc-full-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.95); z-index: 5000; display: flex; flex-direction: row; }
-    .fc-side-btn { width: 20%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2); font-size: 60px; cursor: pointer; transition: 0.3s; user-select: none; z-index: 5010; font-weight: bold; }
-    .fc-side-btn:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.9); }
+    .fc-side-btn { width: 20%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); font-size: clamp(40px, 8vw, 80px); cursor: pointer; transition: 0.3s; user-select: none; z-index: 5010; font-weight: bold; }
+    .fc-side-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
     .fc-center-zone { width: 60%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 5005; cursor: pointer; perspective: 1500px; }
     
     .large-fc-inner { width: 100%; max-width: 900px; height: 60vh; max-height: 600px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; text-align: center; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; word-break: break-word; border: 4px solid rgba(255,255,255,0.2); }
@@ -179,7 +183,6 @@
     .fc-color-3 { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; font-size: clamp(25px, 4vw, 60px); font-style: italic; font-weight: 600; } 
     .fc-flip-hint { margin-top: 30px; color: rgba(255,255,255,0.9); font-size: 18px; width: 100%; text-align: center; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); pointer-events: none; }
 
-    /* RWD 優化 */
     @media (max-width: 768px) {
         header { flex-direction: column; gap: 10px; padding: 15px; }
         .dashboard-layout { flex-direction: column; }
@@ -266,7 +269,7 @@
   // --- 1. Firebase 雲端配置 ---
   let db = null;
   try {
-    const firebaseConfig = { databaseURL: "https://class-management-89906-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+    const firebaseConfig = { databaseURL: "[https://class-management-89906-default-rtdb.asia-southeast1.firebasedatabase.app/](https://class-management-89906-default-rtdb.asia-southeast1.firebasedatabase.app/)" };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     db = firebase.database();
   } catch(e) { console.error("Firebase init failed", e); }
@@ -341,11 +344,11 @@
     updateStaticI18n();
   }
 
-  // --- 3. 雙引擎資料控制 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV39')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV39')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV39')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV39')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [], questions: [] } ];
+  // --- 3. 雙引擎資料控制 (修復 Firebase Key 斜線 Bug) ---
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV41')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV41')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV41')) || [ { id: 1, name: "Google Translate", url: "[https://translate.google.com](https://translate.google.com)" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV41')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [], questions: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
@@ -387,13 +390,24 @@
 
       c.units.forEach(u => { u.words = toArr(u.words); });
       c.exams.forEach(e => { if(!e.records) e.records = {}; });
-      c.students.forEach(s => { if(!s.records) s.records = {}; });
+      
+      // V41 核心修復：把舊的 MM/DD 轉為 MM-DD 確保能寫入 Firebase
+      c.students.forEach(s => { 
+        if(!s.records) s.records = {}; 
+        Object.keys(s.records).forEach(k => {
+           if(k.includes('/')) {
+              s.records[k.replace(/\//g, '-')] = s.records[k];
+              delete s.records[k];
+           }
+        });
+      });
     });
     generalMemos = toArr(generalMemos);
     quickLinks = toArr(quickLinks);
   }
   repairData(); 
 
+  // --- 週間日期生成 (改用連字號避免 Firebase Bug) ---
   function getWeekDays(offset) {
     let d = new Date(); let day = d.getDay() || 7; 
     d.setDate(d.getDate() + (1 - day) + (offset * 7)); 
@@ -401,7 +415,7 @@
     for (let i = 0; i < 5; i++) { 
         let current = new Date(d); current.setDate(d.getDate() + i);
         let mm = String(current.getMonth() + 1).padStart(2, '0'); let dd = String(current.getDate()).padStart(2, '0');
-        days.push(`${mm}/${dd}`);
+        days.push(`${mm}-${dd}`); // 內部儲存用 MM-DD
     }
     return days;
   }
@@ -409,7 +423,7 @@
     let curr = new Date(); let day = curr.getDay();
     if(day === 0 || day === 6) { curr.setDate(curr.getDate() - (day === 0 ? 2 : 1)); } 
     let m = String(curr.getMonth() + 1).padStart(2, '0'); let d = String(curr.getDate()).padStart(2, '0');
-    return `${m}/${d}`;
+    return `${m}-${d}`;
   }
 
   // --- 4. 雲端監聽器 ---
@@ -420,10 +434,10 @@
           generalMemos = cloudData.generalMemos; customQuestions = cloudData.customQuestions; quickLinks = cloudData.quickLinks; classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV39', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV39', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV39', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV39', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV41', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV41', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV41', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV41', JSON.stringify(classData));
           } catch(e) {}
           
           const fModal = document.getElementById('form-modal').style.display;
@@ -443,10 +457,10 @@
     const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV39', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV39', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV39', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV39', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV41', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV41', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV41', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV41', JSON.stringify(classData));
     } catch (err) {}
   }
 
@@ -481,6 +495,11 @@
   function closeFormModal() { document.getElementById('form-modal').style.display = 'none'; document.body.style.overflow = 'auto'; if (currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); }
   function closeGameModal() { 
     clearTimeout(spotlightTimer); cancelAnimationFrame(bubbleAnimationId);
+    
+    // 移除獎牌顯示
+    const oldWinner = document.querySelector('.winner-popup');
+    if(oldWinner) oldWinner.remove();
+    
     document.getElementById('game-modal').style.display = 'none'; document.body.style.overflow = 'auto'; 
   }
   function openTimerModal() { document.getElementById('timer-setup-modal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
@@ -609,11 +628,19 @@
     });
   };
 
-  // --- 7. 總覽儀表板 ---
-  function getCalendarHTML() {
+  // --- 7. 總覽與行事曆 ---
+  function getCalendarHTML(cId = null) {
     const mNames = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
     const fd = new Date(calYear, calMonth, 1).getDay(); const dim = new Date(calYear, calMonth + 1, 0).getDate(); const pd = new Date(calYear, calMonth, 0).getDate();
-    let aDates = new Set(); generalMemos.forEach(m => { if(m.date) aDates.add(m.date); }); classData.forEach(c => c.memos.forEach(m => { if(m.date) aDates.add(m.date); }));
+    let aDates = new Set(); 
+    if(!cId) {
+        generalMemos.forEach(m => { if(m.date) aDates.add(m.date); }); 
+        classData.forEach(c => c.memos.forEach(m => { if(m.date) aDates.add(m.date); }));
+    } else {
+        const c = classData.find(x => String(x.id) === String(cId));
+        if(c) c.memos.forEach(m => { if(m.date) aDates.add(m.date); });
+    }
+    
     let dHTML = ''; const dL = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="cal-day-label">${d}</div>`).join('');
     for (let i = fd - 1; i >= 0; i--) dHTML += `<div class="cal-day other-month">${pd - i}</div>`;
     for (let i = 1; i <= dim; i++) {
@@ -623,8 +650,8 @@
     }
     return `<div class="cal-header"><button onclick="changeCalMonth(-1)">❮</button><div>${calYear} / ${mNames[calMonth]}</div><button onclick="changeCalMonth(1)">❯</button></div><div class="cal-grid">${dL}${dHTML}</div>`;
   }
-  function changeCalMonth(dir) { calMonth += dir; if(calMonth > 11) { calMonth = 0; calYear++; } else if(calMonth < 0) { calMonth = 11; calYear--; } showDashboard(); }
-  function toggleCalFilter(d) { filterDate = filterDate === d ? null : d; showDashboard(); }
+  function changeCalMonth(dir) { calMonth += dir; if(calMonth > 11) { calMonth = 0; calYear++; } else if(calMonth < 0) { calMonth = 11; calYear--; } if (currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); }
+  function toggleCalFilter(d) { filterDate = filterDate === d ? null : d; if (currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); }
 
   function showDashboard() {
     currentView = 'dashboard'; currentClassId = null; renderNav();
@@ -651,10 +678,10 @@
       </div>
     `;
   }
-  function deleteMemo(id, ctx) { if(ctx==='general') generalMemos = generalMemos.filter(m=>String(m.id)!==String(id)); else { const c=classData.find(x=>String(x.id)===String(ctx)); if(c) c.memos=c.memos.filter(m=>String(m.id)!==String(id)); } saveToCloud(); showDashboard(); }
+  function deleteMemo(id, ctx) { if(ctx==='general') generalMemos = generalMemos.filter(m=>String(m.id)!==String(id)); else { const c=classData.find(x=>String(x.id)===String(ctx)); if(c) c.memos=c.memos.filter(m=>String(m.id)!==String(id)); } saveToCloud(); if (currentView === 'dashboard') showDashboard(); else showClass(currentClassId, currentTab); }
   function deleteLink(id) { quickLinks = quickLinks.filter(l => String(l.id) !== String(id)); saveToCloud(); showDashboard(); }
 
-  // --- 8. 班級分頁路由 ---
+  // --- 8. 班級分頁路由與分數管理 ---
   window.switchUnit = function(u) { currentUnitId = String(u); showClass(currentClassId, 'cards'); };
   function changeAttendanceWeek(dir) { attendanceWeekOffset += dir; showClass(currentClassId, 'students'); }
 
@@ -715,30 +742,44 @@
     let tabContent = '';
     const classHeader = `<h2>${cls.name} <button class="btn-icon" onclick="renameClass('${cls.id}')" title="${t('renameTip')}">✏️</button> <button class="btn-icon" style="color:#e74c3c; margin-left:5px;" onclick="deleteClass('${cls.id}')" title="${t('deleteTip')}">🗑️</button></h2>`;
     
+    // V41: 完美版首頁切版佈局
     if (tab === 'home') {
-      let mHTML = cls.memos.map(m => `<li class="memo-item"><div class="memo-content">${m.date?`<span style="color:#e74c3c;">[${m.date.substring(5)}]</span> `:''}${m.text}</div><button class="btn btn-danger" onclick="deleteMemo('${m.id}', '${cls.id}')">✖</button></li>`).join('');
+      let tasks = cls.memos;
+      if (filterDate) tasks = tasks.filter(m => m.date === filterDate);
+      
+      let mHTML = tasks.map(m => `<li class="memo-item"><div class="memo-content">${m.date?`<span style="color:#e74c3c;">[${m.date.substring(5)}]</span> `:''}${m.text}</div><button class="btn btn-danger" onclick="deleteMemo('${m.id}', '${cls.id}')">✖</button></li>`).join('');
       let qHTML = (cls.questions || []).map((q, i) => `<li class="memo-item" style="padding:8px;"><div class="memo-content">🗣️ ${q}</div><button class="btn btn-danger" onclick="deleteClassQ('${id}', ${i})">✖</button></li>`).join('');
       
+      let dStat = filterDate ? `<span style="color:#e74c3c;"> (${filterDate}) <button style="background:none;border:none;color:#3498db;cursor:pointer;" onclick="toggleCalFilter('${filterDate}')">Clear</button></span>` : '';
+
       tabContent = `
-        <div style="display:flex; gap:25px; flex-wrap:wrap;">
-           <div style="flex:1; min-width:300px;">
-               <h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #cbd5e1; padding-bottom:10px; color:#0f172a;">${t('taskList')} <button class="btn-icon" onclick="openAddMemoModal('${cls.id}')">➕</button></h3>
+        <div style="display:flex; gap:25px; flex-wrap:wrap; margin-bottom:25px;">
+           <div style="flex:2; min-width:300px;">
+               <h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #cbd5e1; padding-bottom:10px; color:#0f172a;">
+                  <span>${t('taskList')} ${dStat}</span> <button class="btn-icon" onclick="openAddMemoModal('${cls.id}')">➕</button>
+               </h3>
                <ul class="memo-list">${mHTML||`<li class="memo-item">${t('noTask')}</li>`}</ul>
            </div>
-           <div style="flex:1; min-width:300px;">
-               <h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #cbd5e1; padding-bottom:10px; color:#0f172a;">${t('qBank')} <button class="btn-icon" onclick="openAddClassQModal('${cls.id}')">➕</button></h3>
-               <ul class="memo-list" style="border: 1px solid #cbd5e1; border-radius:8px;">${qHTML||`<li class="memo-item" style="color:#94a3b8;">${t('noQBank')}</li>`}</ul>
+           <div style="flex:1; min-width:300px; background:#f8fafc; border-radius:16px; padding:20px; border:2px solid #cbd5e1;">
+               ${getCalendarHTML(id)}
            </div>
+        </div>
+        <div style="width:100%;">
+           <h3 style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #cbd5e1; padding-bottom:10px; color:#0f172a;">
+              ${t('qBank')} <button class="btn-icon" onclick="openAddClassQModal('${cls.id}')">➕</button>
+           </h3>
+           <ul class="memo-list" style="border: 1px solid #cbd5e1; border-radius:8px;">${qHTML||`<li class="memo-item" style="color:#94a3b8; padding:15px;">${t('noQBank')}</li>`}</ul>
         </div>
       `;
     } 
     else if (tab === 'students') {
       let weekDays = getWeekDays(attendanceWeekOffset); let todayStr = getTodayString();
-      let dHeaders = weekDays.map(date => `<th>${date}</th>`).join('');
+      // 在表頭把 07-01 換回 07/01 顯示
+      let dHeaders = weekDays.map(date => `<th>${date.replace('-', '/')}</th>`).join('');
       let sRows = cls.students.map(s => {
         let recs = weekDays.map(date => {
           let stat = s.records ? s.records[date] || 'pending' : 'pending'; let selCls = stat==='present'?'att-present':(stat==='absent'?'att-absent':'att-pending');
-          return `<td><select id="att-${s.id}-${date.replace('/','-')}" class="attendance-select ${selCls}" onchange="updateAttendanceLocal('${id}', '${s.id}', '${date}', this.value, this.id)"><option value="pending" ${stat==='pending'?'selected':''}>➖</option><option value="present" ${stat==='present'?'selected':''}>✅</option><option value="absent" ${stat==='absent'?'selected':''}>❌</option></select></td>`;
+          return `<td><select id="att-${s.id}-${date}" class="attendance-select ${selCls}" onchange="updateAttendanceLocal('${id}', '${s.id}', '${date}', this.value, this.id)"><option value="pending" ${stat==='pending'?'selected':''}>➖</option><option value="present" ${stat==='present'?'selected':''}>✅</option><option value="absent" ${stat==='absent'?'selected':''}>❌</option></select></td>`;
         }).join('');
         return `<tr><td><strong>${s.name}</strong></td>${recs}<td><button class="btn btn-danger" onclick="deleteStudent('${id}', '${s.id}')">✖</button></td></tr>`;
       }).join('');
@@ -755,7 +796,7 @@
         <div style="overflow-x: auto;"><table class="student-table"><tr><th>Name</th>${dHeaders}<th>Del</th></tr>${sRows||`<tr><td colspan="100%">${t('noStudent')}</td></tr>`}</table></div>
         ${cls.students.length > 0 ? `
         <div style="display:flex; gap:15px; justify-content:center; align-items:center; background:#f8fafc; border:2px solid #cbd5e1; padding:20px; border-radius:12px; margin-top:20px; flex-wrap:wrap;">
-          <select id="game-date" style="padding:10px; font-weight:bold; color:#0f172a; border-radius:8px; border:2px solid #94a3b8;">${weekDays.map(d => `<option value="${d}" ${d===todayStr?'selected':''}>📅 ${d}</option>`).join('')}</select>
+          <select id="game-date" style="padding:10px; font-weight:bold; color:#0f172a; border-radius:8px; border:2px solid #94a3b8;">${weekDays.map(d => `<option value="${d}" ${d===todayStr?'selected':''}>📅 ${d.replace('-', '/')}</option>`).join('')}</select>
           <button class="btn btn-primary" onclick="openGameModal('bubble', '${id}')">${t('gameBubble')}</button>
           <button class="btn btn-warning" onclick="openGameModal('spotlight', '${id}')">${t('gameSpotlight')}</button>
         </div>` : ''}
@@ -864,7 +905,7 @@
     }
   }
 
-  // --- 9. V40 劇院聚光燈特效 & 動態氣泡引擎 ---
+  // --- 9. V41 有機氣泡 & 真實劇院聚光燈特效 ---
   let spotlightTimer = null; let isQuestionActive = false; let isSpinning = false;
   let bubbleAnimationId = null; let bubblesData = [];
   
@@ -885,7 +926,7 @@
       let tg = cls.students.filter(s => s.records && s.records[date] !== 'present' && s.records[date] !== 'absent');
       let isRev = false; if(tg.length === 0) { tg = cls.students.filter(s => s.records && s.records[date] !== 'absent'); isRev = true; }
       
-      content.innerHTML = `<h3 style="position:absolute; top:20px; color:#fff; z-index:100;">Date: ${date}</h3><div id="small-talk-display" class="small-talk-container"></div><div class="bubble-area" id="bubble-container"></div>`;
+      content.innerHTML = `<h3 style="position:absolute; top:20px; left:30px; color:#fff; z-index:100; margin:0;">Date: ${date.replace('-', '/')}</h3><div id="small-talk-display" class="small-talk-container"></div><div class="bubble-area" id="bubble-container"></div>`;
       const con = document.getElementById('bubble-container');
       
       const colors = [
@@ -945,10 +986,10 @@
       modalBox.style.background = 'transparent';
       const p = cls.students.filter(s => s.records && s.records[date] === 'present');
       
-      // V40 劇院觀眾席與立體聚光燈渲染
+      // V41 劇院觀眾席 (改良方形座椅、不破版中央獎牌)
       content.innerHTML = `
         <div class="theatre-stage" id="theatre-stage">
-            <h3 style="position:absolute; top:20px; left:30px; color:#94a3b8; z-index:100; margin:0;">Date: ${date}</h3>
+            <h3 style="position:absolute; top:20px; left:30px; color:#94a3b8; z-index:100; margin:0;">Date: ${date.replace('-', '/')}</h3>
             <div class="stage-beam" id="stage-beam"></div>
             <div style="flex-grow: 1; overflow-y: auto; width: 100%; display: flex; align-content: flex-start; justify-content: center; padding: 60px 20px 20px 20px; box-sizing: border-box; z-index:5;">
                 <div class="seat-grid" id="spotlight-grid">
@@ -956,7 +997,7 @@
                 </div>
             </div>
             <div style="flex-shrink: 0; height: 120px; width: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(transparent, #020617); z-index:100;">
-                <button class="btn btn-warning glow-btn" id="spotlight-btn" onclick="runSp()" style="font-size:28px; padding:15px 50px; border-radius:50px; border:3px solid #fff; box-shadow: 0 5px 25px rgba(241,196,15,0.5); font-weight:900;">${t('btnDraw')}</button>
+                <button class="btn btn-warning" id="spotlight-btn" onclick="runSp()" style="font-size:28px; padding:15px 50px; border-radius:50px; border:3px solid #fff; box-shadow: 0 5px 25px rgba(241,196,15,0.5); font-weight:900;">${t('btnDraw')}</button>
             </div>
         </div>
       `;
@@ -981,7 +1022,7 @@
          const s = c.students.find(x=>String(x.id)===String(sId)); 
          if(s){ 
              if(!s.records) s.records={}; s.records[d]=stat; 
-             let selectId = `att-${s.id}-${d.replace('/','-')}`;
+             let selectId = `att-${s.id}-${d}`;
              let elem = document.getElementById(selectId);
              if(elem) { elem.value = stat; elem.className = `attendance-select att-${stat}`; }
              saveToCloud(); 
@@ -994,18 +1035,21 @@
     } 
   }
   
-  // V40 全新多束聚光燈動態掃描引擎
+  // V41 多束聚光燈動態掃描與置中大賞引擎
   function runSp() {
     if(isSpinning) return; 
     const bx = document.querySelectorAll('#spotlight-grid .seat-box'); 
     if(bx.length === 0) return;
     
+    // 每次抽籤前，先清掉上一次的置中獎牌
+    const oldWinner = document.querySelector('.winner-popup');
+    if(oldWinner) oldWinner.remove();
+
     isSpinning = true; 
     const btn = document.getElementById('spotlight-btn');
     btn.innerText = "DRAWING..."; btn.disabled = true;
     
-    // 初始化狀態
-    bx.forEach(b => { b.classList.remove('scan', 'winner', 'dim'); });
+    bx.forEach(b => { b.classList.remove('scan', 'dim'); });
     const beam = document.getElementById('stage-beam');
     if(beam) beam.style.opacity = '0';
     
@@ -1013,14 +1057,11 @@
     let maxC = 40 + Math.floor(Math.random() * 20); 
     let sp = 40;
     let activeIndices = [];
-    let beamCount = Math.min(3, Math.ceil(bx.length / 4)); // 人數多時最多出現3道光芒
+    let beamCount = Math.min(3, Math.ceil(bx.length / 4)); 
 
     function jump() {
-      // 移除上一幀的光圈
       activeIndices.forEach(idx => bx[idx].classList.remove('scan'));
       activeIndices = [];
-      
-      // 快結束時收束為 1 道光芒
       let currentBeams = (c > maxC * 0.7) ? 1 : beamCount; 
       
       while(activeIndices.length < currentBeams) {
@@ -1041,34 +1082,25 @@
           
           let winnerIdx = activeIndices[0];
           
-          // 其他人暗燈
-          bx.forEach((b, i) => {
-              if(i !== winnerIdx) b.classList.add('dim');
+          // 所有座位暗燈
+          bx.forEach(b => {
               b.classList.remove('scan');
+              b.classList.add('dim');
           });
           
-          // 得獎者高光
-          let winnerBox = bx[winnerIdx];
-          winnerBox.classList.add('winner');
+          // V41 不破版巨大黃金獎牌
+          const winnerCard = document.createElement('div');
+          winnerCard.className = 'winner-popup';
+          winnerCard.innerHTML = `🎉 ${bx[winnerIdx].innerText} 🎉`;
+          document.getElementById('theatre-stage').appendChild(winnerCard);
           
-          // 黃金聚光燈物理投射運算
+          // 聚光燈強制回正，照射中央獎牌
           if(beam) {
-              let boxRect = winnerBox.getBoundingClientRect();
-              let stage = document.getElementById('theatre-stage');
-              let stageRect = stage.getBoundingClientRect();
-              
-              // 計算卡片中心相對於舞台整體的水平偏移量
-              let centerPixel = boxRect.left - stageRect.left + boxRect.width/2;
-              let stageCenter = stageRect.width / 2;
-              let offset = centerPixel - stageCenter;
-              
-              // 最大旋轉角 45度
-              let angle = (offset / stageRect.width) * 45; 
-              
-              beam.style.transform = `rotate(${angle}deg)`;
+              beam.style.transform = `rotate(0deg)`;
               beam.style.opacity = '1';
           }
           
+          setTimeout(() => { winnerCard.classList.add('show'); }, 50);
           showSuccessEffect(); 
       }
     }
