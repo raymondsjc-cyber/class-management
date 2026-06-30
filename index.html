@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>班級管理系統 | Classroom Management</title>
   
+  <!-- 載入 Google Firebase 核心套件 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -110,40 +111,42 @@
     .small-talk-absent-btn { flex-shrink: 0; background: #e74c3c; color: white; border: none; border-left: 2px solid #cbd5e1; padding: 0 40px; font-size: 32px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
     .small-talk-absent-btn:hover { background: #c0392b; }
 
-    /* --- V45 劇院手電筒抽籤特效 --- */
+    /* --- V46 劇院手電筒抽籤特效 (黑暗倉庫探照版) --- */
     .theatre-stage { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; background: linear-gradient(135deg, #0f172a 0%, #000000 100%); overflow: hidden; }
     .seat-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 1200px; margin: 0 auto; z-index: 5; padding: 80px 30px 30px 30px; align-content: center; height: 100%; }
     
+    /* 座位卡保持微亮，等待光束照亮 */
     .seat-box { 
-        background: rgba(255,255,255,0.08); color: #f8fafc; padding: 15px 30px; 
-        border-radius: 50px; border: 1px solid rgba(255,255,255,0.2); 
+        background: rgba(255,255,255,0.06); color: #f8fafc; padding: 15px 30px; 
+        border-radius: 50px; border: 1px solid rgba(255,255,255,0.1); 
         font-size: clamp(18px, 2vw, 28px); font-weight: 800; display: flex; align-items: center; justify-content: center; text-align: center;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        box-shadow: 0 8px 20px rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.5); backdrop-filter: blur(5px);
         flex-grow: 1; flex-basis: clamp(150px, 20%, 250px); max-width: 300px;
     }
-    .seat-box.dim { opacity: 0.2; filter: blur(3px); transform: scale(0.95); border-color: transparent; }
+    .seat-box.dim { opacity: 0.15; filter: blur(3px); transform: scale(0.95); border-color: transparent; }
     
     .seat-box.winner { 
         background: linear-gradient(135deg, #0f172a, #1e293b); color: #f1c40f; 
         transform: scale(1.3) translateY(-10px); 
-        border: 4px solid #f1c40f; box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 100px rgba(255,255,255,0.3); z-index: 50; 
+        border: 4px solid #f1c40f; box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 100px rgba(255,255,255,0.2); z-index: 50; 
     }
     
-    /* 純淨實心白光手電筒 (卡通邊界感) */
+    /* V46 柔和無邊界手電筒光束 (真實疊加效果) */
     .light-beam {
         position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; z-index: 15;
-        background: rgba(255, 255, 255, 0.85); 
-        box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.4); 
+        background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 35%, transparent 70%);
         mix-blend-mode: screen; transform: translate(-50%, -50%);
+        transition: top 0.4s ease-in-out, left 0.4s ease-in-out, width 0.2s, height 0.2s, opacity 0.5s;
     }
 
+    /* 中獎者彈出大卡 */
     .winner-popup {
         position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
         width: 280px; height: 280px; background: linear-gradient(135deg, #0f172a, #020617); color: #f1c40f;
         font-size: 52px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-align: center;
         border-radius: 20px 20px 8px 8px; border: 6px solid #f1c40f; border-bottom: 18px solid #b9770e;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 150px rgba(255,255,255,0.6); text-shadow: 0 0 20px rgba(241,196,15,0.5);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 150px rgba(255,255,255,0.4); text-shadow: 0 0 20px rgba(241,196,15,0.5);
         z-index: 9999; word-break: break-all; padding: 20px; box-sizing: border-box;
         animation: winnerPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
@@ -166,7 +169,7 @@
     .shake-anim { animation: shake 0.5s infinite; background: #e74c3c !important; }
     @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 25% { transform: translate(-2px, -2px) rotate(-1deg); } 50% { transform: translate(1px, 2px) rotate(1deg); } 75% { transform: translate(-2px, -1px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
-    /* 單字卡系統 (首頁列表縮圖) */
+    /* 單字卡系統 */
     .flashcard-layout { display: flex; gap: 20px; align-items: flex-start; }
     .unit-sidebar { width: 220px; background: #f1f5f9; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; border: 1px solid #cbd5e1; }
     .unit-btn { padding: 12px; text-align: left; background: none; border: 1px solid transparent; font-size: 16px; cursor: pointer; border-radius: 8px; color: #334155; font-weight: 700; transition: 0.2s; display: flex; justify-content: space-between; }
@@ -219,6 +222,7 @@
 
 <div class="container" id="main-content"></div>
 
+<!-- 遊戲 Modal (抽籤劇場 & 氣泡滿版共用) -->
 <div id="game-modal" class="modal-overlay">
   <div class="modal-box" id="game-modal-box" style="width: 100%; height: 100%; background: transparent; padding: 0;">
     <button class="close-btn" style="top: 20px; right: 30px; z-index: 6000;" onclick="closeGameModal()">✖</button>
@@ -226,6 +230,7 @@
   </div>
 </div>
 
+<!-- 獨立單字卡大圖層 -->
 <div id="flashcard-modal" class="fc-full-overlay" style="display:none;">
     <button class="close-btn" style="z-index: 6000;" onclick="closeFlashcardModal()">✖</button>
     <div class="fc-side-btn left" onclick="navCard(-1)">❮</div>
@@ -237,6 +242,7 @@
     <div class="fc-side-btn right" onclick="navCard(1)">❯</div>
 </div>
 
+<!-- 統一表單 Modal -->
 <div id="form-modal" class="modal-overlay" style="z-index: 3500;">
   <div class="form-box">
     <h2 id="form-modal-title">標題</h2>
@@ -248,6 +254,7 @@
   </div>
 </div>
 
+<!-- 計時器設定 Modal -->
 <div id="timer-setup-modal" class="modal-overlay" style="z-index: 3600;">
   <div class="timer-setup-box">
     <h2 id="t-setup-title">設定倒數計時器</h2>
@@ -263,6 +270,7 @@
   </div>
 </div>
 
+<!-- 計時器顯示 -->
 <div id="fullscreen-timer" class="fs-timer-display">
   <div id="fs-timer-val" class="fs-timer-text">00:00</div>
   <button id="fs-timer-close" class="btn btn-danger" style="position:absolute; bottom:15%; font-size:24px; padding:15px 50px; border-radius:30px; box-shadow:0 10px 20px rgba(0,0,0,0.5); z-index:2010;" onclick="stopTimer()">停止 / Stop</button>
@@ -352,10 +360,10 @@
   }
 
   // --- 3. 雙引擎資料控制 ---
-  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV45')) || [];
-  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV45')) || ["What did you have for breakfast today? 🍳"];
-  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV45')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
-  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV45')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [], questions: [] } ];
+  let generalMemos = JSON.parse(localStorage.getItem('myGeneralMemosV46')) || [];
+  let customQuestions = JSON.parse(localStorage.getItem('myCustomQsV46')) || ["What did you have for breakfast today? 🍳"];
+  let quickLinks = JSON.parse(localStorage.getItem('myQuickLinksV46')) || [ { id: 1, name: "Google Translate", url: "https://translate.google.com" } ];
+  let classData = JSON.parse(localStorage.getItem('myDynamicClassesV46')) || [ { id: 1, name: "雙語Ａ班", memos: [], students: [], units: [], exams: [], questions: [] } ];
 
   let currentView = 'dashboard'; let currentClassId = null; let currentTab = 'home';
   let currentUnitId = 'all'; let calYear = new Date().getFullYear(); let calMonth = new Date().getMonth(); let filterDate = null; 
@@ -427,10 +435,10 @@
           generalMemos = cloudData.generalMemos; customQuestions = cloudData.customQuestions; quickLinks = cloudData.quickLinks; classData = cloudData.classData;
           repairData(); 
           try {
-            localStorage.setItem('myGeneralMemosV45', JSON.stringify(generalMemos));
-            localStorage.setItem('myCustomQsV45', JSON.stringify(customQuestions));
-            localStorage.setItem('myQuickLinksV45', JSON.stringify(quickLinks));
-            localStorage.setItem('myDynamicClassesV45', JSON.stringify(classData));
+            localStorage.setItem('myGeneralMemosV46', JSON.stringify(generalMemos));
+            localStorage.setItem('myCustomQsV46', JSON.stringify(customQuestions));
+            localStorage.setItem('myQuickLinksV46', JSON.stringify(quickLinks));
+            localStorage.setItem('myDynamicClassesV46', JSON.stringify(classData));
           } catch(e) {}
           
           const fModal = document.getElementById('form-modal').style.display;
@@ -450,10 +458,10 @@
     const cleanData = JSON.parse(JSON.stringify({ generalMemos, customQuestions, quickLinks, classData }));
     if(db) db.ref("teachingData").set(cleanData).catch(e => console.error(e));
     try {
-      localStorage.setItem('myGeneralMemosV45', JSON.stringify(generalMemos));
-      localStorage.setItem('myCustomQsV45', JSON.stringify(customQuestions));
-      localStorage.setItem('myQuickLinksV45', JSON.stringify(quickLinks));
-      localStorage.setItem('myDynamicClassesV45', JSON.stringify(classData));
+      localStorage.setItem('myGeneralMemosV46', JSON.stringify(generalMemos));
+      localStorage.setItem('myCustomQsV46', JSON.stringify(customQuestions));
+      localStorage.setItem('myQuickLinksV46', JSON.stringify(quickLinks));
+      localStorage.setItem('myDynamicClassesV46', JSON.stringify(classData));
     } catch (err) {}
   }
 
@@ -897,7 +905,7 @@
     }
   }
 
-  // --- 9. V45 特效模組 (不重複隨機扭蛋機) ---
+  // --- 9. V46 特效模組 (護眼漸慢手電筒 & 點擊關閉特效) ---
   let spotlightTimer = null; let isQuestionActive = false; let isSpinning = false;
   let bubbleAnimationId = null; let bubblesData = [];
   
@@ -990,20 +998,21 @@
       modalBox.style.background = 'transparent';
       const p = cls.students.filter(s => s.records && s.records[safeDateKey] === 'present');
       
+      // V46 暗室無邊界柔和手電筒特效
       content.innerHTML = `
         <div class="theatre-stage" id="theatre-stage">
             <h3 style="position:absolute; top:20px; left:30px; color:#cbd5e1; z-index:100; margin:0; text-shadow:0 2px 4px rgba(0,0,0,0.8);">Date: ${date}</h3>
             
-            <div class="light-beam" id="beam-1" style="width:300px; height:300px;"></div>
-            <div class="light-beam" id="beam-2" style="width:300px; height:300px;"></div>
-            <div class="light-beam" id="beam-3" style="width:300px; height:300px;"></div>
+            <div class="light-beam" id="beam-1" style="width:400px; height:400px;"></div>
+            <div class="light-beam" id="beam-2" style="width:400px; height:400px;"></div>
+            <div class="light-beam" id="beam-3" style="width:400px; height:400px;"></div>
 
             <div style="flex-grow: 1; overflow-y: auto; width: 100%; display: flex; align-content: flex-start; justify-content: center; z-index:5;">
                 <div class="seat-grid" id="spotlight-grid">
                     ${p.map(s => `<div class="seat-box">${s.name}</div>`).join('')}
                 </div>
             </div>
-            <div style="flex-shrink: 0; height: 120px; width: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(transparent, #020617); z-index:100;">
+            <div style="flex-shrink: 0; height: 120px; width: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(transparent, #000000); z-index:100;">
                 <button class="btn btn-warning glow-btn" id="spotlight-btn" onclick="runSp()" style="font-size:28px; padding:15px 50px; border-radius:50px; border:3px solid #fff; box-shadow: 0 5px 25px rgba(241,196,15,0.5); font-weight:900;">${t('btnDraw')}</button>
             </div>
         </div>
@@ -1011,6 +1020,7 @@
     }
   }
 
+  // V46: 點擊即消失的特效
   function showSuccessEffect() {
     const wrapper = document.createElement('div');
     wrapper.className = 'success-effect-wrapper';
@@ -1050,7 +1060,7 @@
     } 
   }
   
-  // V45 手電筒漸慢漸縮與不重複扭蛋機
+  // V46 物理漸慢柔和手電筒引擎
   function runSp() {
     if(isSpinning) return; 
     const bx = document.querySelectorAll('#spotlight-grid .seat-box'); 
@@ -1065,7 +1075,6 @@
     
     const beams = [document.getElementById('beam-1'), document.getElementById('beam-2'), document.getElementById('beam-3')];
     
-    // 初始化扭蛋機袋子
     if (!window.spotlightBag || window.spotlightBag.length === 0 || window.spotlightBagClass !== currentClassId) {
         window.spotlightBag = Array.from({length: bx.length}, (_, i) => i);
         window.spotlightBagClass = currentClassId;
@@ -1079,7 +1088,7 @@
     
     let duration = 4500; 
     let startTime = Date.now();
-    let baseSize = 280;
+    let baseSize = 450; 
 
     function moveBeams() {
       let elapsed = Date.now() - startTime;
@@ -1099,10 +1108,8 @@
                  b.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                  if(idx === 0) {
                      b.style.top = cy + 'px'; b.style.left = cx + 'px';
-                     b.style.width = (rect.width + 50) + 'px'; b.style.height = (rect.height + 50) + 'px';
-                     b.style.borderRadius = '50px';
-                     b.style.background = 'rgba(241,196,15,0.7)';
-                     b.style.boxShadow = '0 0 0 6px rgba(241,196,15,0.4)';
+                     b.style.width = '600px'; b.style.height = '600px';
+                     b.style.background = 'radial-gradient(circle, rgba(241,196,15,0.6) 0%, rgba(241,196,15,0.1) 40%, transparent 70%)';
                  } else { b.style.opacity = '0'; }
              }
           });
@@ -1115,25 +1122,23 @@
       }
       
       let easeOutProgress = 1 - Math.pow(1 - progress, 3);
-      let currentInterval = 150 + (easeOutProgress * 450); 
-      let currentSize = baseSize - (easeOutProgress * 130); 
+      let currentInterval = 100 + (easeOutProgress * 500); 
+      let currentSize = baseSize - (easeOutProgress * 250); 
 
       beams.forEach((b, idx) => {
           if(b) {
               b.style.opacity = '1';
               b.style.transition = `top ${currentInterval/1000}s ease-in-out, left ${currentInterval/1000}s ease-in-out, width 0.2s, height 0.2s`;
               b.style.width = currentSize + 'px'; b.style.height = currentSize + 'px';
-              b.style.borderRadius = '50%';
-              b.style.background = 'rgba(255,255,255,0.85)';
-              b.style.boxShadow = '0 0 0 6px rgba(255,255,255,0.4)';
+              b.style.background = 'radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 40%, transparent 70%)';
 
               if (progress > 0.6) {
                   let rect = winnerBox.getBoundingClientRect();
                   let stageRect = document.getElementById('theatre-stage').getBoundingClientRect();
                   let cx = rect.left - stageRect.left + rect.width/2;
                   let cy = rect.top - stageRect.top + rect.height/2;
-                  let jitterX = (Math.random() - 0.5) * 300 * (1 - progress);
-                  let jitterY = (Math.random() - 0.5) * 300 * (1 - progress);
+                  let jitterX = (Math.random() - 0.5) * 400 * (1 - progress);
+                  let jitterY = (Math.random() - 0.5) * 400 * (1 - progress);
                   b.style.top = (cy + jitterY) + 'px'; b.style.left = (cx + jitterX) + 'px';
               } else {
                   b.style.top = (Math.random() * 80 + 10) + '%';
